@@ -465,8 +465,9 @@ def get_random_weapon(weapon1: [WeaponData], weapon2: [WeaponData]):
 
 def get_help():
     """绘制 帮助图片"""
-    # image_background_size = (1200, 2500)
     image_background_size = (1200, 2200)
+    if plugin_config.splatoon3_schedule_plugin_priority_mode:
+        image_background_size = (1200, 2500)
     # 取背景rgb颜色
     bg_rgb = dict_bg_rgb["活动"]
     # 创建纯色背景
@@ -496,7 +497,7 @@ def get_help():
     height += h
     # 绘制 帮助卡片 对战地图查询
     pre = "查询指令:"
-    order_list = ["图", "图图", "下图", "下下图", "全部图"]
+    order_list = ["/图", "/图图", "/下图", "/下下图", "/全部图"]
     desc_list = ["查询当前或指定时段 所有模式 的地图", "前面如果是 全部 则显示至多未来5个时段的地图"]
     text_card, card_h = drawer_help_card(pre, order_list, desc_list)
     # 贴图
@@ -505,7 +506,7 @@ def get_help():
     height += card_h
     # 绘制 帮助卡片 对战地图查询
     pre = "指定时间段查询:"
-    order_list = ["0图", "123图", "1图", "2468图"]
+    order_list = ["/0图", "/123图", "/1图", "/2468图"]
     desc_list = ["可以在前面加上多个0-9的数字，不同数字代表不同时段", "如0代表当前，1代表下时段，2代表下下时段，以此类推"]
     text_card, card_h = drawer_help_card(pre, order_list, desc_list)
     # 贴图
@@ -520,7 +521,7 @@ def get_help():
     height += h
     # 绘制 帮助卡片 对战地图查询
     pre = "查询指令:"
-    order_list = ["挑战", "涂地", "x赛", "塔楼", "开放挑战", "pp抢鱼"]
+    order_list = ["/挑战", "/涂地", "/x赛", "/塔楼", "/开放挑战", "/pp抢鱼"]
     desc_list = ["支持指定规则或比赛，或同时指定规则比赛", "触发词进行了语义化处理，很多常用的称呼也能触发，如:pp和排排 都等同于 开放;抢鱼对应鱼虎;涂涂对应涂地 等"]
     text_card, card_h = drawer_help_card(pre, order_list, desc_list)
     # 贴图
@@ -529,7 +530,7 @@ def get_help():
     height += card_h
     # 绘制 帮助卡片 对战地图查询
     pre = "指定时间段查询:"
-    order_list = ["0挑战", "1234开放塔楼", "全部x赛区域"]
+    order_list = ["/0挑战", "/1234开放塔楼", "/全部x赛区域"]
     desc_list = ["与图图的指定时间段查询方法一致，如果指定时间段没有匹配的结果，会返回全部时间段满足该筛选的结果", "前面加上 全部 则显示未来24h满足条件的对战"]
     text_card, card_h = drawer_help_card(pre, order_list, desc_list)
     # 贴图
@@ -544,7 +545,7 @@ def get_help():
     height += h
     # 绘制 帮助卡片 对战地图查询
     pre = "查询指令:"
-    order_list = ["工", "打工", "bigrun", "团队打工", "全部工"]
+    order_list = ["/工", "/打工", "/bigrun", "/团队打工", "/全部工"]
     desc_list = ["查询当前和下一时段的打工地图，如果存在bigrun或团队打工时，也会显示在里面，并根据时间自动排序", "前面加上 全部 则显示接下来的五场打工地图"]
     text_card, card_h = drawer_help_card(pre, order_list, desc_list)
     # 贴图
@@ -559,7 +560,7 @@ def get_help():
     height += h
     # 绘制 帮助卡片 对战地图查询
     pre = "查询指令:"
-    order_list = ["祭典", "活动", "帮助", "help"]
+    order_list = ["/祭典", "/活动", "/帮助", "/help"]
     desc_list = ["查询 祭典  活动 ", "帮助/help:回复本帮助图片"]
     text_card, card_h = drawer_help_card(pre, order_list, desc_list)
     # 贴图
@@ -574,18 +575,42 @@ def get_help():
     height += h
     # 绘制 帮助卡片 对战地图查询
     pre = "查询指令:"
-    order_list = ["随机武器", "随机武器 nice弹", "随机武器 小枪 刷 狙 泡"]
+    order_list = ["/随机武器", "/随机武器 nice弹", "/随机武器 小枪 刷 狙 泡"]
     desc_list = [
         "可以在 随机武器 后面，接至多四个参数，每个参数间用空格分开",
         "参数包括全部的 武器类型，如 小枪 双枪 弓 狙 等;全部的 副武器名称，如 三角雷 水球 雨帘;全部的大招名称，如 nice弹 龙卷风 rpg等",
         "如果不带参数或参数小于4，剩下的会自动用 同一大类下的武器 进行筛选，如 狙 和 加特林 都属于 远程类，小枪 与 刷子，滚筒 等属于 近程类，保证尽可能公平",
-        "如果不希望进行任何限制，也可以发送 随机武器完全随机，来触发不加限制的真随机武器(平衡性就没法保证了)",
+        "如果不希望进行任何限制，也可以发送 /随机武器完全随机，来触发不加限制的真随机武器(平衡性就没法保证了)",
     ]
     text_card, card_h = drawer_help_card(pre, order_list, desc_list)
     # 贴图
     text_bg_pos = (title_pos[0] + 30, height)
     paste_with_a(image_background, text_card, text_bg_pos)
     height += card_h
+
+    if plugin_config.splatoon3_schedule_plugin_priority_mode:
+        # 添加nso插件的帮助菜单
+
+        # 绘制title
+        title = "nso相关指令"
+        title_pos = (20, height)
+        w, h = drawer_text(drawer, title, title_pos, text_width, title_rgb)
+        height += h
+        # 绘制 帮助卡片 对战地图查询
+        pre = "指令:"
+        order_list = ["/login", "/last", "/friends", "/report", "/me"]
+        desc_list = [
+            "/login：绑定nso账号，后续指令都是需要完成绑定后才可以使用，Q群使用请先加入下面联系方式里的 kook频道",
+            "/last：查询上一局比赛或打工的数据",
+            "/friends：显示在线的ns好友",
+            "/report：获取昨天或指定日期的日报数据(胜场，游戏局数，金银铜牌，打工鳞片等数量变化)，支持指定日期，如 /report 2023-12-17",
+            "/me：获取自己个人数据(总场数，胜率，金银铜牌数量等)",
+        ]
+        text_card, card_h = drawer_help_card(pre, order_list, desc_list)
+        # 贴图
+        text_bg_pos = (title_pos[0] + 30, height)
+        paste_with_a(image_background, text_card, text_bg_pos)
+        height += card_h
 
     # # 绘制title
     # title = "频道主命令"
@@ -632,11 +657,14 @@ def get_help():
     order_list = []
     desc_list = [
         "本插件已开源，地址如下：",
-        "https://github.com/Skyminers/Bot-Splatoon3",
+        "https://github.com/Cypas/splatoon3-schedule",
         "有github账号的人可以去帮忙点个star，这是对我们最大的支持了",
-        "小鱿鱿Bot或插件反馈可以加q群:827977720 联系作者",
-        "插件作者:Cypas_Nya;Sky_miner",
     ]
+
+    if plugin_config.splatoon3_is_official_bot:
+        desc_list.append("小鱿鱿官方联系方式: Kook服务器id：85644423 Q群：827977720")
+    desc_list.append("插件作者:Cypas_Nya;Paul;Sky_miner")
+
     text_card, card_h = drawer_help_card(pre, order_list, desc_list)
     # 贴图
     text_bg_pos = (title_pos[0] + 30, height)

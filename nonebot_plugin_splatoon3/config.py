@@ -24,35 +24,10 @@ class Config(BaseModel):
     splatoon3_sole_prefix: bool = False
     # 频道服务器拥有者是否允许开关主动推送功能(为False时仅允许管理员开启关闭)
     splatoon3_guild_owner_switch_push: bool = False
-    # # 七牛云储存桶密钥 仅在有qq群聊查询需求下配置(qq群目前无法直接发图，必须转存储存桶)
-    # splatoon3_qiniu_kodo_access_Key: str = ""
-    # splatoon3_qiniu_kodo_secret_Key: str = ""
-    # splatoon3_qiniu_kodo_bucket_name: str = ""
-    # # 白名单，填写后黑名单失效
-    # splatoon3_whitelist: List[str] = []
-    # # 黑名单
-    # splatoon3_blacklist: List[str] = []
-
-    # @validator("splatoon3_whitelist")
-    # def check_whitelist(cls, v):
-    #     if isinstance(v, List):
-    #         return v
-    #     raise ValueError("""白名单格式错误，参考格式为 ["23333","114514"]""")
-    #
-    # @validator("splatoon3_blacklist")
-    # def check_blacklist(cls, v):
-    #     if isinstance(v, List):
-    #         return v
-    #     raise ValueError("""黑名单格式错误，参考格式为 ["23333","114514"]""")
-    #
-    # def verify_permission(self, uid: Union[str, int]):
-    #     """消息来源权限校验"""
-    #     if self.splatoon3_whitelist:
-    #         return str(uid) in self.splatoon3_whitelist
-    #     elif self.splatoon3_blacklist:
-    #         return str(uid) not in self.splatoon3_blacklist
-    #     else:
-    #         return True
+    # 是否是官方小鱿鱿bot(会影响输出的帮助图片内容)
+    splatoon3_is_official_bot: bool = False
+    # 日程插件优先模式(会影响帮助图片内容，该配置项与nso查询插件公用)
+    splatoon3_schedule_plugin_priority_mode: bool = False
 
 
 # 本地测试时由于不启动 driver，需要将下面三行注释并取消再下面两行的注释

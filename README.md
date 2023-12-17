@@ -47,7 +47,8 @@ _✨ splatoon3游戏日程查询插件 ✨_
 - 一个基于nonebot2框架的splatoon3游戏日程查询插件,支持onebot11,onebot12,[telegram](https://github.com/nonebot/adapter-telegram)协议,[kook](https://github.com/Tian-que/nonebot-adapter-kaiheila)协议,[QQ官方bot](https://github.com/nonebot/adapter-qq)协议
 - onebot12协议下支持QQ、QQ频道、QQ官方bot、TG、微信消息、微信公众号、KOOK 等[平台](https://onebot.dev/ecosystem.html)
 - 全部查询图片,全部采用pillow精心绘制,图片效果可查看下面的[效果图](#效果图)
-> 也可以邀请我目前做好的bot直接加入频道，[kook频道bot](https://www.kookapp.cn/app/oauth2/authorize?id=22230&permissions=4096&client_id=4Kn4ukf1To48rax8&redirect_uri=&scope=bot),[qq频道bot](https://qun.qq.com/qunpro/robot/share?robot_appid=102083290),[qq群聊bot](https://qun.qq.com/qunpro/robot/qunshare?robot_appid=102083290&robot_uin=3889005657)
+> 也可以邀请我目前做好的小鱿鱿bot直接加入频道或群聊，[kook频道bot](https://www.kookapp.cn/app/oauth2/authorize?id=22230&permissions=4096&client_id=4Kn4ukf1To48rax8&redirect_uri=&scope=bot),[qq群聊bot](https://qun.qq.com/qunpro/robot/qunshare?robot_appid=102083290&robot_uin=3889005657)
+> 小鱿鱿官方kook频道:[kook频道](https://kook.top/mkjIOn)
 
 ## 💿 安装
 
@@ -94,6 +95,8 @@ _✨ splatoon3游戏日程查询插件 ✨_
 | splatoon3_permit_unknown_src | 否 | bool | False  | 是否允许未知来源触发，默认为False |
 | splatoon3_sole_prefix | 否 | bool | False  | 限制消息触发前缀为/ |
 | splatoon3_guild_owner_switch_push | 否 | bool | False  | 频道服务器拥有者是否允许开关主动推送功能(为False时仅允许管理员开启关闭) |
+| splatoon3_is_official_bot | 否 | bool | False  | 是否是官方小鱿鱿bot(会影响输出的帮助图片内容) |
+| splatoon3_schedule_plugin_priority_mode | 否 | bool | False  | 日程插件优先模式(会影响帮助图片内容，该配置项与nso查询插件公用) |
 
 <details>
 <summary>示例配置</summary>
@@ -109,6 +112,8 @@ splatoon3_permit_group = True # 是否允许群聊(如qq群，tg群)触发
 splatoon3_permit_unkown_src = False #是否允许未知来源触发
 splatoon3_sole_prefix = False # 限制消息触发前缀为/
 splatoon3_guild_owner_switch_push = False # 频道服务器拥有者是否允许开关主动推送功能(为False时仅允许管理员开启关闭)
+splatoon3_is_official_bot = False	# 是否是小鱿鱿bot(会影响输出的帮助图片内容)
+splatoon3_schedule_plugin_priority_mode = False #日程插件优先模式(主要影响帮助菜单，该配置项与nso查询插件公用)
 ```
 
 </details>

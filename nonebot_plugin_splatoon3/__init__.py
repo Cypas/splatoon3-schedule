@@ -1,7 +1,6 @@
 from typing import Union, Tuple
 
 import nonebot
-from nonebot.adapters.telegram.message import File
 from nonebot.params import RegexGroup
 from nonebot.plugin import PluginMetadata
 from nonebot import on_regex, Bot, params, require
@@ -33,6 +32,7 @@ from nonebot.adapters.telegram import MessageSegment as Tg_MsgSeg
 from nonebot.adapters.telegram.event import PrivateMessageEvent as Tg_PME
 from nonebot.adapters.telegram.event import GroupMessageEvent as Tg_GME
 from nonebot.adapters.telegram.event import ChannelPostEvent as Tg_CME
+from nonebot.adapters.telegram.message import File as Tg_File
 
 # kook协议
 from nonebot.adapters.kaiheila import Bot as Kook_Bot
@@ -234,7 +234,7 @@ async def _permission_check(bot: BOT, event: MESSAGE_EVENT, state: T_State):
 
 
 # 图 触发器  正则内需要涵盖所有的同义词
-matcher_stage_group = on_regex("^[\\/.,，。]?[0-9]*(全部)?下*图+[ ]?$", priority=10, block=True, rule=_permission_check)
+matcher_stage_group = on_regex("^[\\/.,，。]?[0-9]*(全部)?下*图+[ ]?$", priority=8, block=True, rule=_permission_check)
 
 
 # 图 触发器处理 二次判断正则前，已经进行了同义词替换，二次正则只需要判断最终词
@@ -298,7 +298,7 @@ matcher_stage = on_regex(
     "(下*)"
     "(区域|区|推塔|抢塔|塔楼|塔|蛤蜊|蛤|抢鱼|鱼虎|鱼|涂地|涂涂|涂|挑战|真格|开放|组排|排排|排|pp|p|PP|P|X段|x段|X赛|x赛|X|x)"
     "(区域|区|推塔|抢塔|塔楼|塔|蛤蜊|蛤|抢鱼|鱼虎|鱼|涂地|涂涂|涂|挑战|真格|开放|组排|排排|排|pp|p|PP|P|X段|x段|X赛|x赛|X|x)?[ ]?$",
-    priority=10,
+    priority=8,
     block=True,
     rule=_permission_check,
 )
@@ -314,6 +314,8 @@ async def _(bot: BOT, matcher: Matcher, event: MESSAGE_EVENT, re_tuple: Tuple = 
     logger.info("同义文本替换后触发词组为:" + json.dumps(re_list, ensure_ascii=False))
     # 输出格式为 ["", null, "下下", "挑战", null] 涉及?匹配且没有提供该值的是null
     # 索引 全部 下 匹配1 匹配2
+
+    await matcher.finish()
 
     plain_text = ""
     if re_list[0]:
@@ -389,7 +391,7 @@ async def _(bot: BOT, matcher: Matcher, event: MESSAGE_EVENT, re_tuple: Tuple = 
 
 # 打工 触发器
 matcher_coop = on_regex(
-    "^[\\/.,，。]?(全部)?(工|打工|鲑鱼跑|bigrun|big run|团队打工)[ ]?$", priority=10, block=True, rule=_permission_check
+    "^[\\/.,，。]?(全部)?(工|打工|鲑鱼跑|bigrun|big run|团队打工)[ ]?$", priority=8, block=True, rule=_permission_check
 )
 
 
@@ -418,7 +420,7 @@ async def _(
 
 # 其他命令 触发器
 matcher_else = on_regex(
-    "^[\\/.,，。]?(帮助|help|(随机武器).*|装备|衣服|祭典|活动)[ ]?$", priority=10, block=True, rule=_permission_check
+    "^[\\/.,，。]?(帮助|help|(随机武器).*|装备|衣服|祭典|活动)[ ]?$", priority=8, block=True, rule=_permission_check
 )
 
 
@@ -513,7 +515,7 @@ async def _guild_owner_check(bot: BOT, event: MESSAGE_EVENT, state: T_State):
 
 
 # 管理命令 触发器
-matcher_manage = on_regex("^[\\/.,，。]?(开启|关闭)(查询|推送)[ ]?$", priority=10, block=True, rule=_guild_owner_check)
+matcher_manage = on_regex("^[\\/.,，。]?(开启|关闭)(查询|推送)[ ]?$", priority=8, block=True, rule=_guild_owner_check)
 
 
 # 管理命令 触发器处理
@@ -563,7 +565,7 @@ async def _(bot: BOT, matcher: Matcher, event: MESSAGE_EVENT, state: T_State, re
         await send_msg(bot, event, f"已{re_list[0]}本频道 日程{re_list[1]} 功能")
 
 
-matcher_admin = on_regex("^[\\/.,，。]?(重载武器数据|更新武器数据|清空图片缓存)$", priority=10, block=True, permission=SUPERUSER)
+matcher_admin = on_regex("^[\\/.,，。]?(重载武器数据|更新武器数据|清空图片缓存)$", priority=8, block=True, permission=SUPERUSER)
 
 
 # 重载武器数据，包括：武器图片，副武器图片，大招图片，武器配置信息
@@ -637,9 +639,9 @@ async def send_img(bot: BOT, event: MESSAGE_EVENT, img: bytes):
             logger.warning(f"QQBot send error: {e}")
     elif isinstance(bot, Tg_Bot):
         if reply_mode:
-            await bot.send(event, File.photo(img), reply_to_message_id=event.dict().get("message_id"))
+            await bot.send(event, Tg_File.photo(img), reply_to_message_id=event.dict().get("message_id"))
         else:
-            await bot.send(event, File.photo(img))
+            await bot.send(event, Tg_File.photo(img))
     elif isinstance(bot, Kook_Bot):
         url = await bot.upload_file(img)
         await bot.send(event, Kook_MsgSeg.image(url), reply_sender=reply_mode)
