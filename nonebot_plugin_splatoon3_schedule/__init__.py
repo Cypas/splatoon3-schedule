@@ -240,9 +240,9 @@ matcher_stage_group = on_regex("^[\\/.,，。]?[0-9]*(全部)?下*图+[ ]?$", pr
 # 图 触发器处理 二次判断正则前，已经进行了同义词替换，二次正则只需要判断最终词
 @matcher_stage_group.handle()
 async def _(
-        bot: BOT,
-        matcher: Matcher,
-        event: MESSAGE_EVENT,
+    bot: BOT,
+    matcher: Matcher,
+    event: MESSAGE_EVENT,
 ):
     plain_text = event.get_message().extract_plain_text().strip()
     # 触发关键词  替换.。\/ 等前缀触发词
@@ -398,9 +398,9 @@ matcher_coop = on_regex(
 # 打工 触发器处理
 @matcher_coop.handle()
 async def _(
-        bot: BOT,
-        matcher: Matcher,
-        event: MESSAGE_EVENT,
+    bot: BOT,
+    matcher: Matcher,
+    event: MESSAGE_EVENT,
 ):
     plain_text = event.get_message().extract_plain_text().strip()
     # 触发关键词  替换.。\/ 等前缀触发词
@@ -427,9 +427,9 @@ matcher_else = on_regex(
 # 其他命令 触发器处理
 @matcher_else.handle()
 async def _(
-        bot: BOT,
-        matcher: Matcher,
-        event: MESSAGE_EVENT,
+    bot: BOT,
+    matcher: Matcher,
+    event: MESSAGE_EVENT,
 ):
     plain_text = event.get_message().extract_plain_text().strip()
     # 触发关键词  替换.。\/ 等前缀触发词
@@ -480,8 +480,7 @@ async def _(
         await send_img(bot, event, img)
         # 当优先帮助打开时，除qq平台以外的平台额外发送文档地址
         if plugin_config.splatoon3_schedule_plugin_priority_mode and not isinstance(bot, QQ_Bot):
-            await send_msg(bot, event,
-                           "完整的nso相关操作命令可以查看:https://docs.qq.com/sheet/DUkZHRWtCUkR0d2Nr?tab=BB08J2")
+            await send_msg(bot, event, "完整的nso相关操作命令可以查看:https://docs.qq.com/sheet/DUkZHRWtCUkR0d2Nr?tab=BB08J2")
     # elif re.search("^装备$", plain_text):
     #     img = await get_screenshot(shot_url="https://splatoon3.ink/gear")
     #     # 发送图片
@@ -570,16 +569,15 @@ async def _(bot: BOT, matcher: Matcher, event: MESSAGE_EVENT, state: T_State, re
         await send_msg(bot, event, f"已{re_list[0]}本频道 日程{re_list[1]} 功能")
 
 
-matcher_admin = on_regex("^[\\/.,，。]?(重载武器数据|更新武器数据|清空图片缓存)$", priority=8, block=True,
-                         permission=SUPERUSER)
+matcher_admin = on_regex("^[\\/.,，。]?(重载武器数据|更新武器数据|清空图片缓存)$", priority=8, block=True, permission=SUPERUSER)
 
 
 # 重载武器数据，包括：武器图片，副武器图片，大招图片，武器配置信息
 @matcher_admin.handle()
 async def _(
-        bot: BOT,
-        matcher: Matcher,
-        event: MESSAGE_EVENT,
+    bot: BOT,
+    matcher: Matcher,
+    event: MESSAGE_EVENT,
 ):
     # 触发关键词  替换.。\/ 等前缀触发词
     plain_text = event.get_message().extract_plain_text().strip()
