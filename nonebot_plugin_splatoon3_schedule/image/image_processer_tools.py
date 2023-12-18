@@ -4,7 +4,6 @@ import re
 import sys
 import textwrap
 from io import BytesIO
-import urllib3
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 from ..data import db_image
@@ -21,8 +20,6 @@ weapon_folder = os.path.join(cur_path, "staticData", "weapon")
 ttf_path = os.path.join(cur_path, "staticData", "common.otf")
 ttf_path_chinese = os.path.join(cur_path, "staticData", "cn.ttf")
 ttf_path_jp = os.path.join(cur_path, "staticData", "Splatfont2.otf")
-
-http = urllib3.PoolManager()
 
 
 def image_to_bytes(image):

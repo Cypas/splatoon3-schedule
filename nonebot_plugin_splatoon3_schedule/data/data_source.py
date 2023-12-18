@@ -1,14 +1,10 @@
-import requests
-import urllib3
-
 from .db_image import db_image
 from ..utils import *
-from playwright.async_api import Browser, async_playwright
 
-# requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = "ALL:@SECLEVEL=1"
+# from playwright.async_api import Browser, async_playwright
+
 
 schedule_res = None
-http = urllib3.PoolManager()
 _browser = None
 festivals_res = None
 festivals_res_save_ymd: str

@@ -69,12 +69,12 @@ require("nonebot_plugin_apscheduler")
 from nonebot_plugin_apscheduler import scheduler
 
 __plugin_meta__ = PluginMetadata(
-    name="nonebot-plugin-splatoon3",
+    name="splatoon3游戏日程查询",
     description="一个基于nonebot2框架的splatoon3游戏日程查询插件",
     usage="发送 帮助 或 help 可查看详细指令\n",
     type="application",
     # 发布必填，当前有效类型有：`library`（为其他插件编写提供功能），`application`（向机器人用户提供功能）。
-    homepage="https://github.com/Skyminers/Bot-Splatoon3",
+    homepage="https://github.com/Cypas/splatoon3-schedule",
     # 发布必填。
     supported_adapters={"~onebot.v11", "~onebot.v12", "~telegram", "~kaiheila", "~qq"},
 )
@@ -470,7 +470,7 @@ async def _(
             # 发送图片
             await send_img(bot, event, img)
 
-    elif re.search("^帮助$", plain_text):
+    elif re.search("^(帮助|help)$", plain_text):
         # 传递函数指针
         func = get_help_image
         # 获取图片
