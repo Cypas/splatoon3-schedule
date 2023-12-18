@@ -77,6 +77,12 @@ _✨ splatoon3游戏日程查询插件 ✨_
     poetry add nonebot-plugin-splatoon3-schedule
 </details>
 
+<details>
+<summary>pip</summary>
+
+    pip install nonebot-plugin-splatoon3-schedule
+</details>
+
 </details>
 
 
