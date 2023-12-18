@@ -315,8 +315,6 @@ async def _(bot: BOT, matcher: Matcher, event: MESSAGE_EVENT, re_tuple: Tuple = 
     # 输出格式为 ["", null, "下下", "挑战", null] 涉及?匹配且没有提供该值的是null
     # 索引 全部 下 匹配1 匹配2
 
-    await matcher.finish()
-
     plain_text = ""
     if re_list[0]:
         plain_text = plain_text + re_list[0]
