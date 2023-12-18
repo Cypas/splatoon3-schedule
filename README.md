@@ -6,18 +6,18 @@
 
 <div align="center">
 
-# nonebot-plugin-splatoon3
+# nonebot-plugin-splatoon3-schedule
 
 _✨ splatoon3游戏日程查询插件 ✨_
 
 <p align="center">
 <a href="./LICENSE">
-    <img src="https://img.shields.io/github/license/Skyminers/Bot-Splatoon3.svg" alt="license">
+    <img src="https://img.shields.io/github/license/Cypas/splatoon3-schedule.svg" alt="license">
 </a>
-<a href="https://pypi.python.org/pypi/nonebot-plugin-splatoon3">
+<a href="https://pypi.python.org/pypi/nonebot-plugin-splatoon3-schedule">
   <img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/nonebot-plugin-splatoon3">
 </a>
-<a href="https://pypi.python.org/pypi/nonebot-plugin-splatoon3">
+<a href="https://pypi.python.org/pypi/nonebot-plugin-splatoon3-schedule">
     <img src="https://img.shields.io/pypi/v/nonebot-plugin-splatoon3.svg" alt="pypi">
 </a>
 <img src="https://img.shields.io/badge/python-3.8+-blue.svg" alt="python">
@@ -48,6 +48,7 @@ _✨ splatoon3游戏日程查询插件 ✨_
 - onebot12协议下支持QQ、QQ频道、QQ官方bot、TG、微信消息、微信公众号、KOOK 等[平台](https://onebot.dev/ecosystem.html)
 - 全部查询图片,全部采用pillow精心绘制,图片效果可查看下面的[效果图](#效果图)
 > 也可以邀请我目前做好的小鱿鱿bot直接加入频道或群聊，[kook频道bot](https://www.kookapp.cn/app/oauth2/authorize?id=22230&permissions=4096&client_id=4Kn4ukf1To48rax8&redirect_uri=&scope=bot),[qq群聊bot](https://qun.qq.com/qunpro/robot/qunshare?robot_appid=102083290&robot_uin=3889005657)
+
 > 小鱿鱿官方kook频道:[kook频道](https://kook.top/mkjIOn)
 
 ## 💿 安装
@@ -56,7 +57,7 @@ _✨ splatoon3游戏日程查询插件 ✨_
 <summary>使用 nb-cli 安装</summary>
 在 nonebot2 项目的根目录下打开命令行, 输入以下指令即可安装
 
-    nb plugin install nonebot-plugin-splatoon3
+    nb plugin install nonebot-plugin-splatoon3-schedule
 
 </details>
 
@@ -67,13 +68,13 @@ _✨ splatoon3游戏日程查询插件 ✨_
 <details>
 <summary>pdm</summary>
 
-    pdm add nonebot-plugin-splatoon3
+    pdm add nonebot-plugin-splatoon3-schedule
 </details>
 
 <details>
 <summary>poetry</summary>
 
-    poetry add nonebot-plugin-splatoon3
+    poetry add nonebot-plugin-splatoon3-schedule
 </details>
 
 </details>
@@ -164,4 +165,6 @@ splatoon3_schedule_plugin_priority_mode = False #日程插件优先模式(主要
 
 ## ⏳ Star 趋势
 
-[![Stargazers over time](https://starchart.cc/Skyminers/Bot-Splatoon3.svg)](https://starchart.cc/Skyminers/nonebot-plugin-splatoon3)
+https://github.com/Cypas/splatoon3-schedule
+
+[![Stargazers over time](https://starchart.cc/Cypas/splatoon3-schedule.svg)](https://starchart.cc/Cypas/splatoon3-schedule)
