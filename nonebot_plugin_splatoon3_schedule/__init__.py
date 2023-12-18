@@ -434,6 +434,7 @@ async def _(
     plain_text = event.get_message().extract_plain_text().strip()
     # 触发关键词  替换.。\/ 等前缀触发词
     plain_text = multiple_replace(plain_text, dict_prefix_replace)
+    plain_text = plain_text.replace("help", "帮助")
     logger.info("同义文本替换后触发词为:" + plain_text + "\n")
     # 判断是否满足进一步正则
     # 随机武器
@@ -470,13 +471,16 @@ async def _(
             # 发送图片
             await send_img(bot, event, img)
 
-    elif re.search("^(帮助|help)$", plain_text):
+    elif re.search("^帮助$", plain_text):
         # 传递函数指针
         func = get_help_image
         # 获取图片
         img = get_save_temp_image(plain_text, func)
         # 发送图片
         await send_img(bot, event, img)
+        # 当优先帮助打开时，除qq平台以外的平台额外发送文档地址
+        if plugin_config.splatoon3_schedule_plugin_priority_mode and not isinstance(bot, QQ_Bot):
+            await send_msg(bot, event, "完整的nso相关操作命令可以查看:https://docs.qq.com/sheet/DUkZHRWtCUkR0d2Nr?tab=BB08J2")
     # elif re.search("^装备$", plain_text):
     #     img = await get_screenshot(shot_url="https://splatoon3.ink/gear")
     #     # 发送图片
