@@ -15,10 +15,10 @@ _✨ splatoon3游戏日程查询插件 ✨_
     <img src="https://img.shields.io/github/license/Cypas/splatoon3-schedule.svg" alt="license">
 </a>
 <a href="https://pypi.python.org/pypi/nonebot-plugin-splatoon3-schedule">
-  <img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/nonebot-plugin-splatoon3">
+  <img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/nonebot-plugin-splatoon3-schedule">
 </a>
 <a href="https://pypi.python.org/pypi/nonebot-plugin-splatoon3-schedule">
-    <img src="https://img.shields.io/pypi/v/nonebot-plugin-splatoon3.svg" alt="pypi">
+    <img src="https://img.shields.io/pypi/v/nonebot-plugin-splatoon3-schedule.svg" alt="pypi">
 </a>
 <img src="https://img.shields.io/badge/python-3.8+-blue.svg" alt="python">
 <br />
