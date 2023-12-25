@@ -166,6 +166,4 @@ splatoon3_schedule_plugin_priority_mode = False #日程插件优先模式(主要
 
 ## ⏳ Star 趋势
 
-https://github.com/Cypas/splatoon3-schedule
-
 [![Stargazers over time](https://starchart.cc/Cypas/splatoon3-schedule.svg)](https://starchart.cc/Cypas/splatoon3-schedule)
