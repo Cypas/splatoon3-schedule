@@ -15,10 +15,10 @@ _✨ splatoon3游戏日程查询插件 ✨_
     <img src="https://img.shields.io/github/license/Cypas/splatoon3-schedule.svg" alt="license">
 </a>
 <a href="https://pypi.python.org/pypi/nonebot-plugin-splatoon3-schedule">
-  <img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/nonebot-plugin-splatoon3">
+  <img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/nonebot-plugin-splatoon3-schedule">
 </a>
 <a href="https://pypi.python.org/pypi/nonebot-plugin-splatoon3-schedule">
-    <img src="https://img.shields.io/pypi/v/nonebot-plugin-splatoon3.svg" alt="pypi">
+    <img src="https://img.shields.io/pypi/v/nonebot-plugin-splatoon3-schedule.svg" alt="pypi">
 </a>
 <img src="https://img.shields.io/badge/python-3.8+-blue.svg" alt="python">
 <br />
@@ -165,7 +165,5 @@ splatoon3_schedule_plugin_priority_mode = False #日程插件优先模式(主要
 ## ✨喜欢的话就点个star✨吧，球球了QAQ
 
 ## ⏳ Star 趋势
-
-https://github.com/Cypas/splatoon3-schedule
 
 [![Stargazers over time](https://starchart.cc/Cypas/splatoon3-schedule.svg)](https://starchart.cc/Cypas/splatoon3-schedule)
