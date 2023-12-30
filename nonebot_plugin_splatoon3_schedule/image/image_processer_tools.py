@@ -745,7 +745,7 @@ def get_event_desc_card(cht_event_data, event_desc_card_bg_size):
     # 绘制文本
     drawer = ImageDraw.Draw(event_desc_card_bg)
     ttf = ImageFont.truetype(ttf_path_chinese, 30)
-    pos_h = 30
+    pos_h = 20
     for v in regulation_list:
         if v != "":
             text_pos = (20, pos_h)
