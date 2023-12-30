@@ -1,6 +1,7 @@
 from typing import Union, Tuple
 
 import nonebot
+from nonebot.internal.params import Depends
 from nonebot.params import RegexGroup
 from nonebot.plugin import PluginMetadata
 from nonebot import on_regex, Bot, params, require
@@ -234,11 +235,11 @@ async def _permission_check(bot: BOT, event: MESSAGE_EVENT, state: T_State):
 
 
 # 图 触发器  正则内需要涵盖所有的同义词
-matcher_stage_group = on_regex("^[\\/.,，。]?[0-9]*(全部)?下*图+[ ]?$", priority=8, block=True, rule=_permission_check)
+matcher_stage_group = on_regex("^[\\/.,，。]?[0-9]*(全部)?下*图+[ ]?$", priority=8, block=True)
 
 
 # 图 触发器处理 二次判断正则前，已经进行了同义词替换，二次正则只需要判断最终词
-@matcher_stage_group.handle()
+@matcher_stage_group.handle(parameterless=[Depends(_permission_check)])
 async def _(
     bot: BOT,
     matcher: Matcher,
@@ -300,12 +301,11 @@ matcher_stage = on_regex(
     "(区域|区|推塔|抢塔|塔楼|塔|蛤蜊|蛤|抢鱼|鱼虎|鱼|涂地|涂涂|涂|挑战|真格|开放|组排|排排|排|pp|p|PP|P|X段|x段|X赛|x赛|X|x)?[ ]?$",
     priority=8,
     block=True,
-    rule=_permission_check,
 )
 
 
 # 对战 触发器处理
-@matcher_stage.handle()
+@matcher_stage.handle(parameterless=[Depends(_permission_check)])
 async def _(bot: BOT, matcher: Matcher, event: MESSAGE_EVENT, re_tuple: Tuple = RegexGroup()):
     re_list = []
     for k, v in enumerate(re_tuple):
@@ -388,13 +388,11 @@ async def _(bot: BOT, matcher: Matcher, event: MESSAGE_EVENT, re_tuple: Tuple = 
 
 
 # 打工 触发器
-matcher_coop = on_regex(
-    "^[\\/.,，。]?(全部)?(工|打工|鲑鱼跑|bigrun|big run|团队打工)[ ]?$", priority=8, block=True, rule=_permission_check
-)
+matcher_coop = on_regex("^[\\/.,，。]?(全部)?(工|打工|鲑鱼跑|bigrun|big run|团队打工)[ ]?$", priority=8, block=True)
 
 
 # 打工 触发器处理
-@matcher_coop.handle()
+@matcher_coop.handle(parameterless=[Depends(_permission_check)])
 async def _(
     bot: BOT,
     matcher: Matcher,
@@ -417,13 +415,11 @@ async def _(
 
 
 # 其他命令 触发器
-matcher_else = on_regex(
-    "^[\\/.,，。]?(帮助|help|(随机武器).*|装备|衣服|祭典|活动)[ ]?$", priority=8, block=True, rule=_permission_check
-)
+matcher_else = on_regex("^[\\/.,，。]?(帮助|help|(随机武器).*|装备|衣服|祭典|活动)[ ]?$", priority=8, block=True)
 
 
 # 其他命令 触发器处理
-@matcher_else.handle()
+@matcher_else.handle(parameterless=[Depends(_permission_check)])
 async def _(
     bot: BOT,
     matcher: Matcher,

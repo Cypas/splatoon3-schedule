@@ -65,7 +65,7 @@ def get_events(events):
     times = 0
     for index, event in enumerate(events):
         times += len(event["timePeriods"])
-    background_size = (1084, (420 + 75 * times) * len(events))
+    background_size = (1084, (440 + 75 * times) * len(events))
     # 取背景rgb颜色
     bg_rgb = dict_bg_rgb["活动"]
     # 创建纯色背景
@@ -78,7 +78,7 @@ def get_events(events):
     # 遍历每个活动
     pos_h = 0
     for index, event in enumerate(events):
-        event_card_bg_size = (background_size[0] - 40, 410 + 75 * len(event["timePeriods"]))  # 75高度为每个时间段卡片占用的高度
+        event_card_bg_size = (background_size[0] - 40, 420 + 75 * len(event["timePeriods"]))  # 75高度为每个时间段卡片占用的高度
         # 获取翻译
         cht_event_data = event["leagueMatchSetting"]["leagueMatchEvent"]
         _id = cht_event_data["id"]
@@ -119,7 +119,7 @@ def get_events(events):
             continue
         event_card_pos = (20, pos_h + 20)
         paste_with_a(image_background, event_card, event_card_pos)
-        pos_h += event_card.size[1] + 10
+        pos_h += event_card.size[1] + 30
         # 绘制祭典说明卡片
         event_desc_card_bg_size = (event_card_bg_size[0], 300)
         event_desc_card = get_event_desc_card(cht_event_data, event_desc_card_bg_size)
@@ -389,13 +389,13 @@ def get_coop_stages(stage, weapon, time, boss, mode):
     font = ImageFont.truetype(ttf_path, 30)
     for pos, val in enumerate(time):
         # 绘制时间文字
-        time_text_pos = (40, 5 + pos * 160)
+        time_text_pos = (50, 5 + pos * 160)
         time_text_size = font.getsize(val)
         dr.text(time_text_pos, val, font=font, fill="#FFFFFF")
         if check_coop_fish(val):
             # 现在时间处于打工时间段内，绘制小鲑鱼
             coop_fish_img = get_file("coop_fish").resize(coop_fish_size)
-            coop_fish_img_pos = (6, 8 + pos * 160)
+            coop_fish_img_pos = (5, 8 + pos * 160)
             paste_with_a(coop_stage_bg, coop_fish_img, coop_fish_img_pos)
     for pos, val in enumerate(stage):
         # 绘制打工地图
