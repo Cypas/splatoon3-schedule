@@ -101,7 +101,7 @@ from nonebot_plugin_splatoon3_schedule.util import write_weapon_trans_dict, init
 #     img = get_save_temp_image(plain_text, func, num_list, contest_match, rule_match)
 
 # # 测试nonebot 对战 命令文本触发
-# plain_text = "pp"
+# plain_text = "全部图"
 #
 # num_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 # # num_list = list(set([int(x) for x in plain_text[:-2]]))

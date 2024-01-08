@@ -25,7 +25,8 @@ ttf_path_jp = os.path.join(cur_path, "staticData", "Splatfont2.otf")
 def image_to_bytes(image):
     """图片转bytes"""
     buffered = BytesIO()
-    image.save(buffered, format="PNG")
+    image = image.convert("RGB")
+    image.save(buffered, format="JPEG")
     return buffered.getvalue()
 
 
@@ -53,7 +54,7 @@ def get_save_file(img: ImageInfo):
         image_data = get_cf_file_url(img.url)
         if len(image_data) != 0:
             # 如果是太大的图片，需要压缩到100k以下确保最后发出图片的大小
-            image_data = compress_image(image_data, mb=100, step=10, quality=50)
+            image_data = compress_image(image_data, kb=100, step=10, quality=50)
             logger.info("[ImageDB] new image {}".format(img.name))
             db_image.add_or_modify_IMAGE_DATA(img.name, image_data, img.zh_name, img.source_type)
         return Image.open(io.BytesIO(image_data))
@@ -535,7 +536,9 @@ def get_event_card(event, event_card_bg_size):
     return event_card_bg
 
 
-def get_festival_team_card(festival, card_bg_size: tuple, teams_list: [], font_path: str = ttf_path_chinese):
+def get_festival_team_card(
+    festival, card_bg_size: tuple, teams_list: [], area_title: str, font_path: str = ttf_path_chinese
+):
     """绘制 祭典组别卡片"""
     group_img_size = (1000, 390)
     rectangle_h = 100
@@ -565,6 +568,12 @@ def get_festival_team_card(festival, card_bg_size: tuple, teams_list: [], font_p
     # 贴上文字背景
     text_bg_pos = ((card_bg_size[0] - text_bg_size[0]) // 2, 20)
     paste_with_a(team_bg, text_bg, text_bg_pos)
+    # 绘制区域标题
+    drawer = ImageDraw.Draw(team_bg)
+    area_title_text_pos = ((card_bg_size[0] - group_img_size[0]) // 2, 30)
+    text_rgb = dict_bg_rgb["祭典时间-金黄"]
+    ttf = ImageFont.truetype(ttf_path_chinese, font_size)
+    drawer.text(area_title_text_pos, area_title, font=ttf, fill=text_rgb)
     # 存放阵营图片的透明卡片
     group_card_size = (group_img_size[0], group_img_size[1] + rectangle_h)
     group_card = Image.new("RGBA", group_card_size, (0, 0, 0, 0))
@@ -779,19 +788,19 @@ def change_image_alpha(image, transparency):
     return new_image
 
 
-def compress_image(image_bytes: bytes, mb=80, step=10, quality=50):
+def compress_image(image_bytes: bytes, kb=500, step=10, quality=50):
     """不改变图片尺寸压缩到指定大小
     :param image_bytes: 压缩源文件
-    :param mb: 压缩目标，KB
+    :param kb: 压缩目标，KB
     :param step: 每次调整的压缩比率
     :param quality: 初始压缩比率
     :return: 压缩后文件
     """
     o_size = sys.getsizeof(image_bytes) / 1024
-    if o_size <= mb:
+    if o_size <= kb:
         return image_bytes
     new_image: bytes = None
-    while o_size > mb:
+    while o_size > kb:
         buffered: io.BytesIO = BytesIO()
         im = Image.open(io.BytesIO(image_bytes))
         rgb_im = im.convert("RGB")

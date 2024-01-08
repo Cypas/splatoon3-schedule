@@ -35,7 +35,7 @@ def get_stages_image(*args):
 
 def get_festival_image(*args):
     """取 祭典图片"""
-    festivals = get_festivals_data()["JP"]["data"]["festRecords"]["nodes"]
+    festivals = get_festivals_data()
     image = get_festival(festivals)
     return image
 
@@ -110,8 +110,8 @@ def get_save_temp_image(trigger_word, func, *args):
             return image_data
         image_data = image_to_bytes(image_data)
         if len(image_data) != 0:
-            # 如果是太大的图片，需要压缩到1024k以下确保最后发出图片的大小
-            image_data = compress_image(image_data, mb=1024, step=10, quality=80)
+            # 如果是太大的图片，需要压缩到1000k以下确保最后发出图片的大小
+            image_data = compress_image(image_data, kb=1000, step=10, quality=80)
             logger.info("[ImageDB] new temp image {}".format(trigger_word))
             db_image.add_or_modify_IMAGE_TEMP(trigger_word, image_data, get_expire_time())
         return image_data
@@ -126,8 +126,8 @@ def get_save_temp_image(trigger_word, func, *args):
             image_data = func(*args)
             image_data = image_to_bytes(image_data)
             if len(image_data) != 0:
-                # 如果是太大的图片，需要压缩到1024k以下确保最后发出图片的大小
-                image_data = compress_image(image_data, mb=1024, step=10, quality=80)
+                # 如果是太大的图片，需要压缩到1000k以下确保最后发出图片的大小
+                image_data = compress_image(image_data, kb=1000, step=10, quality=80)
                 logger.info("[ImageDB] update temp image {}".format(trigger_word))
                 db_image.add_or_modify_IMAGE_TEMP(trigger_word, image_data, get_expire_time())
             return image_data
