@@ -25,7 +25,8 @@ ttf_path_jp = os.path.join(cur_path, "staticData", "Splatfont2.otf")
 def image_to_bytes(image):
     """图片转bytes"""
     buffered = BytesIO()
-    image.save(buffered, format="PNG")
+    image = image.convert("RGB")
+    image.save(buffered, format="JPEG")
     return buffered.getvalue()
 
 
@@ -53,7 +54,7 @@ def get_save_file(img: ImageInfo):
         image_data = get_cf_file_url(img.url)
         if len(image_data) != 0:
             # 如果是太大的图片，需要压缩到100k以下确保最后发出图片的大小
-            image_data = compress_image(image_data, mb=100, step=10, quality=50)
+            image_data = compress_image(image_data, kb=100, step=10, quality=50)
             logger.info("[ImageDB] new image {}".format(img.name))
             db_image.add_or_modify_IMAGE_DATA(img.name, image_data, img.zh_name, img.source_type)
         return Image.open(io.BytesIO(image_data))
@@ -779,19 +780,19 @@ def change_image_alpha(image, transparency):
     return new_image
 
 
-def compress_image(image_bytes: bytes, mb=80, step=10, quality=50):
+def compress_image(image_bytes: bytes, kb=500, step=10, quality=50):
     """不改变图片尺寸压缩到指定大小
     :param image_bytes: 压缩源文件
-    :param mb: 压缩目标，KB
+    :param kb: 压缩目标，KB
     :param step: 每次调整的压缩比率
     :param quality: 初始压缩比率
     :return: 压缩后文件
     """
     o_size = sys.getsizeof(image_bytes) / 1024
-    if o_size <= mb:
+    if o_size <= kb:
         return image_bytes
     new_image: bytes = None
-    while o_size > mb:
+    while o_size > kb:
         buffered: io.BytesIO = BytesIO()
         im = Image.open(io.BytesIO(image_bytes))
         rgb_im = im.convert("RGB")
