@@ -35,7 +35,7 @@ def get_stages_image(*args):
 
 def get_festival_image(*args):
     """取 祭典图片"""
-    festivals = get_festivals_data()["JP"]["data"]["festRecords"]["nodes"]
+    festivals = get_festivals_data()
     image = get_festival(festivals)
     return image
 

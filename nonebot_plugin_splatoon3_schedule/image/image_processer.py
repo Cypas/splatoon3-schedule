@@ -4,8 +4,38 @@ from ..utils import *
 
 
 def get_festival(festivals):
-    """绘制 祭典地图"""
-    festival = festivals[0]
+    """绘制 全部区域 祭典地图"""
+
+    # 先取日服最后一个祭典看是否为全服通用祭典
+    jp_festivals = festivals["JP"]["data"]["festRecords"]["nodes"]
+    _id = jp_festivals[0]["__splatoon3ink_id"]
+
+    ap_festivals = festivals["AP"]["data"]["festRecords"]["nodes"]
+    if str(_id).find("J") >= 0 and str(_id).find("A") >= 0:
+        # 祭典命名为单字母 如JUEA - 00012
+        # JP 日本  AP 亚太地区(韩国 香港) US 美洲大陆 EU 欧洲
+        # 保证至少含有J和A
+        if str(_id).startswith("JUEA-"):
+            image_background = get_area_festival(jp_festivals[0], "全服祭典:", ttf_path_chinese)
+        else:
+            image_background = get_area_festival(jp_festivals[0], "日港祭典:", ttf_path_chinese)
+
+    else:
+        # 分别渲染日服和港服祭典
+        jp_image_background = get_area_festival(jp_festivals[0], "日服祭典:", ttf_path_jp)
+        ap_image_background = get_area_festival(ap_festivals[0], "港服祭典:", ttf_path_chinese)
+        # 拼接图片
+        image_background = Image.new(
+            "RGBA", (jp_image_background.width, jp_image_background.height + ap_image_background.height)
+        )
+        image_background.paste(jp_image_background, (0, 0))
+        image_background.paste(ap_image_background, (0, jp_image_background.height))
+
+    return image_background
+
+
+def get_area_festival(festival, area_title, language_font_path):
+    """绘制 单一区域 祭典地图"""
     flag_festival_close = False
     # 判断祭典是否结束
     if festival["state"] == "CLOSED":
@@ -46,13 +76,13 @@ def get_festival(festivals):
 
     # 绘制组别卡片
     pos_h = 20
-    team_card = get_festival_team_card(festival, card_size, teams_list, font_path=ttf_path_jp)
+    team_card = get_festival_team_card(festival, card_size, teams_list, area_title, font_path=language_font_path)
     team_card_pos = ((image_background_size[0] - card_size[0]) // 2, pos_h)
     paste_with_a(image_background, team_card, team_card_pos)
     pos_h += card_size[1] + 20
     if flag_festival_close:
         # 绘制结算卡片
-        result_card = get_festival_result_card(card_size, teams_list, font_path=ttf_path_jp)
+        result_card = get_festival_result_card(card_size, teams_list, font_path=language_font_path)
         result_card_pos = ((image_background_size[0] - card_size[0]) // 2, pos_h)
         paste_with_a(image_background, result_card, result_card_pos)
 
@@ -144,7 +174,7 @@ def get_stages(schedule, num_list, contest_match=None, rule_match=None):
 
     # 如果存在祭典，且当前时间位于祭典，转变为输出祭典地图，后续不再进行处理
     if have_festival(festivals) and now_is_festival(festivals):
-        festivals = get_festivals_data()["JP"]["data"]["festRecords"]["nodes"]
+        festivals = get_festivals_data()
         image = get_festival(festivals)
         return image
 

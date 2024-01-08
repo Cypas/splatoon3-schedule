@@ -536,7 +536,9 @@ def get_event_card(event, event_card_bg_size):
     return event_card_bg
 
 
-def get_festival_team_card(festival, card_bg_size: tuple, teams_list: [], font_path: str = ttf_path_chinese):
+def get_festival_team_card(
+    festival, card_bg_size: tuple, teams_list: [], area_title: str, font_path: str = ttf_path_chinese
+):
     """绘制 祭典组别卡片"""
     group_img_size = (1000, 390)
     rectangle_h = 100
@@ -566,6 +568,12 @@ def get_festival_team_card(festival, card_bg_size: tuple, teams_list: [], font_p
     # 贴上文字背景
     text_bg_pos = ((card_bg_size[0] - text_bg_size[0]) // 2, 20)
     paste_with_a(team_bg, text_bg, text_bg_pos)
+    # 绘制区域标题
+    drawer = ImageDraw.Draw(team_bg)
+    area_title_text_pos = ((card_bg_size[0] - group_img_size[0]) // 2, 30)
+    text_rgb = dict_bg_rgb["祭典时间-金黄"]
+    ttf = ImageFont.truetype(ttf_path_chinese, font_size)
+    drawer.text(area_title_text_pos, area_title, font=ttf, fill=text_rgb)
     # 存放阵营图片的透明卡片
     group_card_size = (group_img_size[0], group_img_size[1] + rectangle_h)
     group_card = Image.new("RGBA", group_card_size, (0, 0, 0, 0))
