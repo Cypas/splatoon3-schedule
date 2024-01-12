@@ -262,13 +262,17 @@ def have_festival(_festivals):
 def now_is_festival(_festivals):
     """现在是否是祭典"""
     now = get_time_now_china()
-    for v in _festivals:
-        if v["festMatchSetting"] is not None:
-            # 如果祭典有参数 且现在时间位于这个区间
-            st = time_converter(v["startTime"])
-            et = time_converter(v["endTime"])
-            if st < now < et:
-                return True
+    festival = _festivals[0]
+    setting = festival.get("festMatchSetting") or festival.get("festMatchSettings")
+    if setting:
+        # 如果祭典有参数 且现在时间位于这个区间
+        st = time_converter(festival["startTime"])
+        et = time_converter(festival["endTime"])
+        # logger.info(f"st {st}")
+        # logger.info(f"now {now}")
+        # logger.info(f"et {et}")
+        if st < now < et:
+            return True
     return False
 
 

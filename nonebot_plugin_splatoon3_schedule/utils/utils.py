@@ -6,8 +6,13 @@ from httpx import Response
 from .dataClass import TimeUtil
 from ..config import plugin_config
 
-proxy_address = plugin_config.splatoon3_proxy_address
 time_format_ymdh = "%Y-%m-%dT%H"
+HTTP_TIME_OUT = 5.0  # 请求超时，秒
+proxy_address = plugin_config.splatoon3_proxy_address
+if proxy_address:
+    proxies = "http://{}".format(proxy_address)
+else:
+    proxies = None
 
 # 背景 rgb颜色
 dict_bg_rgb = {
@@ -29,18 +34,17 @@ dict_bg_rgb = {
 
 def cf_http_get(url: str):
     """cf get"""
-    global proxy_address
     # 实例化一个create_scraper对象
     scraper = cfscrape.create_scraper()
     # 请求报错，可以加上时延
     # scraper = cfscrape.create_scraper(delay = 6)
     if proxy_address:
-        proxies = {
+        cf_proxies = {
             "http": "http://{}".format(proxy_address),
             "https": "http://{}".format(proxy_address),
         }
         # 获取网页内容 代理访问
-        res = scraper.get(url, proxies=proxies)
+        res = scraper.get(url, proxies=cf_proxies)
     else:
         # 获取网页内容
         res = scraper.get(url)
@@ -49,24 +53,14 @@ def cf_http_get(url: str):
 
 async def async_http_get(url: str) -> Response:
     """async http_get"""
-    if proxy_address:
-        proxies = "http://{}".format(proxy_address)
-        async with httpx.AsyncClient(proxies=proxies) as client:
-            response = await client.get(url, timeout=5.0)
-            return response
-    else:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url, timeout=5.0)
-            return response
+    async with httpx.AsyncClient(proxies=proxies) as client:
+        response = await client.get(url, timeout=HTTP_TIME_OUT)
+        return response
 
 
 def http_get(url: str) -> Response:
     """http_get"""
-    if proxy_address:
-        proxies = "http://{}".format(proxy_address)
-        response = httpx.get(url, proxies=proxies, timeout=5.0)
-    else:
-        response = httpx.get(url, timeout=5.0)
+    response = httpx.get(url, proxies=proxies, timeout=HTTP_TIME_OUT)
     return response
 
 
