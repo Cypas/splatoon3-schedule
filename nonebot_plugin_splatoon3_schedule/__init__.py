@@ -1,11 +1,12 @@
 from typing import Union, Tuple
 
 import nonebot
+from nonebot.internal.adapter import Event
+from nonebot.internal.matcher import Matcher
 from nonebot.internal.params import Depends
 from nonebot.params import RegexGroup
 from nonebot.plugin import PluginMetadata
-from nonebot import on_regex, Bot, params, require
-from nonebot.matcher import Matcher
+from nonebot import on_regex, Bot, params, require, on_command
 from nonebot.permission import SUPERUSER
 from nonebot.typing import T_State
 
@@ -80,17 +81,15 @@ __plugin_meta__ = PluginMetadata(
     supported_adapters={"~onebot.v11", "~onebot.v12", "~telegram", "~kaiheila", "~qq"},
 )
 
-BOT = Union[V11_Bot, V12_Bot, Tg_Bot, Kook_Bot, QQ_Bot]
-MESSAGE_EVENT = Union[V11_ME, V12_ME, Tg_ME, Kook_ME, QQ_ME]
 
-
-async def _permission_check(bot: BOT, event: MESSAGE_EVENT, state: T_State):
-    """检查消息来源权限"""
+async def _permission_check(bot: Bot, event: Event, matcher: Matcher, state: T_State):
+    """检查消息来源权限
+    return值无意义，主要是靠matcher.finish()阻断事件"""
     # 前缀限定判断
     if plugin_config.splatoon3_sole_prefix:
         plain_text = event.get_message().extract_plain_text().strip()
         if not plain_text.startswith("/"):
-            return False
+            await matcher.finish()
     # id定义
     default_id = 25252
     guid: Union[int, str] = default_id  # 服务器id
@@ -101,56 +100,40 @@ async def _permission_check(bot: BOT, event: MESSAGE_EVENT, state: T_State):
     state["_gid_"] = default_id
     state["_cid_"] = default_id
     state["_uid_"] = default_id
+
     bot_adapter = bot.adapter.get_name()
     bot_id = bot.self_id
-    # 频道私聊
-    if isinstance(event, (V11_PME, V12_PME, Tg_PME, Kook_PME, QQ_PME)):
-        state["_msg_source_type_"] = "private"
-        if plugin_config.splatoon3_permit_private:
-            if isinstance(event, Tg_PME):
-                uid = event.from_.id
-            elif isinstance(event, (V11_PME, V12_PME, Kook_PME)):
-                uid = event.user_id
-            elif isinstance(event, QQ_PME):
-                uid = event.get_user_id()
-            state["_uid_"] = uid
+    uid = event.get_user_id()
+    state["_uid_"] = uid or default_id
 
-            ok = check_msg_permission(bot_adapter, bot_id, state["_msg_source_type_"], state["_uid_"])
+    if isinstance(event, (V11_PME, V12_PME, Tg_PME, Kook_PME, QQ_PME, QQ_C2CME)):
+        # 频道私聊
+        if isinstance(event, (V11_PME, V12_PME, Tg_PME, Kook_PME, QQ_PME)):
+            state["_msg_source_type_"] = "private"
+            rule = plugin_config.splatoon3_permit_private
+        # qq c2c私聊
+        elif isinstance(event, QQ_C2CME):
+            state["_msg_source_type_"] = "c2c"
+            rule = plugin_config.splatoon3_permit_c2c
+        if rule:
+            ok = check_msg_permission(bot_adapter, bot_id, state["_msg_source_type_"], uid)
             if not ok:
                 logger.info(f'{state["_msg_source_type_"]} 对象 {uid} 位于黑名单或关闭中，不予提供服务')
             return ok
         else:
             logger.info(f'插件配置项未允许 {state["_msg_source_type_"]} 类别用户触发查询')
-            return False
-    # qq c2c私聊
-    if isinstance(event, QQ_C2CME):
-        state["_msg_source_type_"] = "c2c"
-        if plugin_config.splatoon3_permit_c2c:
-            if isinstance(event, (QQ_C2CME, QQ_PME)):
-                uid = event.get_user_id()
-            state["_uid_"] = uid
-            ok = check_msg_permission(bot_adapter, bot_id, state["_msg_source_type_"], state["_uid_"])
-            if not ok:
-                logger.info(f'{state["_msg_source_type_"]} 对象 {uid} 位于黑名单或关闭中，不予提供服务')
-            return ok
-        else:
-            logger.info(f'插件配置项未允许 {state["_msg_source_type_"]} 类别用户触发查询')
-            return False
+            await matcher.finish()
     # 群聊
     elif isinstance(event, (V11_GME, V12_GME, Tg_GME, QQ_GME)):
         state["_msg_source_type_"] = "group"
         if plugin_config.splatoon3_permit_group:
             if isinstance(event, Tg_GME):
                 gid = event.chat.id
-                uid = event.get_user_id()
             elif isinstance(event, (V11_GME, V12_GME)):
                 gid = event.group_id
-                uid = event.user_id
             elif isinstance(event, QQ_GME):
                 gid = event.group_openid
-                uid = event.get_user_id()
             state["_gid_"] = gid
-            state["_uid_"] = uid
             ok = check_msg_permission(bot_adapter, bot_id, state["_msg_source_type_"], gid)
             if ok:
                 # 再判断触发者是否有权限
@@ -160,10 +143,10 @@ async def _permission_check(bot: BOT, event: MESSAGE_EVENT, state: T_State):
                 return ok
             else:
                 logger.info(f"group 对象 {gid} 位于黑名单或关闭中，不予提供服务")
-                return False
+                await matcher.finish()
         else:
             logger.info(f'插件配置项未允许 {state["_msg_source_type_"]} 类别用户触发查询')
-            return False
+            await matcher.finish()
     # 服务器频道
     elif isinstance(event, (V12_CME, Kook_CME, QQ_CME)):
         state["_msg_source_type_"] = "channel"
@@ -171,18 +154,14 @@ async def _permission_check(bot: BOT, event: MESSAGE_EVENT, state: T_State):
             if isinstance(event, V12_CME):
                 guid = event.guild_id
                 cid = event.channel_id
-                uid = event.user_id
             elif isinstance(event, Kook_CME):
                 guid = event.extra.guild_id
                 cid = event.group_id
-                uid = event.user_id
             elif isinstance(event, QQ_CME):
                 guid = event.guild_id
                 cid = event.channel_id
-                uid = event.author.id
             state["_guid_"] = guid
             state["_cid_"] = cid
-            state["_uid_"] = uid
             # 判断服务器是否有权限
             ok = check_msg_permission(bot_adapter, bot_id, "guild", guid)
             if ok:
@@ -196,22 +175,20 @@ async def _permission_check(bot: BOT, event: MESSAGE_EVENT, state: T_State):
                     return ok
                 else:
                     logger.info(f"channel 对象 {cid} 位于黑名单或关闭中，不予提供服务")
-                    return False
+                    await matcher.finish()
             else:
                 logger.info(f"guild 对象 {guid} 位于黑名单或关闭中，不予提供服务")
-                return False
+                await matcher.finish()
         else:
             logger.info(f'插件配置项未允许 {state["_msg_source_type_"]} 类别用户触发查询')
-            return False
+            await matcher.finish()
     # 单频道
     elif isinstance(event, Tg_CME):
         state["_msg_source_type_"] = "channel"
         if plugin_config.splatoon3_permit_channel:
             if isinstance(event, Tg_CME):
                 cid = event.chat.id
-                uid = event.get_user_id()
             state["_cid_"] = cid
-            state["_uid_"] = uid
             ok = check_msg_permission(bot_adapter, bot_id, "channel", cid)
             if ok:
                 # 再判断触发者是否有权限
@@ -221,10 +198,10 @@ async def _permission_check(bot: BOT, event: MESSAGE_EVENT, state: T_State):
                 return ok
             else:
                 logger.info(f"channel 对象 {cid} 位于黑名单或关闭中，不予提供服务")
-                return False
+                await matcher.finish()
         else:
             logger.info(f'插件配置项未允许 {state["_msg_source_type_"]} 类别用户触发查询')
-            return False
+            await matcher.finish()
     # 其他
     else:
         state["_uid_"] = "unknown"
@@ -240,11 +217,7 @@ matcher_stage_group = on_regex("^[\\/.,，。]?[0-9]*(全部)?下*图+[ ]?$", pr
 
 # 图 触发器处理 二次判断正则前，已经进行了同义词替换，二次正则只需要判断最终词
 @matcher_stage_group.handle(parameterless=[Depends(_permission_check)])
-async def _(
-    bot: BOT,
-    matcher: Matcher,
-    event: MESSAGE_EVENT,
-):
+async def _(bot: Bot, event: Event):
     plain_text = event.get_message().extract_plain_text().strip()
     # 触发关键词  替换.。\/ 等前缀触发词
     plain_text = multiple_replace(plain_text, dict_keyword_replace)
@@ -288,7 +261,7 @@ async def _(
         # 获取图片
         img = get_save_temp_image(plain_text, func, num_list, contest_match, rule_match)
         # 发送消息
-        await send_img(bot, event, img)
+        await send_msg(bot, event, img)
 
 
 # 对战 触发器
@@ -306,7 +279,7 @@ matcher_stage = on_regex(
 
 # 对战 触发器处理
 @matcher_stage.handle(parameterless=[Depends(_permission_check)])
-async def _(bot: BOT, matcher: Matcher, event: MESSAGE_EVENT, re_tuple: Tuple = RegexGroup()):
+async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
     re_list = []
     for k, v in enumerate(re_tuple):
         # 遍历正则匹配字典进行替换文本
@@ -384,20 +357,19 @@ async def _(bot: BOT, matcher: Matcher, event: MESSAGE_EVENT, re_tuple: Tuple = 
         # 获取图片
         img = get_save_temp_image(plain_text, func, num_list, contest_match, rule_match)
         # 发送消息
-        await send_img(bot, event, img)
+        await send_msg(bot, event, img)
 
 
 # 打工 触发器
 matcher_coop = on_regex("^[\\/.,，。]?(全部)?(工|打工|鲑鱼跑|bigrun|big run|团队打工)[ ]?$", priority=8, block=True)
 
 
+# matcher_coop = on_command("全部打工", priority=8, block=True)
+
+
 # 打工 触发器处理
 @matcher_coop.handle(parameterless=[Depends(_permission_check)])
-async def _(
-    bot: BOT,
-    matcher: Matcher,
-    event: MESSAGE_EVENT,
-):
+async def _(bot: Bot, event: Event):
     plain_text = event.get_message().extract_plain_text().strip()
     # 触发关键词  替换.。\/ 等前缀触发词
     plain_text = multiple_replace(plain_text, dict_keyword_replace)
@@ -411,7 +383,7 @@ async def _(
     # 获取图片
     img = get_save_temp_image(plain_text, func, _all)
     # 发送消息
-    await send_img(bot, event, img)
+    await send_msg(bot, event, img)
 
 
 # 其他命令 触发器
@@ -420,11 +392,7 @@ matcher_else = on_regex("^[\\/.,，。]?(帮助|help|(随机武器).*|装备|衣
 
 # 其他命令 触发器处理
 @matcher_else.handle(parameterless=[Depends(_permission_check)])
-async def _(
-    bot: BOT,
-    matcher: Matcher,
-    event: MESSAGE_EVENT,
-):
+async def _(bot: Bot, event: Event):
     plain_text = event.get_message().extract_plain_text().strip()
     # 触发关键词  替换.。\/ 等前缀触发词
     plain_text = multiple_replace(plain_text, dict_prefix_replace)
@@ -441,7 +409,7 @@ async def _(
         else:
             img = image_to_bytes(get_random_weapon_image(plain_text))
             # 发送消息
-            await send_img(bot, event, img)
+            await send_msg(bot, event, img)
     elif re.search("^祭典$", plain_text):
         # 传递函数指针
         func = get_festival_image
@@ -452,7 +420,7 @@ async def _(
             await send_msg(bot, event, msg)
         else:
             # 发送图片
-            await send_img(bot, event, img)
+            await send_msg(bot, event, img)
     elif re.search("^活动$", plain_text):
         # 传递函数指针
         func = get_events_image
@@ -463,7 +431,7 @@ async def _(
             await send_msg(bot, event, msg)
         else:
             # 发送图片
-            await send_img(bot, event, img)
+            await send_msg(bot, event, img)
 
     elif re.search("^帮助$", plain_text):
         # 传递函数指针
@@ -471,7 +439,7 @@ async def _(
         # 获取图片
         img = get_save_temp_image(plain_text, func)
         # 发送图片
-        await send_img(bot, event, img)
+        await send_msg(bot, event, img)
         # 当优先帮助打开时，除qq平台以外的平台额外发送文档地址
         if plugin_config.splatoon3_schedule_plugin_priority_mode and not isinstance(bot, QQ_Bot):
             await send_msg(bot, event, "完整的nso相关操作命令可以查看:https://docs.qq.com/sheet/DUkZHRWtCUkR0d2Nr?tab=BB08J2")
@@ -481,8 +449,9 @@ async def _(
     #     await send_img(bot, event, img)
 
 
-async def _guild_owner_check(bot: BOT, event: MESSAGE_EVENT, state: T_State):
-    # 服务器频道
+async def _guild_owner_check(bot: Bot, event: Event, matcher: Matcher, state: T_State):
+    """服务器频道主人校验
+    return值无意义，主要是靠matcher.finish()阻断事件"""
     channel_info: ChannelInfo
     if isinstance(event, (Kook_CME, QQ_CME)):
         guid = ""
@@ -507,18 +476,18 @@ async def _guild_owner_check(bot: BOT, event: MESSAGE_EVENT, state: T_State):
                 state["_user_level_"] = "superuser"
             return True
         else:
-            return False
+            await matcher.finish()
     else:
-        return False
+        await matcher.finish()
 
 
 # 管理命令 触发器
-matcher_manage = on_regex("^[\\/.,，。]?(开启|关闭)(查询|推送)[ ]?$", priority=8, block=True, rule=_guild_owner_check)
+matcher_manage = on_regex("^[\\/.,，。]?(开启|关闭)(查询|推送)[ ]?$", priority=8, block=True)
 
 
 # 管理命令 触发器处理
-@matcher_manage.handle()
-async def _(bot: BOT, matcher: Matcher, event: MESSAGE_EVENT, state: T_State, re_tuple: Tuple = RegexGroup()):
+@matcher_manage.handle(parameterless=[Depends(_guild_owner_check)])
+async def _(bot: Bot, event: Event, state: T_State, re_tuple: Tuple = RegexGroup()):
     re_list = []
     for k, v in enumerate(re_tuple):
         re_list.append(v)
@@ -568,11 +537,7 @@ matcher_admin = on_regex("^[\\/.,，。]?(重载武器数据|更新武器数据|
 
 # 重载武器数据，包括：武器图片，副武器图片，大招图片，武器配置信息
 @matcher_admin.handle()
-async def _(
-    bot: BOT,
-    matcher: Matcher,
-    event: MESSAGE_EVENT,
-):
+async def _(bot: Bot, event: Event):
     # 触发关键词  替换.。\/ 等前缀触发词
     plain_text = event.get_message().extract_plain_text().strip()
     plain_text = multiple_replace(plain_text, dict_prefix_replace)
@@ -598,66 +563,67 @@ async def _(
         await send_msg(bot, event, msg)
 
 
-async def send_msg(bot: BOT, event: MESSAGE_EVENT, msg):
+async def send_msg(bot: Bot, event: Event, msg: str | bytes):
     """公用send_msg"""
     # 指定回复模式
     reply_mode = plugin_config.splatoon3_reply_mode
-    if isinstance(bot, V11_Bot):
-        await bot.send(event, message=V11_MsgSeg.text(msg), reply_message=reply_mode)
-    elif isinstance(bot, V12_Bot):
-        await bot.send(event, message=V12_MsgSeg.text(msg), reply_message=reply_mode)
-    elif isinstance(bot, Tg_Bot):
-        if reply_mode:
-            await bot.send(event, msg, reply_to_message_id=event.dict().get("message_id"))
-        else:
-            await bot.send(event, msg)
-    elif isinstance(bot, Kook_Bot):
-        await bot.send(event, message=Kook_MsgSeg.text(msg), reply_sender=reply_mode)
-    elif isinstance(bot, QQ_Bot):
-        await bot.send(event, message=QQ_MsgSeg.text(msg))
 
+    if isinstance(msg, str):
+        # 文字消息
+        if isinstance(bot, V11_Bot):
+            await bot.send(event, message=V11_MsgSeg.text(msg), reply_message=reply_mode)
+        elif isinstance(bot, V12_Bot):
+            await bot.send(event, message=V12_MsgSeg.text(msg), reply_message=reply_mode)
+        elif isinstance(bot, Tg_Bot):
+            if reply_mode:
+                await bot.send(event, msg, reply_to_message_id=event.dict().get("message_id"))
+            else:
+                await bot.send(event, msg)
+        elif isinstance(bot, Kook_Bot):
+            await bot.send(event, message=Kook_MsgSeg.text(msg), reply_sender=reply_mode)
+        elif isinstance(bot, QQ_Bot):
+            await bot.send(event, message=QQ_MsgSeg.text(msg))
 
-async def send_img(bot: BOT, event: MESSAGE_EVENT, img: bytes):
-    """公用send_img"""
-    # 指定回复模式
-    reply_mode = plugin_config.splatoon3_reply_mode
-    if isinstance(bot, V11_Bot):
-        try:
-            await bot.send(event, message=V11_MsgSeg.image(file=img, cache=False), reply_message=reply_mode)
-        except Exception as e:
-            logger.warning(f"QQBot send error: {e}")
-    elif isinstance(bot, V12_Bot):
-        # onebot12协议需要先上传文件获取file_id后才能发送图片
-        try:
-            resp = await bot.upload_file(type="data", name="temp.png", data=img)
-            file_id = resp["file_id"]
-            if file_id:
-                await bot.send(event, message=V12_MsgSeg.image(file_id=file_id), reply_message=reply_mode)
-        except Exception as e:
-            logger.warning(f"QQBot send error: {e}")
-    elif isinstance(bot, Tg_Bot):
-        if reply_mode:
-            await bot.send(event, Tg_File.photo(img), reply_to_message_id=event.dict().get("message_id"))
-        else:
-            await bot.send(event, Tg_File.photo(img))
-    elif isinstance(bot, Kook_Bot):
-        url = await bot.upload_file(img)
-        await bot.send(event, Kook_MsgSeg.image(url), reply_sender=reply_mode)
-    elif isinstance(bot, QQ_Bot):
-        if not isinstance(event, GroupAtMessageCreateEvent):
-            await bot.send(event, message=QQ_MsgSeg.file_image(img))
-        else:
-            # 目前q群只支持url图片，得想办法上传图片获取url
-            kook_bot = None
-            bots = nonebot.get_bots()
-            for k, b in bots.items():
-                if isinstance(b, Kook_Bot):
-                    kook_bot = b
-                    break
-            if kook_bot is not None:
-                # 使用kook的接口传图片
-                url = await kook_bot.upload_file(img)
-                await bot.send(event, message=QQ_MsgSeg.image(url))
+    elif isinstance(msg, bytes):
+        # 图片
+        img = msg
+        if isinstance(bot, V11_Bot):
+            try:
+                await bot.send(event, message=V11_MsgSeg.image(file=img, cache=False), reply_message=reply_mode)
+            except Exception as e:
+                logger.warning(f"QQBot send error: {e}")
+        elif isinstance(bot, V12_Bot):
+            # onebot12协议需要先上传文件获取file_id后才能发送图片
+            try:
+                resp = await bot.upload_file(type="data", name="temp.png", data=img)
+                file_id = resp["file_id"]
+                if file_id:
+                    await bot.send(event, message=V12_MsgSeg.image(file_id=file_id), reply_message=reply_mode)
+            except Exception as e:
+                logger.warning(f"QQBot send error: {e}")
+        elif isinstance(bot, Tg_Bot):
+            if reply_mode:
+                await bot.send(event, Tg_File.photo(img), reply_to_message_id=event.dict().get("message_id"))
+            else:
+                await bot.send(event, Tg_File.photo(img))
+        elif isinstance(bot, Kook_Bot):
+            url = await bot.upload_file(img)
+            await bot.send(event, Kook_MsgSeg.image(url), reply_sender=reply_mode)
+        elif isinstance(bot, QQ_Bot):
+            if not isinstance(event, GroupAtMessageCreateEvent):
+                await bot.send(event, message=QQ_MsgSeg.file_image(img))
+            else:
+                # 目前q群只支持url图片，得想办法上传图片获取url
+                kook_bot = None
+                bots = nonebot.get_bots()
+                for k, b in bots.items():
+                    if isinstance(b, Kook_Bot):
+                        kook_bot = b
+                        break
+                if kook_bot is not None:
+                    # 使用kook的接口传图片
+                    url = await kook_bot.upload_file(img)
+                    await bot.send(event, message=QQ_MsgSeg.image(url))
 
 
 @driver.on_startup

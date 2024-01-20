@@ -453,9 +453,12 @@ def get_coop_stages(stage, weapon, time, boss, mode):
     for pos, val in enumerate(boss):
         if val != "":
             # 绘制boss图标
-            boss_img = get_file(val).resize(boss_size)
-            boss_img_pos = (500, 160 * pos + stage_bg_size[1] - 40)
-            paste_with_a(coop_stage_bg, boss_img, boss_img_pos)
+            try:
+                boss_img = get_file(val).resize(boss_size)
+                boss_img_pos = (500, 160 * pos + stage_bg_size[1] - 40)
+                paste_with_a(coop_stage_bg, boss_img, boss_img_pos)
+            except Exception as e:
+                logger.warning(f"get boss file error: {e}")
     for pos, val in enumerate(mode):
         # 绘制打工模式图标
         mode_img = get_file(val).resize(mode_size)

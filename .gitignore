@@ -12,3 +12,4 @@
 MANIFEST.in
 /venv/
 /poetry.lock
+/tests/

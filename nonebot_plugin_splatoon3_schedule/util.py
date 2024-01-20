@@ -14,6 +14,12 @@ from nonebot.adapters.qq import MessageSegment as QQ_MsgSeg
 from nonebot.adapters.qq.event import AtMessageCreateEvent as QQ_CME
 from nonebot.exception import ActionFailed
 
+# telegram 协议
+from nonebot.adapters.telegram import Bot as Tg_Bot
+from nonebot.adapters.telegram.event import MessageEvent as Tg_ME
+from nonebot.adapters.telegram import MessageSegment as Tg_MsgSeg
+from nonebot.adapters.telegram.message import File as Tg_File
+
 from . import get_save_temp_image, get_stages_image, get_coop_stages_image, get_events_image
 from .utils.utils import get_time_now_china
 from .data import db_control, db_image
@@ -220,42 +226,81 @@ async def send_push(bot: Bot, source_id):
     contest_match = None
     rule_match = None
     image = get_save_temp_image("图", func, num_list, contest_match, rule_match)
-    await send_push_img(bot, source_id=source_id, img=image)
+    await send_channel_msg(bot, source_id, image)
     time.sleep(1)
     # 发送 工
     func = get_coop_stages_image
     _all = False
     image = get_save_temp_image("工", func, _all)
-    await send_push_img(bot, source_id=source_id, img=image)
+    await send_channel_msg(bot, source_id, image)
     time.sleep(1)
     # 发送 活动
     func = get_events_image
     image = get_save_temp_image("活动", func)
-    await send_push_img(bot, source_id=source_id, img=image)
+    await send_channel_msg(bot, source_id=source_id, msg=image)
 
 
-async def send_push_msg(bot: Bot, source_id, msg):
+async def send_channel_msg(bot: Bot, source_id, msg: str | bytes):
     """公用发送频道消息"""
-    if isinstance(bot, Kook_Bot):
-        await bot.send_channel_msg(channel_id=source_id, message=Kook_MsgSeg.text(msg))
-    elif isinstance(bot, QQ_Bot):
-        try:
-            await bot.send_to_channel(channel_id=source_id, message=QQ_MsgSeg.text(msg))
-        except AuditException as e:
-            logger.warning(f"主动消息审核结果为{e.__dict__}")
-        except ActionFailed as e:
-            logger.warning(f"主动消息发送失败，api操作结果为{e.__dict__}")
+    if isinstance(msg, str):
+        # 文字消息
+        if isinstance(bot, Kook_Bot):
+            await bot.send_channel_msg(channel_id=source_id, message=Kook_MsgSeg.text(msg))
+        elif isinstance(bot, QQ_Bot):
+            try:
+                await bot.send_to_channel(channel_id=source_id, message=QQ_MsgSeg.text(msg))
+            except AuditException as e:
+                logger.warning(f"主动消息审核结果为{e.__dict__}")
+            except ActionFailed as e:
+                logger.warning(f"主动消息发送失败，api操作结果为{e.__dict__}")
+        elif isinstance(bot, Tg_Bot):
+            await bot.send_message(chat_id=source_id, text=msg)
+    elif isinstance(msg, bytes):
+        # 图片
+        img = msg
+        if isinstance(bot, Kook_Bot):
+            url = await bot.upload_file(img)
+            await bot.send_channel_msg(channel_id=source_id, message=Kook_MsgSeg.image(url))
+        elif isinstance(bot, QQ_Bot):
+            try:
+                await bot.send_to_channel(channel_id=source_id, message=QQ_MsgSeg.file_image(img))
+            except AuditException as e:
+                logger.warning(f"主动消息审核结果为{e.__dict__}")
+            except ActionFailed as e:
+                logger.warning(f"主动消息发送失败，api操作结果为{e.__dict__}")
+        elif isinstance(bot, Tg_Bot):
+            await bot.send_photo(source_id, img)
 
 
-async def send_push_img(bot: Bot, source_id, img: bytes):
-    """公用发送频道图片消息"""
-    if isinstance(bot, Kook_Bot):
-        url = await bot.upload_file(img)
-        await bot.send_channel_msg(channel_id=source_id, message=Kook_MsgSeg.image(url))
-    elif isinstance(bot, QQ_Bot):
-        try:
-            await bot.send_to_channel(channel_id=source_id, message=QQ_MsgSeg.file_image(img))
-        except AuditException as e:
-            logger.warning(f"主动消息审核结果为{e.__dict__}")
-        except ActionFailed as e:
-            logger.warning(f"主动消息发送失败，api操作结果为{e.__dict__}")
+async def send_private_msg(bot: Bot, source_id, msg: str | bytes, event=None):
+    """公用发送私聊消息"""
+    if isinstance(msg, str):
+        # 文字消息
+        if isinstance(bot, Kook_Bot):
+            await bot.send_private_msg(user_id=source_id, message=Kook_MsgSeg.text(msg))
+        elif isinstance(bot, QQ_Bot):
+            try:
+                if event:
+                    await bot.send_to_dms(guild_id=event.guild_id, message=msg, msg_id=event.id)
+            except AuditException as e:
+                logger.warning(f"主动消息审核结果为{e.__dict__}")
+            except ActionFailed as e:
+                logger.warning(f"主动消息发送失败，api操作结果为{e.__dict__}")
+        elif isinstance(bot, Tg_Bot):
+            await bot.send_message(chat_id=source_id, text=msg)
+
+    elif isinstance(msg, bytes):
+        # 图片
+        img = msg
+        if isinstance(bot, Kook_Bot):
+            url = await bot.upload_file(img)
+            await bot.send_private_msg(user_id=source_id, message=Kook_MsgSeg.image(url))
+        elif isinstance(bot, QQ_Bot):
+            try:
+                await bot.send_to_dms(guild_id=event.guild_id, message=QQ_MsgSeg.file_image(img), msg_id=event.id)
+            except AuditException as e:
+                logger.warning(f"主动消息审核结果为{e.__dict__}")
+            except ActionFailed as e:
+                logger.warning(f"主动消息发送失败，api操作结果为{e.__dict__}")
+        elif isinstance(bot, Tg_Bot):
+            await bot.send_photo(source_id, img)
