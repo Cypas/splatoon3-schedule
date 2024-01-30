@@ -230,7 +230,7 @@ def drawer_nso_help_card(cmd_list: [str], args_list: [(str, str)], text_width=20
             paste_with_a(background, text_bg, text_bg_pos)
             width += text_bg_size[0] + 3
 
-    width = main_cmd_pos[0]
+    width = main_cmd_pos[0] + 20
     height += font_size + 25
     # 参数标题
     text = "参数:"

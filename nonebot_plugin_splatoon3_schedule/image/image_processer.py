@@ -709,7 +709,7 @@ def get_help():
 
 def get_nso_help():
     """绘制 nso帮助图片"""
-    image_background_size = (1200, 3900)
+    image_background_size = (1200, 4100)
 
     # 取背景rgb颜色
     bg_rgb = dict_bg_rgb["活动"]
@@ -779,7 +779,7 @@ def get_nso_help():
         ("b", "只推送对战"),
         ("c", "只推送打工"),
         ("m", "用户名打码"),
-        ("多参数合并使用", "如/push m 开始推送战绩并用户名打码"),
+        ("多参数合并使用", "如/push m 开始推送战绩并打码用户名"),
     ]
     text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=40)
     # 贴图
@@ -964,6 +964,16 @@ def get_nso_help():
     cmd_list = ["/x_top"]
     desc_list = [
         ("无参数", "显示本赛季日/美服四个真格模式的top1玩家"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 5
+    # 绘制 帮助卡片
+    cmd_list = ["/get_login_code"]
+    desc_list = [
+        ("无参数", "获取跨平台绑定码用以绑定QQ平台bot"),
     ]
     text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
     # 贴图
