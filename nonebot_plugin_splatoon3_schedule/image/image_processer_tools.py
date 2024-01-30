@@ -1,3 +1,4 @@
+import copy
 import io
 import os
 import re
@@ -157,9 +158,8 @@ def drawer_text(drawer: ImageDraw, text, text_start_pos, text_width, font_color=
     return width, height
 
 
-def drawer_help_card(pre: str, order_list: [str], desc_list: [str]):
+def drawer_help_card(pre: str, order_list: [str], desc_list: [str], text_width=20):
     """绘制文字 帮助卡片"""
-    text_width = 50
     width = 0
     height = 10
     font_size = 30
@@ -191,6 +191,69 @@ def drawer_help_card(pre: str, order_list: [str], desc_list: [str]):
     return background, height
 
 
+def drawer_nso_help_card(cmd_list: [str], args_list: [(str, str)], text_width=20):
+    """绘制文字 nso帮助卡片
+    cmd_list 第一个值为指令，后面为别名
+    args_list 封装的元祖为 指令，介绍
+    """
+
+    width = 0
+    height = 10
+    font_size = 30
+    # 创建一张纯透明图片 用来存放卡片
+    background = Image.new("RGBA", (1200, 1000), (0, 0, 0, 0))
+    drawer = ImageDraw.Draw(background)
+    # main_cmd
+    # 文字
+    text = "指令:"
+    pre_pos = (width, height)
+    w, h = drawer_text(drawer, text, pre_pos, text_width)
+    width += w + 10
+    main_cmd_pos = copy.deepcopy(pre_pos)
+    # 主要指令
+    text_bg = get_translucent_name_bg(cmd_list[0], 60, font_size)
+    text_bg_size = text_bg.size
+    text_bg_pos = (width, height - 8)
+    paste_with_a(background, text_bg, text_bg_pos)
+    width += text_bg_size[0] + 10
+    if len(cmd_list) > 1:
+        # 文字
+        text = "别名:"
+        pre_pos = (width, height)
+        w, h = drawer_text(drawer, text, pre_pos, text_width)
+        width += w + 10
+        # 遍历渲染别名
+        for i, order in enumerate(cmd_list[1:]):
+            text_bg = get_translucent_name_bg(order, 60, font_size)
+            text_bg_size = text_bg.size
+            text_bg_pos = (width, height - 8)
+            paste_with_a(background, text_bg, text_bg_pos)
+            width += text_bg_size[0] + 3
+
+    width = main_cmd_pos[0]
+    height += font_size + 25
+    # 参数标题
+    text = "参数:"
+    arg_pre_pos = (width, height)
+    w, h = drawer_text(drawer, text, arg_pre_pos, text_width)
+    width += w + 10
+    # 参数与参数介绍
+    if len(args_list) > 0:
+        for i, tup in enumerate(args_list):
+            arg, desc = tup
+            # 参数
+            text_bg = get_translucent_name_bg(arg, 60, font_size, line_height=10)
+            text_bg_size = text_bg.size
+            text_bg_pos = (width, height - 8)
+            paste_with_a(background, text_bg, text_bg_pos)
+            # 介绍
+            text = desc
+            text_pos = (text_bg_size[0] + width + 10, height)
+            w, h = drawer_text(drawer, text, text_pos, text_width, font_size=25)
+            height += h + 5
+    return background, height
+
+
 def paste_with_a(image_background, image_pasted, pos):
     """图像粘贴 加上a通道参数 使圆角透明"""
     _, _, _, a = image_pasted.convert("RGBA").split()
@@ -214,12 +277,14 @@ def get_stage_name_bg(stage_name, font_size=24):
     return stage_name_bg
 
 
-def get_translucent_name_bg(text, transparency, font_size=24, bg_color=None, font_path: str = ttf_path_chinese):
+def get_translucent_name_bg(
+    text, transparency, font_size=24, bg_color=None, font_path: str = ttf_path_chinese, line_height: int = 20
+):
     """绘制 半透明文字背景"""
     ttf = ImageFont.truetype(font_path, font_size)
     w, h = ttf.getsize(text)
     # 文字背景
-    text_bg_size = (w + 20, h + 20)
+    text_bg_size = (w + 20, h + line_height)
     text_bg = get_file("filleted_corner").resize(text_bg_size).convert("RGBA")
     if bg_color is not None:
         text_bg = circle_corner(Image.new("RGBA", text_bg_size, bg_color), radii=20)
@@ -228,7 +293,7 @@ def get_translucent_name_bg(text, transparency, font_size=24, bg_color=None, fon
     text_bg = change_image_alpha(text_bg, transparency)
     drawer = ImageDraw.Draw(text_bg)
     # 文字居中绘制
-    text_pos = ((text_bg_size[0] - w) / 2, (text_bg_size[1] - h) / 2)
+    text_pos = ((text_bg_size[0] - w) / 2, (text_bg_size[1] - h) / 2 - text_bg_size[1] // 10)
     drawer.text(text_pos, text, font=ttf, fill=(255, 255, 255))
     return text_bg
 

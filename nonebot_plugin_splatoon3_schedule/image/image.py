@@ -58,6 +58,12 @@ def get_help_image(*args):
     return image
 
 
+def get_nso_help_image(*args):
+    """取 nso帮助图片"""
+    image = get_nso_help()
+    return image
+
+
 def get_random_weapon_image(*args):
     """取 新版 随机武器图片 不能进行缓存，这个需要实时生成"""
     plain_text = args[0]
