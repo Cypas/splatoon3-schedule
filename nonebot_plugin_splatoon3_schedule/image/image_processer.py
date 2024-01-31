@@ -519,7 +519,7 @@ def get_help():
     paste_with_a(image_background, text_bg, text_bg_pos)
     # 初始化一些参数
     drawer = ImageDraw.Draw(image_background)
-    text_width = 800
+    text_width = 20
     height = text_bg_pos[1] + text_bg_size[1] + 20
     title_rgb = dict_bg_rgb["祭典时间-金黄"]
 
@@ -532,7 +532,7 @@ def get_help():
     pre = "查询指令:"
     order_list = ["/图", "/图图", "/下图", "/下下图", "/全部图"]
     desc_list = ["查询当前或指定时段 所有模式 的地图", "前面如果是 全部 则显示至多未来5个时段的地图"]
-    text_card, card_h = drawer_help_card(pre, order_list, desc_list)
+    text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
     # 贴图
     text_bg_pos = (title_pos[0] + 30, height)
     paste_with_a(image_background, text_card, text_bg_pos)
@@ -541,7 +541,7 @@ def get_help():
     pre = "指定时间段查询:"
     order_list = ["/0图", "/123图", "/1图", "/2468图"]
     desc_list = ["可以在前面加上多个0-9的数字，不同数字代表不同时段", "如0代表当前，1代表下时段，2代表下下时段，以此类推"]
-    text_card, card_h = drawer_help_card(pre, order_list, desc_list)
+    text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
     # 贴图
     text_bg_pos = (title_pos[0] + 30, height)
     paste_with_a(image_background, text_card, text_bg_pos)
@@ -556,7 +556,7 @@ def get_help():
     pre = "查询指令:"
     order_list = ["/挑战", "/涂地", "/x赛", "/塔楼", "/开放挑战", "/pp抢鱼"]
     desc_list = ["支持指定规则或比赛，或同时指定规则比赛", "触发词进行了语义化处理，很多常用的称呼也能触发，如:pp和排排 都等同于 开放;抢鱼对应鱼虎;涂涂对应涂地 等"]
-    text_card, card_h = drawer_help_card(pre, order_list, desc_list)
+    text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
     # 贴图
     text_bg_pos = (title_pos[0] + 30, height)
     paste_with_a(image_background, text_card, text_bg_pos)
@@ -565,7 +565,7 @@ def get_help():
     pre = "指定时间段查询:"
     order_list = ["/0挑战", "/1234开放塔楼", "/全部x赛区域"]
     desc_list = ["与图图的指定时间段查询方法一致，如果指定时间段没有匹配的结果，会返回全部时间段满足该筛选的结果", "前面加上 全部 则显示未来24h满足条件的对战"]
-    text_card, card_h = drawer_help_card(pre, order_list, desc_list)
+    text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
     # 贴图
     text_bg_pos = (title_pos[0] + 30, height)
     paste_with_a(image_background, text_card, text_bg_pos)
@@ -580,7 +580,7 @@ def get_help():
     pre = "查询指令:"
     order_list = ["/工", "/打工", "/bigrun", "/团队打工", "/全部工"]
     desc_list = ["查询当前和下一时段的打工地图，如果存在bigrun或团队打工时，也会显示在里面，并根据时间自动排序", "前面加上 全部 则显示接下来的五场打工地图"]
-    text_card, card_h = drawer_help_card(pre, order_list, desc_list)
+    text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
     # 贴图
     text_bg_pos = (title_pos[0] + 30, height)
     paste_with_a(image_background, text_card, text_bg_pos)
@@ -595,7 +595,7 @@ def get_help():
     pre = "查询指令:"
     order_list = ["/祭典", "/活动", "/帮助", "/help"]
     desc_list = ["查询 祭典  活动 ", "帮助/help:回复本帮助图片"]
-    text_card, card_h = drawer_help_card(pre, order_list, desc_list)
+    text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
     # 贴图
     text_bg_pos = (title_pos[0] + 30, height)
     paste_with_a(image_background, text_card, text_bg_pos)
@@ -615,7 +615,7 @@ def get_help():
         "如果不带参数或参数小于4，剩下的会自动用 同一大类下的武器 进行筛选，如 狙 和 加特林 都属于 远程类，小枪 与 刷子，滚筒 等属于 近程类，保证尽可能公平",
         "如果不希望进行任何限制，也可以发送 /随机武器完全随机，来触发不加限制的真随机武器(平衡性就没法保证了)",
     ]
-    text_card, card_h = drawer_help_card(pre, order_list, desc_list)
+    text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
     # 贴图
     text_bg_pos = (title_pos[0] + 30, height)
     paste_with_a(image_background, text_card, text_bg_pos)
@@ -639,7 +639,7 @@ def get_help():
             "/report：获取昨天或指定日期的日报数据(胜场，游戏局数，金银铜牌，打工鳞片等数量变化)，支持指定日期，如 /report 2023-12-17",
             "/me：获取自己个人数据(总场数，胜率，金银铜牌数量等)",
         ]
-        text_card, card_h = drawer_help_card(pre, order_list, desc_list)
+        text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
         # 贴图
         text_bg_pos = (title_pos[0] + 30, height)
         paste_with_a(image_background, text_card, text_bg_pos)
@@ -654,7 +654,7 @@ def get_help():
     # pre = "指令:"
     # order_list = ["开启/关闭查询"]
     # desc_list = ["频道服务器拥有者可发送 关闭查询 来禁用该频道内bot的主动地图查询功能"]
-    # text_card, card_h = drawer_help_card(pre, order_list, desc_list)
+    # text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
     # # 贴图
     # text_bg_pos = (title_pos[0] + 30, height)
     # paste_with_a(image_background, text_card, text_bg_pos)
@@ -674,7 +674,7 @@ def get_help():
     #     "开启/关闭查询：开关本频道的地图查询功能",
     #     "开启/关闭推送：开关本频道的地图推送功能(建议在除q频道，q群以外的渠道使用)",
     # ]
-    # text_card, card_h = drawer_help_card(pre, order_list, desc_list)
+    # text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
     # # 贴图
     # text_bg_pos = (title_pos[0] + 30, height)
     # paste_with_a(image_background, text_card, text_bg_pos)
@@ -698,10 +698,319 @@ def get_help():
         desc_list.append("小鱿鱿官方联系方式: Kook服务器id：85644423 Q群：827977720")
     desc_list.append("插件作者:Cypas_Nya;Paul;Sky_miner")
 
-    text_card, card_h = drawer_help_card(pre, order_list, desc_list)
+    text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
     # 贴图
     text_bg_pos = (title_pos[0] + 30, height)
     paste_with_a(image_background, text_card, text_bg_pos)
     height += card_h
+
+    return image_background
+
+
+def get_nso_help():
+    """绘制 nso帮助图片"""
+    image_background_size = (1200, 4100)
+
+    # 取背景rgb颜色
+    bg_rgb = dict_bg_rgb["活动"]
+    # 创建纯色背景
+    image_background = Image.new("RGBA", image_background_size, bg_rgb)
+    bg_mask = get_file("cat_paw_mask").resize((400, 250))
+    # 填充小图蒙版
+    image_background = tiled_fill(image_background, bg_mask)
+    # 圆角
+    image_background = circle_corner(image_background, radii=20)
+    # 绘制标题
+    font_size = 30
+    text_bg = get_translucent_name_bg("nso帮助手册", 80, font_size)
+    text_bg_size = text_bg.size
+    # 贴上文字背景
+    text_bg_pos = ((image_background_size[0] - text_bg_size[0]) // 2, 20)
+    paste_with_a(image_background, text_bg, text_bg_pos)
+    # 初始化一些参数
+    drawer = ImageDraw.Draw(image_background)
+    # 文字分行字符数量
+    text_width = 50
+    height = text_bg_pos[1] + text_bg_size[1] + 20
+    title_rgb = dict_bg_rgb["祭典时间-金黄"]
+
+    # 开始说明
+    # 绘制title
+    title = "用法说明"
+    title_pos = (20, height)
+    w, h = drawer_text(drawer, title, title_pos, text_width, title_rgb)
+    height += h
+    # 绘制 帮助卡片 对战地图查询
+    pre = ""
+    order_list = []
+    desc_list = ["nso大部分查询指令都是如 /指令 参数 参数 的形式,多参数用空格隔开,如:/last 2 b m"]
+    text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h
+
+    # 绘制title
+    title = "对战或打工 查询"
+    title_pos = (20, height)
+    w, h = drawer_text(drawer, title, title_pos, text_width, title_rgb)
+    height += h
+    # 绘制 帮助卡片
+    cmd_list = ["/last"]
+    desc_list = [
+        ("无参数", "查询最近一场 对战 或 打工 战绩"),
+        ("b", "查询最近一场 对战"),
+        ("c", "查询最近一场 打工"),
+        ("[1-50]", "查询倒数第 n 场结果"),
+        ("m", "战绩将用户名打码"),
+        ("e", "查询对战时各成员配装，徽章"),
+        ("ss", "该战绩的nso页面截图"),
+        ("多参数合并使用", "如/last c m 查询最近一场 打工 并 打码"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 5
+    # 绘制 帮助卡片
+    cmd_list = ["/push", "/start", "/sp"]
+    desc_list = [
+        ("无参数", "QQ平台此功能不可用!开启后定时向用户推送最新一局 对战/打工记录, 相当于/last的自动版本"),
+        ("b", "只推送对战"),
+        ("c", "只推送打工"),
+        ("m", "用户名打码"),
+        ("多参数合并使用", "如/push m 开始推送战绩并打码用户名"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=40)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 5
+    # 绘制 帮助卡片
+    cmd_list = ["/stop_push", "/stop", "/stp"]
+    desc_list = [
+        ("无参数", "关闭战绩推送,并发送push期间的对战统计数据"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 10
+
+    # 绘制title
+    title = "nso app截图"
+    title_pos = (20, height)
+    w, h = drawer_text(drawer, title, title_pos, text_width, title_rgb)
+    height += h
+    # 绘制 帮助卡片
+    cmd_list = ["/ss"]
+    desc_list = [
+        ("无参数", "截图 最近 对战列表"),
+        ("页面关键词", "全部关键词如下: 个人穿搭 好友 最近 涂地 蛮颓 x赛 活动 私房 武器 徽章 打工记录 击倒数量 打工 鲑鱼跑 祭典 祭典问卷"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=40)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 10
+
+    # 绘制title
+    title = "查询 某人的排行榜信息"
+    title_pos = (20, height)
+    w, h = drawer_text(drawer, title, title_pos, text_width, title_rgb)
+    height += h
+    # 绘制 帮助卡片
+    cmd_list = ["/top"]
+    desc_list = [
+        ("无参数", "查询自己上榜记录(日/美500强，祭典百杰，活动top100)"),
+        ("[1-50]", "查询倒数第 n 局对战"),
+        ("[a-h]", "a-h八个字母对应/last查询到的结果里，从上往下8个人"),
+        ("all", "查询该对局里，除自己外，其他7个人上榜记录"),
+        ("多参数合并使用", "如/top 2 e 查询倒数第二场对战，第5个人的上榜记录"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 10
+
+    # 绘制title
+    title = "查询 历史对战列表"
+    title_pos = (20, height)
+    w, h = drawer_text(drawer, title, title_pos, text_width, title_rgb)
+    height += h
+    # 绘制 帮助卡片
+    cmd_list = ["/history", "/his"]
+    desc_list = [
+        ("无参数", "查询最近一个时段的 开放模式组队 记录"),
+        ("o", "同无参数情况"),
+        ("f", "最近一个时段 祭典 记录"),
+        ("e", "最近一个时段 活动 记录"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 10
+
+    # 绘制title
+    title = "我的 相关信息"
+    title_pos = (20, height)
+    w, h = drawer_text(drawer, title, title_pos, text_width, title_rgb)
+    height += h
+    # 绘制 帮助卡片
+    cmd_list = ["/me"]
+    desc_list = [
+        ("无参数", "显示个人技术，奖牌，对战/打工数量，胜率等信息"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 5
+    # 绘制 帮助卡片
+    cmd_list = ["/friends", "/fr"]
+    desc_list = [
+        ("无参数", "显示splatoon3在线好友"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 5
+    # 绘制 帮助卡片
+    cmd_list = ["/ns_friends", "/ns_fr"]
+    desc_list = [
+        ("无参数", "显示ns在线好友"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 5
+    # 绘制 帮助卡片
+    cmd_list = ["/friend_code", "/fc"]
+    desc_list = [
+        ("无参数", "显示我的SW好友码"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 5
+    # 绘制 帮助卡片
+    cmd_list = ["/report"]
+    desc_list = [
+        ("无参数", "查询昨天的日报数据(对战/打工情况，胜率变化等)"),
+        ("2024-01-30", "查询某日日报数据，日期格式为2024-01-30"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 5
+    # 绘制 帮助卡片
+    cmd_list = ["/report_all"]
+    desc_list = [
+        ("无参数", "查询过去30天全部日报数据"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 10
+
+    # 绘制title
+    title = "stat.ink战绩同步"
+    title_pos = (20, height)
+    w, h = drawer_text(drawer, title, title_pos, text_width, title_rgb)
+    height += h
+    # 绘制 帮助卡片 对战地图查询
+    pre = ""
+    order_list = []
+    desc_list = ["stat.ink是一个战绩同步网站，也可用于武器/地图/模式/胜率的战绩分析，在设置api key之后， bot会每2h同步你的游戏战绩至该网站"]
+    text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=55)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h
+    # 绘制 帮助卡片
+    cmd_list = ["/set_stat_key"]
+    desc_list = [
+        ("无参数", "得到stat.ink的绑定教程，之后无需触发命令，直接私发bot api key即可绑定"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 5
+    # 绘制 帮助卡片
+    cmd_list = ["/sync_now"]
+    desc_list = [
+        ("无参数", "手动触发stat战绩上传"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 10
+
+    # 绘制title
+    title = "其他功能"
+    title_pos = (20, height)
+    w, h = drawer_text(drawer, title, title_pos, text_width, title_rgb)
+    height += h
+    # 绘制 帮助卡片
+    cmd_list = ["/x_top"]
+    desc_list = [
+        ("无参数", "显示本赛季日/美服四个真格模式的top1玩家"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 5
+    # 绘制 帮助卡片
+    cmd_list = ["/get_login_code"]
+    desc_list = [
+        ("无参数", "获取跨平台绑定码用以绑定QQ平台bot"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 5
+    # 绘制 帮助卡片
+    cmd_list = ["/clear_db_info"]
+    desc_list = [
+        ("无参数", "清空用户数据并登出nso"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 5
+    # 绘制 帮助卡片
+    cmd_list = ["/report_notify"]
+    desc_list = [
+        ("open", "开启每日日报主动推送(早上8点定时发送)"),
+        ("close", "关闭日报主动推送"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 5
+    # 绘制 帮助卡片
+    cmd_list = ["/stat_notify"]
+    desc_list = [
+        ("open", "开启stat同步情况通知"),
+        ("close", "关闭同步情况通知(bot仍会进行同步)"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 10
 
     return image_background

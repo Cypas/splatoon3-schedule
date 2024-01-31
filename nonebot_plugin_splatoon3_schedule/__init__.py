@@ -387,7 +387,7 @@ async def _(bot: Bot, event: Event):
 
 
 # 其他命令 触发器
-matcher_else = on_regex("^[\\/.,，。]?(帮助|help|(随机武器).*|装备|衣服|祭典|活动)[ ]?$", priority=8, block=True)
+matcher_else = on_regex("^[\\/.,，。]?(帮助|help|nso帮助|(随机武器).*|装备|衣服|祭典|活动)[ ]?$", priority=8, block=True)
 
 
 # 其他命令 触发器处理
@@ -440,9 +440,18 @@ async def _(bot: Bot, event: Event):
         img = get_save_temp_image(plain_text, func)
         # 发送图片
         await send_msg(bot, event, img)
-        # 当优先帮助打开时，除qq平台以外的平台额外发送文档地址
-        if plugin_config.splatoon3_schedule_plugin_priority_mode and not isinstance(bot, QQ_Bot):
-            await send_msg(bot, event, "完整的nso相关操作命令可以查看:https://docs.qq.com/sheet/DUkZHRWtCUkR0d2Nr?tab=BB08J2")
+        # 当优先帮助打开时，额外发送nso帮助
+        if plugin_config.splatoon3_schedule_plugin_priority_mode:
+            await send_msg(bot, event, "若需要查看完整的nso指令请发送 /nso帮助")
+
+    elif re.search("^nso帮助$", plain_text):
+        # 传递函数指针
+        func = get_nso_help_image
+        # 获取图片
+        img = get_save_temp_image(plain_text, func)
+        # 发送图片
+        await send_msg(bot, event, img)
+
     # elif re.search("^装备$", plain_text):
     #     img = await get_screenshot(shot_url="https://splatoon3.ink/gear")
     #     # 发送图片
@@ -623,6 +632,7 @@ async def send_msg(bot: Bot, event: Event, msg: str | bytes):
                 if kook_bot is not None:
                     # 使用kook的接口传图片
                     url = await kook_bot.upload_file(img)
+                    logger.info("url:" + url)
                     await bot.send(event, message=QQ_MsgSeg.image(url))
 
 
@@ -656,7 +666,7 @@ async def _(bot: Bot):
     bot_adapter = bot.adapter.get_name()
     bot_id = bot.self_id
 
-    logger.info(f" {bot_adapter} bot connect {bot_id} ".center(60, "-").center(60, " "))
+    logger.info(f" {bot_adapter} bot connect {bot_id} ".center(60, "-"))
     # 防止bot重连时重复添加任务
     job_id = f"sp3_push_cron_job_{bot_id}"
     if scheduler.get_job(job_id):

@@ -133,6 +133,11 @@ from nonebot_plugin_splatoon3_schedule.util import write_weapon_trans_dict, init
 # res = get_help_image()
 # res.show()
 
+# 测试nso帮助
+res = get_nso_help_image()
+res.show()
+
+
 # 测试重载武器数据
 # asyncio.run(reload_weapon_info())
 
