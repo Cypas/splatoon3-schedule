@@ -632,7 +632,7 @@ async def send_msg(bot: Bot, event: Event, msg: str | bytes):
                 if kook_bot is not None:
                     # 使用kook的接口传图片
                     url = await kook_bot.upload_file(img)
-                    logger.info("url:" + url)
+                    # logger.info("url:" + url)
                     await bot.send(event, message=QQ_MsgSeg.image(url))
 
 
