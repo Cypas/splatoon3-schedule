@@ -500,7 +500,7 @@ def get_help():
     """绘制 帮助图片"""
     image_background_size = (1200, 2200)
     if plugin_config.splatoon3_schedule_plugin_priority_mode:
-        image_background_size = (1200, 2500)
+        image_background_size = (1200, 2600)
     # 取背景rgb颜色
     bg_rgb = dict_bg_rgb["活动"]
     # 创建纯色背景
@@ -519,7 +519,7 @@ def get_help():
     paste_with_a(image_background, text_bg, text_bg_pos)
     # 初始化一些参数
     drawer = ImageDraw.Draw(image_background)
-    text_width = 20
+    text_width = 50
     height = text_bg_pos[1] + text_bg_size[1] + 20
     title_rgb = dict_bg_rgb["祭典时间-金黄"]
 
@@ -631,13 +631,15 @@ def get_help():
         height += h
         # 绘制 帮助卡片 对战地图查询
         pre = "指令:"
-        order_list = ["/login", "/last", "/friends", "/report", "/me"]
+        order_list = ["/login", "/last", "/friends", "/report", "/me", "/fc"]
         desc_list = [
+            "以下是部分常用nso指令，完整nso指令请再发送 /nso帮助 查看",
             "/login：绑定nso账号，后续指令都是需要完成绑定后才可以使用，Q群使用请先加入下面联系方式里的 kook频道",
             "/last：查询上一局比赛或打工的数据",
             "/friends：显示在线的ns好友",
             "/report：获取昨天或指定日期的日报数据(胜场，游戏局数，金银铜牌，打工鳞片等数量变化)，支持指定日期，如 /report 2023-12-17",
             "/me：获取自己个人数据(总场数，胜率，金银铜牌数量等)",
+            "/fc：获取自己SW好友码",
         ]
         text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
         # 贴图
@@ -691,10 +693,11 @@ def get_help():
     desc_list = [
         "本插件已开源，地址如下：",
         "https://github.com/Cypas/splatoon3-schedule",
+        "https://github.com/Cypas/splatoon3-nso",
         "有github账号的人可以去帮忙点个star，这是对我们最大的支持了",
     ]
 
-    if plugin_config.splatoon3_is_official_bot:
+    if not plugin_config.splatoon3_is_official_bot:
         desc_list.append("小鱿鱿官方联系方式: Kook服务器id：85644423 Q群：827977720")
     desc_list.append("插件作者:Cypas_Nya;Paul;Sky_miner")
 
