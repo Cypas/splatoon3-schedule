@@ -25,16 +25,16 @@ class Config(BaseModel):
     # 频道服务器拥有者是否允许开关主动推送功能(为False时仅允许管理员开启关闭)
     splatoon3_guild_owner_switch_push: bool = False
     # 是否是官方小鱿鱿bot(会影响输出的帮助图片内容)
-    splatoon3_is_official_bot: bool = True
+    splatoon3_is_official_bot: bool = False
     # 日程插件优先模式(会影响帮助图片内容，该配置项与nso查询插件公用)
-    splatoon3_schedule_plugin_priority_mode: bool = True
+    splatoon3_schedule_plugin_priority_mode: bool = False
 
 
 # 本地测试时由于不启动 driver，需要将下面三行注释并取消再下面两行的注释
-# driver = get_driver()
-# global_config = driver.config
-# plugin_config = Config.parse_obj(global_config)
+driver = get_driver()
+global_config = driver.config
+plugin_config = Config.parse_obj(global_config)
 
-driver = None
-global_config = None
-plugin_config = Config()
+# driver = None
+# global_config = None
+# plugin_config = Config()
