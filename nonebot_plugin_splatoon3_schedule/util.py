@@ -217,6 +217,24 @@ async def cron_job(bot: Bot, bot_adapter: str, bot_id: str):
                 await send_push(bot, msg_source_id)
 
 
+async def push_job(bot: Bot, bot_adapter: str, bot_id: str):
+    """推送定时任务， 每两小时执行一次"""
+    push_jobs = db_control.get_all_push(bot_adapter, bot_id)
+
+    # 非kook，qqbot机器人不处理
+    if not isinstance(bot, (Kook_Bot, QQ_Bot)):
+        return
+
+    if len(push_jobs) > 0:
+        for push_job in push_jobs:
+            # active_push = push_job.get("active_push")
+            msg_source_type = push_job.get("msg_source_type")
+            msg_source_id = push_job.get("msg_source_id")
+            # 目前仅开启频道推送
+            if msg_source_type == "channel":
+                await send_push(bot, msg_source_id)
+
+
 async def send_push(bot: Bot, source_id):
     """频道主动推送"""
     logger.info(f"即将主动推送消息")

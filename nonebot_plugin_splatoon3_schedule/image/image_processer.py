@@ -768,6 +768,7 @@ def get_nso_help():
         ("m", "战绩将用户名打码"),
         ("e", "查询对战时各成员配装，徽章"),
         ("ss", "该战绩的nso页面截图"),
+        ("i", "强制使用图片模式发送结果，而非qq平台默认的卡片"),
         ("多参数合并使用", "如/last c m 查询最近一场 打工 并 打码"),
     ]
     text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
