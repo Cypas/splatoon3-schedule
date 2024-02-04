@@ -65,6 +65,7 @@ from .util import (
     get_channel_info,
     ChannelInfo,
     cron_job,
+    push_job,
 )
 
 require("nonebot_plugin_apscheduler")
@@ -654,7 +655,7 @@ async def shutdown():
     # 删除任务
     bots = nonebot.get_bots()
     for k in bots.keys():
-        job_id = f"sp3_push_cron_job_{k}"
+        job_id = f"sp3_schedule_push_job_{k}"
         if scheduler.get_job(job_id):
             scheduler.remove_job(job_id)
             logger.info(f"remove job {job_id}!")
@@ -666,20 +667,19 @@ async def _(bot: Bot):
     bot_adapter = bot.adapter.get_name()
     bot_id = bot.self_id
 
-    logger.info(f" {bot_adapter} bot connect {bot_id} ".center(60, "-"))
     # 防止bot重连时重复添加任务
-    job_id = f"sp3_push_cron_job_{bot_id}"
+    job_id = f"sp3_schedule_push_job_{bot_id}"
     if scheduler.get_job(job_id):
         scheduler.remove_job(job_id)
         logger.info(f"remove job {job_id} first")
 
     scheduler.add_job(
-        cron_job,
-        "interval",
-        minutes=1,
+        push_job,
+        trigger="cron",
+        hour="0,2,4,6,8,10,12,14,16,18,20,22",
         id=job_id,
         args=[bot, bot_adapter, bot_id],
-        misfire_grace_time=59,
+        misfire_grace_time=60,
         coalesce=True,
         max_instances=1,
     )
