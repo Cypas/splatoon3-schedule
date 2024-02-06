@@ -810,7 +810,7 @@ def get_nso_help():
     cmd_list = ["/ss"]
     desc_list = [
         ("无参数", "截图 最近 对战列表"),
-        ("页面关键词", "全部关键词如下: 个人穿搭 好友 最近 涂地 蛮颓 x赛 活动 私房 武器 徽章 打工记录 击倒数量 打工 鲑鱼跑 祭典 祭典问卷"),
+        ("页面关键词", "全部页面关键词如下: 个人穿搭 好友 最近 涂地 蛮颓 x赛 活动 私房 武器 徽章 打工记录 击倒数量 打工 鲑鱼跑 祭典 祭典问卷"),
     ]
     text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=40)
     # 贴图
