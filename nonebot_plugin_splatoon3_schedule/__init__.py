@@ -677,6 +677,7 @@ async def _(bot: Bot):
         push_job,
         trigger="cron",
         hour="0,2,4,6,8,10,12,14,16,18,20,22",
+        minute=1,
         id=job_id,
         args=[bot, bot_adapter, bot_id],
         misfire_grace_time=60,
