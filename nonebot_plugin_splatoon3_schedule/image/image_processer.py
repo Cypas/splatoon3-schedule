@@ -46,7 +46,7 @@ def get_area_festival(festival, area_title, language_font_path):
     trans_cht_festival_data = festival_data.get(_id)
     # 替换为翻译
     teams_list = []
-    if trans_cht_festival_data is not None:
+    if trans_cht_festival_data:
         # 有中文翻译源
         festival["title"] = trans_cht_festival_data.get("title", festival["title"])
         for v in range(3):
@@ -89,13 +89,14 @@ def get_area_festival(festival, area_title, language_font_path):
     return image_background
 
 
-def get_events(events):
+def get_events(events: list):
     """绘制 活动地图"""
     # 计算全部活动的举办次数来计算图片高度
     times = 0
     for index, event in enumerate(events):
         times += len(event["timePeriods"])
-    background_size = (1084, (440 + 75 * times) * len(events))
+    # 6时段卡片一个活动高度1340
+    background_size = (1084, (890 + 75 * times // len(events)) * len(events))
     # 取背景rgb颜色
     bg_rgb = dict_bg_rgb["活动"]
     # 创建纯色背景
@@ -108,7 +109,10 @@ def get_events(events):
     # 遍历每个活动
     pos_h = 0
     for index, event in enumerate(events):
-        event_card_bg_size = (background_size[0] - 40, 420 + 75 * len(event["timePeriods"]))  # 75高度为每个时间段卡片占用的高度
+        event_card_bg_size = (
+            background_size[0] - 40,
+            420 + 75 * len(event["timePeriods"]),
+        )  # 420为标题+图片高度 75高度为每个时间段卡片占用的高度
         # 获取翻译
         cht_event_data = event["leagueMatchSetting"]["leagueMatchEvent"]
         _id = cht_event_data["id"]

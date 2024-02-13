@@ -6,7 +6,7 @@ from pydantic import BaseModel, validator
 
 # 其他地方出现的类似 from .. import config，均是从 __init__.py 导入的 Config 实例
 class Config(BaseModel):
-    # 默认 proxy = None 表示不使用代理进行连接
+    # 默认 proxy = "" 表示不使用代理进行连接
     splatoon3_proxy_address: str = ""
     # 是否允许频道私聊消息回应，默认False
     splatoon3_permit_private: bool = False
@@ -26,7 +26,7 @@ class Config(BaseModel):
     splatoon3_guild_owner_switch_push: bool = False
     # 是否是官方小鱿鱿bot(会影响输出的帮助图片内容)
     splatoon3_is_official_bot: bool = False
-    # 日程插件优先模式(会影响帮助图片内容，该配置项与nso查询插件公用)
+    # 日程插件的帮助菜单优先模式(会影响帮助菜单由哪个插件提供，该配置项与nso查询插件公用)
     splatoon3_schedule_plugin_priority_mode: bool = False
 
 
