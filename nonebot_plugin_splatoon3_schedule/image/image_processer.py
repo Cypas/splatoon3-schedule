@@ -716,7 +716,7 @@ def get_help():
 
 def get_nso_help():
     """绘制 nso帮助图片"""
-    image_background_size = (1200, 4100)
+    image_background_size = (1200, 4200)
 
     # 取背景rgb颜色
     bg_rgb = dict_bg_rgb["活动"]
@@ -887,7 +887,7 @@ def get_nso_help():
     paste_with_a(image_background, text_card, text_bg_pos)
     height += card_h + 5
     # 绘制 帮助卡片
-    cmd_list = ["/ns_friends", "/ns_fr"]
+    cmd_list = ["/ns_friends", "/ns_fr", "/nsfr"]
     desc_list = [
         ("无参数", "显示ns在线好友"),
     ]
@@ -900,6 +900,16 @@ def get_nso_help():
     cmd_list = ["/friend_code", "/fc"]
     desc_list = [
         ("无参数", "显示我的SW好友码"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 5
+    # 绘制 帮助卡片
+    cmd_list = ["/my_icon", "/myicon"]
+    desc_list = [
+        ("无参数", "获取自己ns头像,在更换新的ns头像后，需要用一次/me命令才会刷新新的头像缓存"),
     ]
     text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
     # 贴图

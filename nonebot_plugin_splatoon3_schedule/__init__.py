@@ -55,7 +55,7 @@ from nonebot.adapters.qq.event import AtMessageCreateEvent as QQ_CME  # 频道�
 from .data.db_control import db_control
 from .image.image import *
 from .image import image_to_bytes
-from .config import plugin_config, driver, global_config
+from .config import plugin_config, driver, global_config, Config
 from .utils import dict_keyword_replace, multiple_replace
 from .data import reload_weapon_info, db_image
 from .util import (
@@ -79,6 +79,7 @@ __plugin_meta__ = PluginMetadata(
     # 发布必填，当前有效类型有：`library`（为其他插件编写提供功能），`application`（向机器人用户提供功能）。
     homepage="https://github.com/Cypas/splatoon3-schedule",
     # 发布必填。
+    config=Config,
     supported_adapters={"~onebot.v11", "~onebot.v12", "~telegram", "~kaiheila", "~qq"},
 )
 
