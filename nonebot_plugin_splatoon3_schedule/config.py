@@ -33,7 +33,7 @@ class Config(BaseModel):
 # 本地测试时由于不启动 driver，需要将下面三行注释并取消再下面两行的注释
 driver = get_driver()
 global_config = driver.config
-plugin_config = get_plugin_config(global_config)
+plugin_config = get_plugin_config(Config)
 
 # driver = None
 # global_config = None
