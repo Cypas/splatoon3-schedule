@@ -1,6 +1,6 @@
 from typing import List, Union
 
-from nonebot import get_driver
+from nonebot import get_driver, get_plugin_config
 from pydantic import BaseModel, validator
 
 
@@ -33,7 +33,7 @@ class Config(BaseModel):
 # 本地测试时由于不启动 driver，需要将下面三行注释并取消再下面两行的注释
 driver = get_driver()
 global_config = driver.config
-plugin_config = Config.parse_obj(global_config)
+plugin_config = get_plugin_config(global_config)
 
 # driver = None
 # global_config = None
