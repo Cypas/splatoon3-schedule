@@ -597,8 +597,8 @@ def get_help():
     height += h
     # 绘制 帮助卡片 对战地图查询
     pre = "查询指令:"
-    order_list = ["/祭典", "/活动", "/帮助", "/help"]
-    desc_list = ["查询 祭典  活动 ", "帮助/help:回复本帮助图片"]
+    order_list = ["/祭典", "/活动", "/装备", "/帮助", "/help"]
+    desc_list = ["查询 祭典，活动，nso商店售卖装备", "帮助/help:回复本帮助图片"]
     text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
     # 贴图
     text_bg_pos = (title_pos[0] + 30, height)

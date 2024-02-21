@@ -1,3 +1,5 @@
+from playwright.async_api import Browser, async_playwright
+
 from .db_image import db_image
 from ..utils import *
 
@@ -39,10 +41,10 @@ def get_festivals_data():
     global festivals_res
     global festivals_res_save_ymd
 
-    # 校验过期祭典数据 记录每日ymd，不同则为false，使其每日刷新一次
+    # 校验过期祭典数据 记录%Y-%m-%dT%H，2h刷新一次
     def check_expire_data(_festivals_res_save_ymd):
-        now_ymd = get_time_ymd()
-        if now_ymd != _festivals_res_save_ymd:
+        now_ymdt = get_expire_time()
+        if now_ymdt != _festivals_res_save_ymd:
             return True
         return False
 
@@ -51,7 +53,7 @@ def get_festivals_data():
         result = cf_http_get("https://splatoon3.ink/data/festivals.json").text
         festivals_res = json.loads(result)
         # 刷新储存时 时间
-        festivals_res_save_ymd = get_time_ymd()
+        festivals_res_save_ymd = get_expire_time()
         return festivals_res
     else:
         return festivals_res
@@ -253,42 +255,44 @@ def get_stage_info(num_list=None, contest_match=None, rule_match=None):
     return schedule, num_list, new_contest_match, new_rule_match
 
 
-# async def init_browser() -> Browser:
-#     """初始化 browser 并唤起"""
-#     global _browser
-#     p = await async_playwright().start()
-#     if proxy_address:
-#         proxies = {"server": "http://{}".format(proxy_address)}
-#         # 代理访问
-#         _browser = await p.chromium.launch(proxy=proxies)
-#     else:
-#         _browser = await p.chromium.launch()
-#     return _browser
-#
-#
-# async def get_browser() -> Browser:
-#     """获取目前唤起的 browser"""
-#     global _browser
-#     if _browser is None or not _browser.is_connected():
-#         _browser = await init_browser()
-#     return _browser
-#
-#
-# async def get_screenshot(shot_url, shot_path=None):
-#     """通过 browser 获取 shot_url 中的网页截图"""
-#     # playwright 要求不能有多个 browser 被同时唤起
-#     browser = await get_browser()
-#     context = await browser.new_context(viewport={"width": 1480, "height": 900}, locale="zh-CH")
-#     page = await context.new_page()
-#     await page.set_viewport_size({"width": 1480, "height": 900})
-#     await page.goto(shot_url)
-#     try:
-#         if shot_path is None:
-#             return await page.screenshot()
-#         else:
-#             await page.screenshot(path=shot_path)
-#     except Exception as e:
-#         logger.error("Screenshot failed" + str(e))
-#         return await page.screenshot(full_page=True)
-#     finally:
-#         await context.close()
+async def init_browser() -> Browser:
+    """初始化 browser 并唤起"""
+    global _browser
+    p = await async_playwright().start()
+    if proxy_address:
+        proxies = {"server": "http://{}".format(proxy_address)}
+        # 代理访问
+        _browser = await p.chromium.launch(proxy=proxies)
+    else:
+        _browser = await p.chromium.launch()
+    return _browser
+
+
+async def get_browser() -> Browser:
+    """获取目前唤起的 browser"""
+    global _browser
+    if _browser is None or not _browser.is_connected():
+        _browser = await init_browser()
+    return _browser
+
+
+async def get_screenshot(shot_url, shot_path=None):
+    """通过 browser 获取 shot_url 中的网页截图"""
+    # playwright 要求不能有多个 browser 被同时唤起
+    browser = await get_browser()
+    context = await browser.new_context(viewport={"width": 1480, "height": 900}, locale="zh-CH")
+    page = await context.new_page()
+    await page.set_viewport_size({"width": 1480, "height": 900})
+    await page.goto(shot_url)
+    try:
+        if shot_path is None:
+            return await page.screenshot()
+        else:
+            await page.screenshot(path=shot_path)
+
+        await page.wait_for_timeout(3000)
+    except Exception as e:
+        logger.error("Screenshot failed" + str(e))
+        return await page.screenshot(full_page=True)
+    finally:
+        await context.close()
