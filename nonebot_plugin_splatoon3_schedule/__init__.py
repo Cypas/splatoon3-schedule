@@ -57,7 +57,7 @@ from .image.image import *
 from .image import image_to_bytes
 from .config import plugin_config, driver, global_config, Config
 from .utils import dict_keyword_replace, multiple_replace
-from .data import reload_weapon_info, db_image
+from .data import reload_weapon_info, db_image, get_screenshot
 from .util import (
     get_weapon_info_test,
     check_msg_permission,
@@ -454,10 +454,10 @@ async def _(bot: Bot, event: Event):
         # 发送图片
         await send_msg(bot, event, img)
 
-    # elif re.search("^装备$", plain_text):
-    #     img = await get_screenshot(shot_url="https://splatoon3.ink/gear")
-    #     # 发送图片
-    #     await send_img(bot, event, img)
+    elif re.search("^装备$", plain_text):
+        img = await get_screenshot(shot_url="https://splatoon3.ink/gear")
+        # 发送图片
+        await send_msg(bot, event, img)
 
 
 async def _guild_owner_check(bot: Bot, event: Event, matcher: Matcher, state: T_State):
