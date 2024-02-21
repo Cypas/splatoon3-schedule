@@ -41,10 +41,10 @@ def get_festivals_data():
     global festivals_res
     global festivals_res_save_ymd
 
-    # 校验过期祭典数据 记录每日ymd，不同则为false，使其每日刷新一次
+    # 校验过期祭典数据 记录%Y-%m-%dT%H，2h刷新一次
     def check_expire_data(_festivals_res_save_ymd):
-        now_ymd = get_time_ymd()
-        if now_ymd != _festivals_res_save_ymd:
+        now_ymdt = get_expire_time()
+        if now_ymdt != _festivals_res_save_ymd:
             return True
         return False
 
@@ -53,7 +53,7 @@ def get_festivals_data():
         result = cf_http_get("https://splatoon3.ink/data/festivals.json").text
         festivals_res = json.loads(result)
         # 刷新储存时 时间
-        festivals_res_save_ymd = get_time_ymd()
+        festivals_res_save_ymd = get_expire_time()
         return festivals_res
     else:
         return festivals_res
