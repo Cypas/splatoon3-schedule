@@ -101,19 +101,19 @@ from nonebot_plugin_splatoon3_schedule.util import write_weapon_trans_dict, init
 #     img = get_save_temp_image(plain_text, func, num_list, contest_match, rule_match)
 
 # # 测试nonebot 对战 命令文本触发
-# plain_text = "全部图"
+# plain_text = "图"
 #
-# num_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+# num_list = [0]
 # # num_list = list(set([int(x) for x in plain_text[:-2]]))
 # num_list.sort()
 #
 # # stage_mode = plain_text[-2:]
 # rule_match = None
 # contest_match = None
-# # res = get_stages_image(num_list, contest_match, rule_match)
-# func = get_stages_image
-# img = get_save_temp_image(plain_text, func, num_list, contest_match, rule_match)
-# # res.show()
+# res = get_stages_image(num_list, contest_match, rule_match)
+# # func = get_stages_image
+# # img = get_save_temp_image(plain_text, func, num_list, contest_match, rule_match)
+# res.show()
 
 
 # 测试新版随机武器
@@ -130,12 +130,12 @@ from nonebot_plugin_splatoon3_schedule.util import write_weapon_trans_dict, init
 # res.show()
 
 # 测试帮助
-# res = get_help_image()
-# res.show()
+res = get_help_image()
+res.show()
 
 # 测试nso帮助
-# res = get_nso_help_image()
-# res.show()
+res = get_nso_help_image()
+res.show()
 
 
 # 测试重载武器数据

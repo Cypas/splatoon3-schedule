@@ -150,7 +150,8 @@ def drawer_text(drawer: ImageDraw, text, text_start_pos, text_width, font_color=
     line_space = 12
     for i, line in enumerate(para):
         drawer.text((text_start_pos[0], (line_space + font_size) * i + text_start_pos[1]), line, font_color, ttf)
-        w, h = ttf.getsize(line)
+        left, top, right, bottom = ttf.getbbox(text=line)
+        w, h = right - left, bottom - top
         height += h + line_space
         # 取最长w
         if w > width:
@@ -263,7 +264,8 @@ def paste_with_a(image_background, image_pasted, pos):
 def get_stage_name_bg(stage_name, font_size=24):
     """绘制 地图名称及文字底图"""
     ttf = ImageFont.truetype(ttf_path_chinese, font_size)
-    w, h = ttf.getsize(stage_name)
+    left, top, right, bottom = ttf.getbbox(text=stage_name)
+    w, h = right - left, bottom - top
     stage_name_bg_size = (w + 20, h + 10)
     # 新建画布
     stage_name_bg = Image.new("RGBA", stage_name_bg_size, (34, 34, 34))
@@ -282,7 +284,8 @@ def get_translucent_name_bg(
 ):
     """绘制 半透明文字背景"""
     ttf = ImageFont.truetype(font_path, font_size)
-    w, h = ttf.getsize(text)
+    left, top, right, bottom = ttf.getbbox(text=text)
+    w, h = right - left, bottom - top
     # 文字背景
     text_bg_size = (w + 20, h + line_height)
     text_bg = get_file("filleted_corner").resize(text_bg_size).convert("RGBA")
@@ -305,10 +308,11 @@ def get_time_head_bg(time_head_bg_size, date_time, start_time, end_time):
     # 绘制开始，结束时间 文字居中绘制
     ttf = ImageFont.truetype(ttf_path, 40)
     time_head_text = "{}  {} - {}".format(date_time, start_time, end_time)
-    w, h = ttf.getsize(time_head_text)
+    left, top, right, bottom = ttf.getbbox(text=time_head_text)
+    w, h = right - left, bottom - top
     time_head_text_pos = (
         (time_head_bg_size[0] - w) / 2,
-        (time_head_bg_size[1] - h) / 2 - 12,
+        (time_head_bg_size[1] - h) / 2 - 25,
     )
     drawer = ImageDraw.Draw(time_head_bg)
     drawer.text(time_head_text_pos, time_head_text, font=ttf, fill=(255, 255))
@@ -358,8 +362,8 @@ def get_stage_card(
     # 绘制两张地图
     # 计算尺寸，加载图片
     stage_size = (int(img_size[0] * 0.48), int(img_size[1] * 0.7))
-    image_left = get_save_file(stage1).resize(stage_size, Image.ANTIALIAS)
-    image_right = get_save_file(stage2).resize(stage_size, Image.ANTIALIAS)
+    image_left = get_save_file(stage1).resize(stage_size, Image.LANCZOS)
+    image_right = get_save_file(stage2).resize(stage_size, Image.LANCZOS)
     # 定义圆角 蒙版
     image_alpha = circle_corner(image_left, radii=16)
 
@@ -425,7 +429,7 @@ def get_stage_card(
     game_mode_text_pos = (blank_size[0] // 3, contest_mode_pos[1])
     drawer.text(game_mode_text_pos, game_mode_text, font=ttf, fill=(255, 255, 255))
     # 绘制游戏模式小图标
-    game_mode_img = get_file(game_mode).resize((35, 35), Image.ANTIALIAS)
+    game_mode_img = get_file(game_mode).resize((35, 35), Image.LANCZOS)
     game_mode_img_pos = (game_mode_text_pos[0] - 40, game_mode_text_pos[1] + 10)
     paste_with_a(image_background, game_mode_img, game_mode_img_pos)
     # # 绘制开始，结束时间
@@ -464,19 +468,19 @@ def get_weapon_card(weapon: [WeaponData], weapon_card_bg_size, rgb, font_color):
         weapon_bg = change_image_alpha(weapon_bg, 80)
         # 主武器
         main_image_bg = Image.new("RGBA", main_size, (30, 30, 30, 255))
-        main_image = Image.open(io.BytesIO(v.image)).resize(main_size, Image.ANTIALIAS)
+        main_image = Image.open(io.BytesIO(v.image)).resize(main_size, Image.LANCZOS)
         main_image_bg_pos = ((weapon_bg_size[0] - main_size[0]) // 2, 10)
         # main_image = circle_corner(main_image, radii=16)
         # main_image_bg.paste(main_image, (0, 0))
         # 副武器
         sub_image_bg = Image.new("RGBA", sub_size, (60, 60, 60, 255))
-        sub_image = Image.open(io.BytesIO(v.sub_image)).resize(sub_size, Image.ANTIALIAS)
+        sub_image = Image.open(io.BytesIO(v.sub_image)).resize(sub_size, Image.LANCZOS)
         sub_image_bg_pos = (main_image_bg_pos[0], main_image_bg_pos[1] + main_size[1] + 10)
         # sub_image = circle_corner(sub_image, radii=16)
         # sub_image_bg.paste(sub_image, (0, 0))
         # 大招
         special_image_bg = Image.new("RGBA", special_size, (30, 30, 30, 255))
-        special_image = Image.open(io.BytesIO(v.special_image)).resize(special_size, Image.ANTIALIAS)
+        special_image = Image.open(io.BytesIO(v.special_image)).resize(special_size, Image.LANCZOS)
         special_image_bg_pos = (main_image_bg_pos[0] + main_size[0] - special_size[0], sub_image_bg_pos[1])
         # special_image = circle_corner(special_image, radii=16)
         # special_image_bg.paste(special_image, (0, 0))
@@ -496,12 +500,13 @@ def get_weapon_card(weapon: [WeaponData], weapon_card_bg_size, rgb, font_color):
             font_size = 15
         if len(weapon_zh_name) > 10:
             font_size = 14
-        font = ImageFont.truetype(ttf_path_chinese, font_size)
-        zh_name_size = font.getsize(weapon_zh_name)
+        ttf = ImageFont.truetype(ttf_path_chinese, font_size)
+        left, top, right, bottom = ttf.getbbox(text=weapon_zh_name)
+        zh_name_size = right - left, bottom - top
         # 纯文字不带背景 实现方式
         dr = ImageDraw.Draw(weapon_bg)
         zh_name_pos = ((weapon_bg_size[0] - zh_name_size[0]) // 2, weapon_bg_size[1] - zh_name_size[1] - 7)
-        dr.text(zh_name_pos, weapon_zh_name, font=font, fill=font_color)
+        dr.text(zh_name_pos, weapon_zh_name, font=ttf, fill=font_color)
         # 带背景文字 实现方式
         # weapon_zh_name_bg = get_stage_name_bg(weapon_zh_name, font_size)
         # weapon_zh_name_bg_size = weapon_zh_name_bg.size
@@ -557,7 +562,7 @@ def get_event_card(event, event_card_bg_size):
         # 绘制游戏模式小图标
         game_mode_text = event["leagueMatchSetting"]["vsRule"]["rule"]
         game_mode_img_size = (35, 35)
-        game_mode_img = get_file(game_mode_text).resize(game_mode_img_size, Image.ANTIALIAS)
+        game_mode_img = get_file(game_mode_text).resize(game_mode_img_size, Image.LANCZOS)
         game_mode_img_pos = (20, pos_h)
         paste_with_a(event_card_bg, game_mode_img, game_mode_img_pos)
         # 绘制时间
@@ -593,7 +598,8 @@ def get_event_card(event, event_card_bg_size):
         elif time_converter(et) < now:
             text = "已结束"
             text_color = (165, 170, 163)
-        text_size = ttf.getsize(text)
+        left, top, right, bottom = ttf.getbbox(text=text)
+        text_size = right - left, bottom - top
         drawer.text(
             (transverse_line_pos_list[1][0] - text_size[0] - 10, time_text_pos[1]),
             text,
@@ -606,7 +612,7 @@ def get_event_card(event, event_card_bg_size):
 
 
 def get_festival_team_card(
-    festival, card_bg_size: tuple, teams_list: [], area_title: str, font_path: str = ttf_path_chinese
+    festival, card_bg_size: tuple[int, int], teams_list: [], area_title: str, font_path: str = ttf_path_chinese
 ):
     """绘制 祭典组别卡片"""
     group_img_size = (1000, 390)
@@ -676,7 +682,8 @@ def get_festival_team_card(
 
     drawer = ImageDraw.Draw(team_bg)
     # 绘制时间
-    w, h = ttf.getsize(time_text)
+    left, top, right, bottom = ttf.getbbox(text=time_text)
+    w, h = right - left, bottom - top
     # 文字居中绘制
     time_text_pos = ((card_bg_size[0] - w) / 2, group_card_pos[1] + rectangle_h + group_img_size[1] + 20)
     text_rgb = dict_bg_rgb["祭典时间-金黄"]
@@ -730,7 +737,8 @@ def get_festival_result_card(card_bg_size: tuple, teams_list: [], font_path: str
     for v in range(5):
         # 绘制条目名称
         text = list_item_names[v]
-        w, h = ttf.getsize(text)
+        left, top, right, bottom = ttf.getbbox(text=text)
+        w, h = right - left, bottom - top
         # 文字居中绘制
         text_pos = (130 + (60 - w) // 2, pos_h + 5)
         drawer.text(text_pos, text, font=ttf, fill=(255, 255, 255))
@@ -746,11 +754,13 @@ def get_festival_result_card(card_bg_size: tuple, teams_list: [], font_path: str
     ttf_win = ImageFont.truetype(font_path, font_size)
     win_text_1 = win_team_name
     win_text_2 = " 获胜!"
-    w, h = ttf_win.getsize(win_text_1 + win_text_2)
+    left, top, right, bottom = ttf_win.getbbox(text=win_text_1 + win_text_2)
+    w, h = right - left, bottom - top
     text_1_pos = ((temp_card_size[0] - w) // 2, pos_h + 30)
     drawer.text(text_1_pos, win_text_1, font=ttf_win, fill=win_rgb)
     # 分开绘制队伍名和获胜
-    w, h = ttf_win.getsize(win_text_1)
+    left, top, right, bottom = ttf_win.getbbox(text=win_text_1)
+    w, h = right - left, bottom - top
     text_2_pos = (text_1_pos[0] + w, text_1_pos[1])
     drawer.text(text_2_pos, win_text_2, font=ttf_cn, fill=win_rgb)
 
@@ -764,7 +774,7 @@ def get_festival_result_card(card_bg_size: tuple, teams_list: [], font_path: str
 
 
 def get_festival_result_item_card(
-    card_bg_size: tuple, teams_list: [dict], item_index: int, font_path: str = ttf_path_chinese
+    card_bg_size: tuple[int, int], teams_list: [dict], item_index: int, font_path: str = ttf_path_chinese
 ):
     """绘制 祭典条目结算卡片"""
     bg_rgb = dict_bg_rgb["祭典结算项目卡片"]
@@ -803,7 +813,8 @@ def get_festival_result_item_card(
         if win:
             text_rgb = win_rgb
         # 绘制百分比
-        w, h = ttf.getsize(percentage)
+        left, top, right, bottom = ttf.getbbox(text=percentage)
+        w, h = right - left, bottom - top
         # 文字居中绘制
         text_pos = (65 + width_space * k, (card_bg_size[1] - h) // 2)
         drawer.text(text_pos, percentage, font=ttf, fill=text_rgb)
@@ -899,9 +910,9 @@ def compress_image(image_bytes: bytes, kb=500, step=10, quality=50):
 #     dr.line([(350, 210), (602, 210)], fill="#FFFFFF", width=4)
 #     # 遍历进行贴图
 #     for i in range(4):
-#         image = get_weapon(weapon1[i]).resize(weapon_size, Image.ANTIALIAS)
+#         image = get_weapon(weapon1[i]).resize(weapon_size, Image.LANCZOS)
 #         image_background.paste(image, ((160 * i + 5), 20))
-#         image = get_weapon(weapon2[i]).resize(weapon_size, Image.ANTIALIAS)
+#         image = get_weapon(weapon2[i]).resize(weapon_size, Image.LANCZOS)
 #         image_background.paste(image, ((160 * i + 5), 20 + 220))
 #
 #     return image_background
