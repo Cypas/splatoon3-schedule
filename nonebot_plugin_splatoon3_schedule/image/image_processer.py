@@ -125,7 +125,7 @@ def get_events(events: list):
         # 顶部活动标志(大号)
         pos_h += 20
         game_mode_img_size = (80, 80)
-        game_mode_img = get_file("event_bg").resize(game_mode_img_size, Image.ANTIALIAS)
+        game_mode_img = get_file("event_bg").resize(game_mode_img_size, Image.LANCZOS)
         game_mode_img_pos = (20, pos_h)
         paste_with_a(image_background, game_mode_img, game_mode_img_pos)
         pos_h += game_mode_img_size[1] + 20
@@ -134,7 +134,8 @@ def get_events(events: list):
         drawer = ImageDraw.Draw(image_background)
         ttf = ImageFont.truetype(ttf_path_chinese, 40)
         main_title_pos = (game_mode_img_pos[0] + game_mode_img_size[0] + 20, game_mode_img_pos[1])
-        main_title_size = ttf.getsize(main_title)
+        left, top, right, bottom = ttf.getbbox(text=main_title)
+        main_title_size = right - left, bottom - top
         drawer.text(main_title_pos, main_title, font=ttf, fill=(255, 255, 255))
         # 绘制描述
         desc = cht_event_data["desc"]
@@ -424,7 +425,9 @@ def get_coop_stages(stage, weapon, time, boss, mode):
     for pos, val in enumerate(time):
         # 绘制时间文字
         time_text_pos = (50, 5 + pos * 160)
-        time_text_size = font.getsize(val)
+        left, top, right, bottom = font.getbbox(text=val)
+        time_text_size = right - left, bottom - top
+
         dr.text(time_text_pos, val, font=font, fill="#FFFFFF")
         if check_coop_fish(val):
             # 现在时间处于打工时间段内，绘制小鲑鱼
@@ -433,7 +436,7 @@ def get_coop_stages(stage, weapon, time, boss, mode):
             paste_with_a(coop_stage_bg, coop_fish_img, coop_fish_img_pos)
     for pos, val in enumerate(stage):
         # 绘制打工地图
-        stage_bg = get_save_file(val).resize(stage_bg_size, Image.ANTIALIAS)
+        stage_bg = get_save_file(val).resize(stage_bg_size, Image.LANCZOS)
         stage_bg_pos = (500, 2 + 162 * pos)
         coop_stage_bg.paste(stage_bg, stage_bg_pos)
 
@@ -451,7 +454,7 @@ def get_coop_stages(stage, weapon, time, boss, mode):
             # 绘制武器底图
             weapon_bg_img = Image.new("RGBA", weapon_size, (30, 30, 30))
             # 绘制武器图片
-            weapon_image = get_save_file(val_weapon).resize(weapon_size, Image.ANTIALIAS)
+            weapon_image = get_save_file(val_weapon).resize(weapon_size, Image.LANCZOS)
             paste_with_a(weapon_bg_img, weapon_image, (0, 0))
             coop_stage_bg.paste(weapon_bg_img, (120 * pos_weapon + 20, 60 + 160 * pos))
     for pos, val in enumerate(boss):
