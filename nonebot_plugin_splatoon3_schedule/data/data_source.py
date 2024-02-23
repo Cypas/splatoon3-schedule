@@ -3,13 +3,10 @@ from playwright.async_api import Browser, async_playwright
 from .db_image import db_image
 from ..utils import *
 
-# from playwright.async_api import Browser, async_playwright
-
-
 schedule_res = None
 _browser = None
 festivals_res = None
-festivals_res_save_ymd: str
+festivals_res_save_ymdt: str
 
 
 def get_schedule_data():
@@ -39,7 +36,7 @@ def get_schedule_data():
 def get_festivals_data():
     """取祭典数据"""
     global festivals_res
-    global festivals_res_save_ymd
+    global festivals_res_save_ymdt
 
     # 校验过期祭典数据 记录%Y-%m-%dT%H，2h刷新一次
     def check_expire_data(_festivals_res_save_ymd):
@@ -48,12 +45,12 @@ def get_festivals_data():
             return True
         return False
 
-    if festivals_res is None or check_expire_data(festivals_res_save_ymd):
+    if festivals_res is None or check_expire_data(festivals_res_save_ymdt):
         logger.info("重新请求:祭典数据")
         result = cf_http_get("https://splatoon3.ink/data/festivals.json").text
         festivals_res = json.loads(result)
         # 刷新储存时 时间
-        festivals_res_save_ymd = get_expire_time()
+        festivals_res_save_ymdt = get_expire_time()
         return festivals_res
     else:
         return festivals_res
