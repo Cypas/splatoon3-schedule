@@ -653,13 +653,6 @@ async def shutdown():
     # 关闭数据库
     db_image.close()
     db_control.close()
-    # 删除任务
-    bots = nonebot.get_bots()
-    for k in bots.keys():
-        job_id = f"sp3_schedule_push_job_{k}"
-        if scheduler.get_job(job_id):
-            scheduler.remove_job(job_id)
-            logger.info(f"remove job {job_id}!")
 
 
 @driver.on_bot_connect
