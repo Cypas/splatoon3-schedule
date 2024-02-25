@@ -8,7 +8,7 @@ from httpx import Response
 from .dataClass import TimeUtil
 from ..config import plugin_config
 
-DIR_RESOURCE = f"{os.path.abspath(os.path.join(__file__, os.pardir, os.pardir))}/staticData"
+DIR_RESOURCE = f"{os.path.abspath(os.path.join(__file__, os.pardir, os.pardir))}/resource"
 time_format_ymdh = "%Y-%m-%dT%H"
 HTTP_TIME_OUT = 5.0  # 请求超时，秒
 proxy_address = plugin_config.splatoon3_proxy_address
