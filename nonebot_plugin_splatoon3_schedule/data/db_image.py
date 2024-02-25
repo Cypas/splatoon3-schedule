@@ -2,10 +2,11 @@ import os
 import sqlite3
 from pathlib import Path
 from nonebot.log import logger
-from ..utils import WeaponData
 
-DB_path = Path(os.path.join(os.path.dirname(__file__), "db"))
-DB_image = Path(DB_path, "image.db")
+from ..utils import WeaponData, DIR_RESOURCE
+
+DB_path = Path(os.path.join(DIR_RESOURCE, "db"))
+DB_image = Path(os.path.join(DB_path, "image.db"))
 
 
 class DBIMAGE:

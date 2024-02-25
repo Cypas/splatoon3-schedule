@@ -1,10 +1,11 @@
+import os
 import sqlite3
 from pathlib import Path
 from nonebot.log import logger
 
-from . import DB_path
+from .db_image import DB_path
 
-DB_control = Path(DB_path, "control.db")
+DB_control = Path(os.path.join(DB_path, "control.db"))
 
 
 class DBCONTROL:

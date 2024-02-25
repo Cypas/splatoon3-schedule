@@ -68,8 +68,8 @@ from .util import (
     push_job,
 )
 
-require("nonebot_plugin_apscheduler")
-from nonebot_plugin_apscheduler import scheduler
+# require("nonebot_plugin_apscheduler")
+# from nonebot_plugin_apscheduler import scheduler
 
 __plugin_meta__ = PluginMetadata(
     name="splatoon3游戏日程查询",
@@ -638,44 +638,44 @@ async def send_msg(bot: Bot, event: Event, msg: str | bytes):
                     await bot.send(event, message=QQ_MsgSeg.image(url))
 
 
-@driver.on_startup
-async def startup():
-    """nb启动时事件"""
-    # 清空合成图片缓存表
-    db_image.clean_image_temp()
-    # 初始化黑名单字典
-    init_blacklist()
-
-
-@driver.on_shutdown
-async def shutdown():
-    """nb关闭时事件"""
-    # 关闭数据库
-    db_image.close()
-    db_control.close()
-
-
-@driver.on_bot_connect
-async def _(bot: Bot):
-    """bot接入时事件"""
-    bot_adapter = bot.adapter.get_name()
-    bot_id = bot.self_id
-
-    # 防止bot重连时重复添加任务
-    job_id = f"sp3_schedule_push_job_{bot_id}"
-    if scheduler.get_job(job_id):
-        scheduler.remove_job(job_id)
-        logger.info(f"remove job {job_id} first")
-
-    scheduler.add_job(
-        push_job,
-        trigger="cron",
-        hour="0,2,4,6,8,10,12,14,16,18,20,22",
-        minute=1,
-        id=job_id,
-        args=[bot, bot_adapter, bot_id],
-        misfire_grace_time=60,
-        coalesce=True,
-        max_instances=1,
-    )
-    logger.info(f"add job {job_id}")
+# @driver.on_startup
+# async def startup():
+#     """nb启动时事件"""
+#     # 清空合成图片缓存表
+#     db_image.clean_image_temp()
+#     # 初始化黑名单字典
+#     init_blacklist()
+#
+#
+# @driver.on_shutdown
+# async def shutdown():
+#     """nb关闭时事件"""
+#     # 关闭数据库
+#     db_image.close()
+#     db_control.close()
+#
+#
+# @driver.on_bot_connect
+# async def _(bot: Bot):
+#     """bot接入时事件"""
+#     bot_adapter = bot.adapter.get_name()
+#     bot_id = bot.self_id
+#
+#     # 防止bot重连时重复添加任务
+#     job_id = f"sp3_schedule_push_job_{bot_id}"
+#     if scheduler.get_job(job_id):
+#         scheduler.remove_job(job_id)
+#         logger.info(f"remove job {job_id} first")
+#
+#     scheduler.add_job(
+#         push_job,
+#         trigger="cron",
+#         hour="0,2,4,6,8,10,12,14,16,18,20,22",
+#         minute=1,
+#         id=job_id,
+#         args=[bot, bot_adapter, bot_id],
+#         misfire_grace_time=60,
+#         coalesce=True,
+#         max_instances=1,
+#     )
+#     logger.info(f"add job {job_id}")
