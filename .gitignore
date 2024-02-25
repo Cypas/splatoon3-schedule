@@ -1,6 +1,6 @@
 /output/*
 /.idea
-/nonebot_plugin_splatoon3_schedule/data/db/control.db
+/nonebot_plugin_splatoon3_schedule/staticData/db/control.db
 /nonebot_plugin_splatoon3_schedule/__pycache__
 /__init__.py
 /nonebot_plugin_splatoon3_schedule/weapon_trans_dict.txt
