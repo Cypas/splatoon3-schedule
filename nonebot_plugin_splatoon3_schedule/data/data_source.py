@@ -277,9 +277,8 @@ async def get_screenshot(shot_url, shot_path=None):
     """通过 browser 获取 shot_url 中的网页截图"""
     # playwright 要求不能有多个 browser 被同时唤起
     browser = await get_browser()
-    context = await browser.new_context(viewport={"width": 1480, "height": 900}, locale="zh-CH")
+    context = await browser.new_context(viewport={"width": 500, "height": 2000}, locale="zh-CH")
     page = await context.new_page()
-    await page.set_viewport_size({"width": 1480, "height": 900})
     await page.goto(shot_url)
     try:
         if shot_path is None:
