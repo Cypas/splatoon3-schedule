@@ -1,5 +1,5 @@
 import asyncio
-from nonebot_plugin_splatoon3_schedule import reload_weapon_info
+from nonebot_plugin_splatoon3_schedule import reload_weapon_info, get_screenshot
 from nonebot_plugin_splatoon3_schedule.image.image import *
 from nonebot_plugin_splatoon3_schedule.util import write_weapon_trans_dict, init_blacklist, check_msg_permission
 
@@ -136,6 +136,14 @@ from nonebot_plugin_splatoon3_schedule.util import write_weapon_trans_dict, init
 # 测试nso帮助
 # res = get_nso_help_image()
 # res.show()
+
+
+# 测试nso装备图片
+# async def get_weapon():
+#     img = await get_screenshot(shot_url="https://splatoon3.ink/gear")
+#     image = Image.open(io.BytesIO(img))
+#     image.show()
+# asyncio.run(get_weapon())
 
 
 # 测试重载武器数据

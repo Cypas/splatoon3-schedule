@@ -308,12 +308,12 @@ dict_weapon_main_trans = {
     "Custom Blaster": "火热爆破枪 改装",
     "Enperry Splat Dualies": "斯普拉机动枪 联名",
     "Foil Squeezer": "开瓶喷泉枪 金属箔",
-    "Neo Splatana Stamper": "工作刮水刀·新艺术",
     "Painbrush Nouveau": "文森·新艺术",
     "REEF-LUX 450 Deco": "LACT-450 装饰",
     "S-BLAST '91": "S-BLAST91",
     "Snipewriter 5B": "R-PEN/5B",
     "Undercover Sorella Brella": "特工配件 姐妹",
+    "Splatana Stamper Nouveau": "工作刮水刀·新艺术",
 }
 
 # 规范翻译字典 装备 副武器名称
