@@ -1,6 +1,5 @@
 import copy
 import io
-import os
 import re
 import sys
 import textwrap
@@ -10,17 +9,15 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 from ..data import db_image
 from ..utils import *
 
-# 根路径
-cur_path = os.path.join(os.path.dirname(__file__), "..")
-
 # 图片文件夹
-image_folder = os.path.join(cur_path, "staticData", "ImageData")
+image_folder = os.path.join(DIR_RESOURCE, "ImageData")
 # 武器文件夹
-weapon_folder = os.path.join(cur_path, "staticData", "weapon")
+weapon_folder = os.path.join(DIR_RESOURCE, "weapon")
 # 字体
-ttf_path = os.path.join(cur_path, "staticData", "common.otf")
-ttf_path_chinese = os.path.join(cur_path, "staticData", "cn.ttf")
-ttf_path_jp = os.path.join(cur_path, "staticData", "Splatfont2.otf")
+font_folder_path = os.path.join(DIR_RESOURCE, "font")
+ttf_path = os.path.join(font_folder_path, "common.otf")
+ttf_path_chinese = os.path.join(font_folder_path, "cn.ttf")
+ttf_path_jp = os.path.join(font_folder_path, "Splatfont2.otf")
 
 
 def image_to_bytes(image):
