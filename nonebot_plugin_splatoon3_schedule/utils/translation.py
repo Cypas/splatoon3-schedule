@@ -314,6 +314,17 @@ dict_weapon_main_trans = {
     "Snipewriter 5B": "R-PEN/5B",
     "Undercover Sorella Brella": "特工配件 姐妹",
     "Splatana Stamper Nouveau": "工作刮水刀·新艺术",
+    ".52 Gal Deco": ".52加仑 装饰",
+    "Custom E-liter 4K": "公升4K 改装",
+    "Custom E-liter 4K Scope": "4K准星枪 改装",
+    "Custom Explosher": "爆炸泼桶 改装",
+    "Douser Dualies FF": "灭熄FF",
+    "Dread Wringer D": "墨瀑淋D",
+    "Foil Flingza Roller": "可变式滚筒 金属箔",
+    "Glooga Dualies Deco": "开尔文525 装饰",
+    "Nautilus 79": "鹦鹉螺号79",
+    "New Squiffer": "鱿快洁β",
+    "Recycled Brella 24 Mk I": "24式可替换伞·甲",
 }
 
 # 规范翻译字典 装备 副武器名称

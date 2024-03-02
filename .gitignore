@@ -13,3 +13,4 @@ MANIFEST.in
 /venv/
 /poetry.lock
 /tests/
+/nonebot_plugin_splatoon3_schedule/resource/ImageData/backups/
