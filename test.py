@@ -1,7 +1,7 @@
 import asyncio
-from nonebot_plugin_splatoon3_schedule import reload_weapon_info, get_screenshot
+from nonebot_plugin_splatoon3_schedule import reload_weapon_info, get_screenshot, init_blacklist
 from nonebot_plugin_splatoon3_schedule.image.image import *
-from nonebot_plugin_splatoon3_schedule.util import write_weapon_trans_dict, init_blacklist
+from nonebot_plugin_splatoon3_schedule.util import write_weapon_trans_dict
 
 # 测试打工图片
 # res = get_coop_stages_image(True)
@@ -137,6 +137,8 @@ from nonebot_plugin_splatoon3_schedule.util import write_weapon_trans_dict, init
 # res = get_nso_help_image()
 # res.show()
 
+# 清空缓存
+# db_image.clean_image_temp()
 
 # 测试nso装备图片
 # async def get_weapon():

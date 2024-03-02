@@ -1,6 +1,7 @@
 from typing import List, Union
 
-from nonebot import get_driver
+# from nonebot import get_driver
+
 from nonebot import get_driver, get_plugin_config
 from pydantic import BaseModel, validator
 

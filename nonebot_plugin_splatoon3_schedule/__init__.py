@@ -11,9 +11,6 @@ from .util import get_weapon_info_test, cron_job, push_job, send_msg
 
 from .utils.bot import *
 
-require("nonebot_plugin_apscheduler")
-from nonebot_plugin_apscheduler import scheduler
-
 __plugin_meta__ = PluginMetadata(
     name="splatoon3游戏日程查询",
     description="一个基于nonebot2框架的splatoon3游戏日程查询插件",
@@ -375,6 +372,9 @@ async def shutdown():
 @driver.on_bot_connect
 async def _(bot: Bot):
     """bot接入时事件"""
+    require("nonebot_plugin_apscheduler")
+    from nonebot_plugin_apscheduler import scheduler
+
     bot_adapter = bot.adapter.get_name()
     bot_id = bot.self_id
 
