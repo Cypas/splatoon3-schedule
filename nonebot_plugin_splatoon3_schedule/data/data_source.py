@@ -279,14 +279,14 @@ async def get_screenshot(shot_url, shot_path=None):
     browser = await get_browser()
     context = await browser.new_context(viewport={"width": 500, "height": 2000}, locale="zh-CH")
     page = await context.new_page()
-    await page.goto(shot_url)
+    await page.goto(shot_url, wait_until="networkidle")
     try:
         if shot_path is None:
             return await page.screenshot()
         else:
             await page.screenshot(path=shot_path)
 
-        await page.wait_for_timeout(3000)
+        await page.wait_for_timeout(5000)
     except Exception as e:
         logger.error("Screenshot failed" + str(e))
         return await page.screenshot(full_page=True)
