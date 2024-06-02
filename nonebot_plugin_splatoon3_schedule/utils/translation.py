@@ -325,6 +325,16 @@ dict_weapon_main_trans = {
     "Nautilus 79": "鹦鹉螺号79",
     "New Squiffer": "鱿快洁β",
     "Recycled Brella 24 Mk I": "24式可替换伞·甲",
+    "Bamboozler 14 Mk II": "14式竹筒枪·乙",
+    "Charcoal Decavitator": "巨齿刮水刀 墨黑",
+    "Custom Douser Dualies FF": "灭熄FF 改装",
+    "Custom Hydra Splatling": "审查者·新艺术",
+    "Custom Range Blaster": "远距爆破枪 改装",
+    "Custom Wellstring V": "邦普V 改装",
+    "Heavy Edit Splatling Nouveau": "消防栓旋转枪 改装",
+    "Mint Decavitator": "巨齿刮水刀 薄荷",
+    "Recycled Brella 24 Mk II": "24式可替换伞·乙",
+    "Wellstring V": "邦普V",
 }
 
 # 规范翻译字典 装备 副武器名称
