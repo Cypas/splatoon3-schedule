@@ -160,7 +160,7 @@ async def get_save_temp_image(trigger_word, func, *args):
         time_now = get_time_now_china()
         if time_now >= expire_time:
             # 重新生成图片并写入
-            image_data = func(*args)
+            image_data = await func(*args)
             image_data = image_to_bytes(image_data)
             if len(image_data) != 0:
                 # 如果是太大的图片，需要压缩到1000k以下确保最后发出图片的大小
