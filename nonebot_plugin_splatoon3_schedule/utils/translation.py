@@ -201,6 +201,25 @@ dict_keyword_replace = {
     "bigrun": "工",
 }
 
+# 配装武器关键词前置处理
+dict_builds_pre_replace = {
+    "炮": "泡",
+    ".": "",
+    "。": "",
+    "·": "",
+    "-": "",
+    "/": "",
+}
+
+# 配装武器mode翻译
+dict_builds_mode_trans = {
+    "涂地": "TW",
+    "塔楼": "TC",
+    "鱼虎": "RM",
+    "蛤蜊": "CB",
+    "区域": "SZ",
+}
+
 # 规范翻译字典 装备 主武器名称
 # noinspection SpellCheckingInspection
 dict_weapon_main_trans = {

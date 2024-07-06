@@ -148,6 +148,19 @@ from nonebot_plugin_splatoon3_schedule.util import write_weapon_trans_dict
 # asyncio.run(get_weapon())
 
 
+# 测试获取配装截图
+# async def get_build():
+#     img = await get_build_image("蓝牙", True, "TW")
+#     if isinstance(img, str):
+#         logger.error(img)
+#
+#     else:
+#         image = Image.open(io.BytesIO(img))
+#         image.show()
+#
+#
+# asyncio.run(get_build())
+
 # 测试重载武器数据
 # asyncio.run(reload_weapon_info())
 
