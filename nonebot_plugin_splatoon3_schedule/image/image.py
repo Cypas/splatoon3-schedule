@@ -61,12 +61,10 @@ async def get_nso_help_image(*args):
 
 async def get_build_image(*args):
     """取 配装网页截图图片"""
-    weapon_name, is_deco, mode = args[0], args[1], args[2]
-    build_info = db_image.get_build_info(weapon_name, is_deco)
-    if not build_info:
-        return None
-    zh_name = build_info.get("zh_name")
-    sendou_name = build_info.get("sendou_name")
+    sendou_name, mode = args[0], args[1]
+    # 取mode翻译
+    mode = dict_builds_mode_trans.get(mode, mode)
+
     url = f"https://sendou.ink/builds/{sendou_name}?limit=6"
     if mode:
         url += '&f=[{"type":"mode","mode":"' + mode + '"},{"type":"date","date":"2024-05-31"}]'
@@ -169,7 +167,7 @@ async def get_save_temp_image(trigger_word, func, *args):
                 db_image.add_or_modify_IMAGE_TEMP(trigger_word, image_data, get_expire_time())
             return image_data
         else:
-            logger.info("数据库内存在时效范围内的缓存图片，将从数据库读取缓存图片")
+            logger.info(f"触发词:{trigger_word} 存在时效范围内的缓存图片，将读取缓存图片")
             return image_to_bytes(Image.open(io.BytesIO(image_data)))
 
 

@@ -290,14 +290,17 @@ async def get_screenshot(
     page = await context.new_page()
 
     try:
-        await page.goto(shot_url, wait_until="networkidle", timeout=600000)
+        await page.goto(shot_url, wait_until="load", timeout=300000)
+        await page.wait_for_timeout(1500)
         if selector:
             # 元素选择器
             await page.wait_for_selector(selector)
             element = await page.query_selector(selector)
+            screenshot = await element.screenshot(path=shot_path)
+            img = screenshot
         else:
-            element = page
-        img = await element.screenshot(path=shot_path)
+            img = await page.screenshot(path=shot_path)
+
         return img
     except Exception as e:
         logger.error("Screenshot failed" + str(e))
