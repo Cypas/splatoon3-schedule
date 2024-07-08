@@ -504,7 +504,7 @@ def get_help():
     """绘制 帮助图片"""
     image_background_size = (1200, 2300)
     if plugin_config.splatoon3_schedule_plugin_priority_mode:
-        image_background_size = (1200, 2700)
+        image_background_size = (1200, 2820)
     # 取背景rgb颜色
     bg_rgb = dict_bg_rgb["活动"]
     # 创建纯色背景
