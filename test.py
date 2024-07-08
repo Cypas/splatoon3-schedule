@@ -129,13 +129,23 @@ from nonebot_plugin_splatoon3_schedule.util import write_weapon_trans_dict
 # res = get_festival_image()
 # res.show()
 
+
 # 测试帮助
-# res = get_help_image()
-# res.show()
+# async def get_help():
+#     img = await get_help_image()
+#     img.show()
+#
+#
+# asyncio.run(get_help())
+
 
 # 测试nso帮助
-# res = get_nso_help_image()
-# res.show()
+# async def get_nso_help():
+#     img = await get_nso_help_image()
+#     img.show()
+#
+#
+# asyncio.run(get_nso_help())
 
 # 清空缓存
 # db_image.clean_image_temp()
@@ -147,6 +157,19 @@ from nonebot_plugin_splatoon3_schedule.util import write_weapon_trans_dict
 #     image.show()
 # asyncio.run(get_weapon())
 
+
+# 测试获取配装截图
+# async def get_build():
+#     img = await get_build_image("蓝牙", True, "TW")
+#     if isinstance(img, str):
+#         logger.error(img)
+#
+#     else:
+#         image = Image.open(io.BytesIO(img))
+#         image.show()
+#
+#
+# asyncio.run(get_build())
 
 # 测试重载武器数据
 # asyncio.run(reload_weapon_info())

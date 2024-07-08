@@ -277,5 +277,25 @@ class DBIMAGE:
         self.conn.commit()
         return result
 
+    def get_build_info(self, keyword, is_deco) -> dict:
+        """取配装数据"""
+        if not is_deco:
+            sql = f"select * from BUILDS where keywords LIKE '%|{keyword}|%'"
+        else:
+            sql = f"select * from BUILDS where keywords LIKE '%|{keyword}|%' AND is_deco=1"
+        c = self.conn.cursor()
+        c.execute(
+            sql,
+        )
+        # 单行查询结果
+        row = c.fetchone()
+        if row is not None:
+            # 查询有结果时将查询结果转换为字典
+            result = dict(zip([column[0] for column in c.description], row))
+        else:
+            result = None
+        self.conn.commit()
+        return result
+
 
 db_image = DBIMAGE()

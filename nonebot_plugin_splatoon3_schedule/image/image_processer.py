@@ -502,9 +502,9 @@ def get_random_weapon(weapon1: [WeaponData], weapon2: [WeaponData]):
 
 def get_help():
     """绘制 帮助图片"""
-    image_background_size = (1200, 2200)
+    image_background_size = (1200, 2300)
     if plugin_config.splatoon3_schedule_plugin_priority_mode:
-        image_background_size = (1200, 2600)
+        image_background_size = (1200, 2820)
     # 取背景rgb颜色
     bg_rgb = dict_bg_rgb["活动"]
     # 创建纯色背景
@@ -606,6 +606,24 @@ def get_help():
     height += card_h
 
     # 绘制title
+    title = "配装"
+    title_pos = (20, height)
+    w, h = drawer_text(drawer, title, title_pos, text_width, title_rgb)
+    height += h
+    # 绘制 帮助卡片 对战地图查询
+    pre = "查询指令:"
+    order_list = ["/配装 枫叶", "/配装 贴牌长弓 塔楼"]
+    desc_list = [
+        "需携带武器名称或模式名称作为参数，若为贴牌武器需要加上'贴牌'两个字",
+        "如/配装 小绿;/配装 贴牌洗洁精;/配装 鹦鹉螺 塔楼",
+    ]
+    text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h
+
+    # 绘制title
     title = "私房用 随机武器"
     title_pos = (20, height)
     w, h = drawer_text(drawer, title, title_pos, text_width, title_rgb)
@@ -640,6 +658,7 @@ def get_help():
             "以下是部分常用nso指令，完整nso指令请再发送 /nso帮助 查看",
             "/login：绑定nso账号，后续指令都是需要完成绑定后才可以使用，Q群使用请先加入下面联系方式里的 kook频道",
             "/last：查询上一局比赛或打工的数据",
+            "/lasti：以图片模式查询上一局比赛或打工的数据",
             "/friends：显示在线的ns好友",
             "/report：获取昨天或指定日期的日报数据(胜场，游戏局数，金银铜牌，打工鳞片等数量变化)，支持指定日期，如 /report 2023-12-17",
             "/me：获取自己个人数据(总场数，胜率，金银铜牌数量等)",
@@ -716,7 +735,7 @@ def get_help():
 
 def get_nso_help():
     """绘制 nso帮助图片"""
-    image_background_size = (1200, 4200)
+    image_background_size = (1200, 4300)
 
     # 取背景rgb颜色
     bg_rgb = dict_bg_rgb["活动"]
@@ -776,6 +795,16 @@ def get_nso_help():
         ("多参数合并使用", "如/last c m 查询最近一场 打工 并 打码"),
     ]
     text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 5
+    # 绘制 帮助卡片
+    cmd_list = ["/lasti"]
+    desc_list = [
+        ("无参数", "等同于/last i指令，将查询结果强制以图片返回"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=40)
     # 贴图
     text_bg_pos = (title_pos[0] + 30, height)
     paste_with_a(image_background, text_card, text_bg_pos)

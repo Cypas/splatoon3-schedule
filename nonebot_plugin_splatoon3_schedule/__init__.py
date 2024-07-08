@@ -33,7 +33,7 @@ async def _(bot: Bot, event: Event):
     plain_text = event.get_message().extract_plain_text().strip()
     # 触发关键词  替换.。\/ 等前缀触发词
     plain_text = multiple_replace(plain_text, dict_keyword_replace)
-    logger.info("同义文本替换后触发词为:" + plain_text + "\n")
+    logger.info("同义文本替换后触发词为:" + plain_text)
     # 判断是否满足进一步正则
     num_list = []
     contest_match = None
@@ -71,7 +71,7 @@ async def _(bot: Bot, event: Event):
         # 传递函数指针
         func = get_stages_image
         # 获取图片
-        img = get_save_temp_image(plain_text, func, num_list, contest_match, rule_match)
+        img = await get_save_temp_image(plain_text, func, num_list, contest_match, rule_match)
         # 发送消息
         await send_msg(bot, event, img)
 
@@ -167,7 +167,7 @@ async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
         # 传递函数指针
         func = get_stages_image
         # 获取图片
-        img = get_save_temp_image(plain_text, func, num_list, contest_match, rule_match)
+        img = await get_save_temp_image(plain_text, func, num_list, contest_match, rule_match)
         # 发送消息
         await send_msg(bot, event, img)
 
@@ -185,7 +185,7 @@ async def _(bot: Bot, event: Event):
     plain_text = event.get_message().extract_plain_text().strip()
     # 触发关键词  替换.。\/ 等前缀触发词
     plain_text = multiple_replace(plain_text, dict_keyword_replace)
-    logger.info("同义文本替换后触发词为:" + plain_text + "\n")
+    logger.info("同义文本替换后触发词为:" + plain_text)
     # 判断是否满足进一步正则
     _all = False
     if "全部" in plain_text:
@@ -193,8 +193,79 @@ async def _(bot: Bot, event: Event):
     # 传递函数指针
     func = get_coop_stages_image
     # 获取图片
-    img = get_save_temp_image(plain_text, func, _all)
+    img = await get_save_temp_image(plain_text, func, _all)
     # 发送消息
+    await send_msg(bot, event, img)
+
+
+# 配装 触发器
+matcher_build = on_regex(
+    "^[\\/.,，。]?配装\s?([\\u4e00-\\u9fa5a-zA-Z0-9]{2,20})?\s?(区域|区|推塔|抢塔|塔楼|塔|蛤蜊|蛤|抢鱼|鱼虎|鱼|涂地|涂涂|涂)?$",
+    priority=8,
+    block=True,
+)
+
+
+# 配装 触发器处理
+@matcher_build.handle(parameterless=[Depends(_permission_check)])
+async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
+    re_list = []
+    for k, v in enumerate(re_tuple):
+        # 遍历正则匹配字典进行替换文本
+        if k == 0:
+            # 武器名
+            if v:
+                v = v.upper()
+                v = multiple_replace(v, dict_builds_pre_replace)
+            re_list.append(v)
+        if k == 1:
+            # 模式
+            value = dict_keyword_replace.get(v, v)
+            re_list.append(value)
+    logger.info("同义文本替换后触发参数为:" + json.dumps(re_list, ensure_ascii=False))
+
+    if not re_list[0]:
+        msg = "请携带需要查询的武器或模式信息作为参数，若为贴牌需要加上贴牌二字，如:\n/配装 小绿\n指定模式查询:\n/配装 贴牌碳刷 塔楼"
+        await send_msg(bot, event, msg)
+        return
+
+    # 整理参数
+    is_deco = False
+    mode = None
+    weapon_name = re_list[0]
+    if "贴牌" in weapon_name:
+        is_deco = True
+        weapon_name = weapon_name.replace("贴牌", "")
+
+    # 查询对应武器
+    build_info = db_image.get_build_info(weapon_name, is_deco)
+    if not build_info:
+        msg = "该关键词未查询到对应武器，请试试使用官方中文武器名称或其他常用名称后再试"
+        await send_msg(bot, event, msg)
+        return
+    zh_name: str = build_info.get("zh_name")
+    sendou_name: str = build_info.get("sendou_name")
+
+    plain_text = "配装"
+    re_list[0] = f'{zh_name.replace(" ", "")}'
+    plain_text = f"{plain_text} {re_list[0]}"
+    if re_list[1]:
+        plain_text = f"{plain_text} {re_list[1]}"
+
+    # mode
+    if re_list[1]:
+        mode = re_list[1]
+        mode_str = mode
+    else:
+        mode_str = "全部"
+    msg = f"正在获取武器 {re_list[0]} 在 {mode_str}模式下的配装推荐，请稍等..."
+    await send_msg(bot, event, msg)
+
+    # 传递函数指针
+    func = get_build_image
+    # 获取图片
+    img = await get_save_temp_image(plain_text, func, sendou_name, mode)
+    # 发送图片
     await send_msg(bot, event, img)
 
 
@@ -209,7 +280,7 @@ async def _(bot: Bot, event: Event):
     # 触发关键词  替换.。\/ 等前缀触发词
     plain_text = multiple_replace(plain_text, dict_prefix_replace)
     plain_text = plain_text.replace("help", "帮助")
-    logger.info("同义文本替换后触发词为:" + plain_text + "\n")
+    logger.info("同义文本替换后触发词为:" + plain_text)
     # 判断是否满足进一步正则
     # 随机武器
     if re.search("^随机武器.*$", plain_text):
@@ -219,14 +290,14 @@ async def _(bot: Bot, event: Event):
             msg = "请机器人管理员先发送 更新武器数据 更新本地武器数据库后，才能使用随机武器功能"
             await send_msg(bot, event, msg)
         else:
-            img = image_to_bytes(get_random_weapon_image(plain_text))
+            img = image_to_bytes(await get_random_weapon_image(plain_text))
             # 发送消息
             await send_msg(bot, event, img)
     elif re.search("^祭典$", plain_text):
         # 传递函数指针
         func = get_festival_image
         # 获取图片
-        img = get_save_temp_image(plain_text, func)
+        img = await get_save_temp_image(plain_text, func)
         if img is None:
             msg = "近期没有任何祭典"
             await send_msg(bot, event, msg)
@@ -237,7 +308,7 @@ async def _(bot: Bot, event: Event):
         # 传递函数指针
         func = get_events_image
         # 获取图片
-        img = get_save_temp_image(plain_text, func)
+        img = await get_save_temp_image(plain_text, func)
         if img is None:
             msg = "近期没有任何活动比赛"
             await send_msg(bot, event, msg)
@@ -249,7 +320,7 @@ async def _(bot: Bot, event: Event):
         # 传递函数指针
         func = get_help_image
         # 获取图片
-        img = get_save_temp_image(plain_text, func)
+        img = await get_save_temp_image(plain_text, func)
         # 发送图片
         await send_msg(bot, event, img)
         # 当优先帮助打开时，额外发送nso帮助
@@ -260,12 +331,12 @@ async def _(bot: Bot, event: Event):
         # 传递函数指针
         func = get_nso_help_image
         # 获取图片
-        img = get_save_temp_image(plain_text, func)
+        img = await get_save_temp_image(plain_text, func)
         # 发送图片
         await send_msg(bot, event, img)
 
     elif re.search("^装备$", plain_text):
-        img = await get_screenshot(shot_url="https://splatoon3.ink/gear")
+        img = await get_screenshot(shot_url="https://splatoon3.ink/gear", mode="mobile")
         # 发送图片
         await send_msg(bot, event, img)
 

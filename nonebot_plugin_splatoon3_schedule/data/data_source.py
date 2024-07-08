@@ -1,4 +1,5 @@
 from playwright.async_api import Browser, async_playwright
+from playwright.sync_api import FloatRect
 
 from .db_image import db_image
 from ..utils import *
@@ -273,22 +274,37 @@ async def get_browser() -> Browser:
     return _browser
 
 
-async def get_screenshot(shot_url, shot_path=None):
+async def get_screenshot(
+    shot_url,
+    mode="pc",
+    selector=None,
+    shot_path=None,
+):
     """通过 browser 获取 shot_url 中的网页截图"""
     # playwright 要求不能有多个 browser 被同时唤起
     browser = await get_browser()
-    context = await browser.new_context(viewport={"width": 500, "height": 2000}, locale="zh-CH")
+    if mode == "pc":
+        context = await browser.new_context(viewport={"width": 1920, "height": 1080}, locale="zh-CH")
+    elif mode == "mobile":
+        context = await browser.new_context(viewport={"width": 500, "height": 2000}, locale="zh-CH")
     page = await context.new_page()
-    await page.goto(shot_url, wait_until="networkidle")
-    try:
-        if shot_path is None:
-            return await page.screenshot()
-        else:
-            await page.screenshot(path=shot_path)
 
-        await page.wait_for_timeout(5000)
+    try:
+        await page.goto(shot_url, wait_until="load", timeout=300000)
+        await page.wait_for_timeout(1500)
+        if selector:
+            # 元素选择器
+            await page.wait_for_selector(selector)
+            element = await page.query_selector(selector)
+            screenshot = await element.screenshot(path=shot_path)
+            img = screenshot
+        else:
+            img = await page.screenshot(path=shot_path)
+
+        return img
     except Exception as e:
         logger.error("Screenshot failed" + str(e))
-        return await page.screenshot(full_page=True)
+        # return await page.screenshot(full_page=True)
+        raise e
     finally:
         await context.close()
