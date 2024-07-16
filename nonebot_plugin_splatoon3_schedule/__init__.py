@@ -427,7 +427,7 @@ async def _(bot: Bot, event: Event):
 async def startup():
     """nb启动时事件"""
     # 清空合成图片缓存表
-    db_image.clean_image_temp()
+    # db_image.clean_image_temp()
     # 初始化黑名单字典
     init_blacklist()
 
