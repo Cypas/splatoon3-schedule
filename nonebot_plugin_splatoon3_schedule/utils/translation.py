@@ -204,6 +204,8 @@ dict_keyword_replace = {
 # 配装武器关键词前置处理
 dict_builds_pre_replace = {
     "炮": "泡",
+    "息": "熄",
+    " ": "",
     ".": "",
     "。": "",
     "·": "",

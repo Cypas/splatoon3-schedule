@@ -200,7 +200,7 @@ async def _(bot: Bot, event: Event):
 
 # 配装 触发器
 matcher_build = on_regex(
-    "^[\\/.,，。]?配装\s?([\\u4e00-\\u9fa5a-zA-Z0-9]{2,20})?\s?(区域|区|推塔|抢塔|塔楼|塔|蛤蜊|蛤|抢鱼|鱼虎|鱼|涂地|涂涂|涂)?$",
+    "^[\\/.,，。]?配装\s?([\\u4e00-\\u9fa5a-zA-Z0-9·-]{2,20}(\s(装饰|改装|联名|新型|新艺术|金属箔|精英|精英装饰|姐妹|高磁波))?)?\s?(区域|区|推塔|抢塔|塔楼|塔|蛤蜊|蛤|抢鱼|鱼虎|鱼|涂地|涂涂|涂)?$",
     priority=8,
     block=True,
 )
@@ -218,7 +218,7 @@ async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
                 v = v.upper()
                 v = multiple_replace(v, dict_builds_pre_replace)
             re_list.append(v)
-        if k == 1:
+        if k == len(re_tuple) - 1:
             # 模式
             value = dict_keyword_replace.get(v, v)
             re_list.append(value)
@@ -241,6 +241,7 @@ async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
     build_info = db_image.get_build_info(weapon_name, is_deco)
     if not build_info:
         msg = "该关键词未查询到对应武器，请试试使用官方中文武器名称或其他常用名称后再试"
+        logger.warning(f"该关键词未匹配到武器 {weapon_name}")
         await send_msg(bot, event, msg)
         return
     zh_name: str = build_info.get("zh_name")
