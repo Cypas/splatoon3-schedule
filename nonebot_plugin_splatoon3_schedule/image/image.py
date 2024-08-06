@@ -67,9 +67,9 @@ async def get_build_image(*args):
 
     url = f"https://sendou.ink/builds/{sendou_name}?limit=6"
     if mode:
-        url += '&f=[{"type":"mode","mode":"' + mode + '"},{"type":"date","date":"2024-05-31"}]'
+        url += '&f=[{"type":"mode","mode":"' + mode + '"},{"type":"date","date":"2024-07-17"}]'
     else:
-        url += '&f=[{"type":"date","date":"2024-05-31"}]'
+        url += '&f=[{"type":"date","date":"2024-07-17"}]'
 
     logger.info(f"sendou.ink url:{url}")
     try:
@@ -156,7 +156,7 @@ async def get_save_temp_image(trigger_word, func, *args):
         # 判断时间是否过期
         expire_time = datetime.datetime.strptime(image_expire_time, time_format_ymdh)
         time_now = get_time_now_china()
-        if time_now >= expire_time:
+        if time_now >= expire_time or (time_now.hour == 0 and time_now.minute < 1):
             # 重新生成图片并写入
             image_data = await func(*args)
             image_data = image_to_bytes(image_data)
