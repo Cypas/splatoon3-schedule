@@ -200,7 +200,7 @@ async def _(bot: Bot, event: Event):
 
 # 配装 触发器
 matcher_build = on_regex(
-    "^[\\/.,，。]?配装\s{0,2}([\\u4e00-\\u9fa5a-zA-Z0-9·-]{2,20}(\s(装饰|改装|联名|新型|新艺术|金属箔|精英|精英装饰|姐妹|高磁波|墨黑|薄荷|黑|白|甲|乙))?)?\s?(区域|区|推塔|抢塔|塔楼|塔|蛤蜊|蛤|抢鱼|鱼虎|鱼|涂地|涂涂|涂)?$",
+    "^[\\/.,，。]?配装\s{0,2}([\\u4e00-\\u9fa5a-zA-Z0-9·-]{2,20}?(\s(装饰|改装|联名|新型|新艺术|金属箔|精英|精英装饰|姐妹|高磁波|墨黑|薄荷|黑|白|甲|乙))?)?\s?(区域|区|推塔|抢塔|塔楼|塔|蛤蜊|蛤|抢鱼|鱼虎|鱼|涂地|涂涂|涂)?$",
     priority=8,
     block=True,
 )
@@ -240,7 +240,7 @@ async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
     # 查询对应武器
     build_info = db_image.get_build_info(weapon_name, is_deco)
     if not build_info:
-        msg = "该关键词未查询到对应武器，请试试使用官方中文武器名称或其他常用名称后再试"
+        msg = f"该关键词 {weapon_name} 未查询到对应武器，请试试使用官方中文武器名称或其他常用名称后再试，如:\n/配装 小绿\n指定模式查询:\n/配装 贴牌碳刷 塔楼"
         logger.warning(f"该关键词未匹配到武器 {weapon_name}")
         await send_msg(bot, event, msg)
         return
