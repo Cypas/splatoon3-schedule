@@ -133,7 +133,7 @@ async def get_save_temp_image(trigger_word, func, *args):
         if isinstance(image, str):
             # 错误文本消息
             return image
-        if not isinstance(image, bytes):
+        if isinstance(image, Image.Image):
             image_data = image_to_bytes(image)
         else:
             image_data = image
@@ -158,8 +158,16 @@ async def get_save_temp_image(trigger_word, func, *args):
         time_now = get_time_now_china()
         if time_now >= expire_time or (time_now.hour == 0 and time_now.minute < 1):
             # 重新生成图片并写入
-            image_data = await func(*args)
-            image_data = image_to_bytes(image_data)
+            image = await func(*args)
+            if image is None:
+                return image
+            if isinstance(image, str):
+                # 错误文本消息
+                return image
+            if isinstance(image, Image.Image):
+                image_data = image_to_bytes(image)
+            else:
+                image_data = image
             if len(image_data) != 0:
                 # 如果是太大的图片，需要压缩到1000k以下确保最后发出图片的大小
                 image_data = compress_image(image_data, kb=1000, step=10, quality=80)

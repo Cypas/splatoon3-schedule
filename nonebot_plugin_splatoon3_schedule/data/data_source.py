@@ -279,7 +279,7 @@ async def get_screenshot(
     mode="pc",
     selector=None,
     shot_path=None,
-):
+) -> bytes:
     """通过 browser 获取 shot_url 中的网页截图"""
     # playwright 要求不能有多个 browser 被同时唤起
     browser = await get_browser()

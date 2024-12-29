@@ -3,7 +3,7 @@ from .image_processer_tools import *
 from ..utils import *
 
 
-def get_festival(festivals):
+def get_festival(festivals) -> Image.Image:
     """绘制 全部区域 祭典地图"""
 
     # 先取日服最后一个祭典看是否为全服通用祭典
@@ -34,7 +34,7 @@ def get_festival(festivals):
     return image_background
 
 
-def get_area_festival(festival, area_title, language_font_path):
+def get_area_festival(festival, area_title, language_font_path) -> Image.Image:
     """绘制 单一区域 祭典地图"""
     flag_festival_close = False
     # 判断祭典是否结束
@@ -89,7 +89,7 @@ def get_area_festival(festival, area_title, language_font_path):
     return image_background
 
 
-def get_events(events: list):
+def get_events(events: list) -> Image.Image:
     """绘制 活动地图"""
     # 计算全部活动的举办次数来计算图片高度
     times = 0
@@ -165,7 +165,7 @@ def get_events(events: list):
     return image_background
 
 
-def get_stages(schedule, num_list, contest_match=None, rule_match=None):
+def get_stages(schedule, num_list, contest_match=None, rule_match=None) -> Image.Image:
     """绘制 竞赛地图"""
     # 涂地
     regular = schedule["regularSchedules"]["nodes"]
@@ -386,7 +386,7 @@ def get_stages(schedule, num_list, contest_match=None, rule_match=None):
     return image_background
 
 
-def get_coop_stages(stage, weapon, time, boss, mode):
+def get_coop_stages(stage, weapon, time, boss, mode) -> Image.Image:
     """绘制 打工地图"""
 
     # 校验是否需要绘制小鲑鱼(现在时间处于该打工时间段内)
@@ -476,7 +476,7 @@ def get_coop_stages(stage, weapon, time, boss, mode):
     return image_background
 
 
-def get_random_weapon(weapon1: [WeaponData], weapon2: [WeaponData]):
+def get_random_weapon(weapon1: [WeaponData], weapon2: [WeaponData]) -> Image.Image:
     """绘制 随机武器"""
     # 底图
     image_background_size = (660, 500)
@@ -500,7 +500,7 @@ def get_random_weapon(weapon1: [WeaponData], weapon2: [WeaponData]):
     return image_background
 
 
-def get_help():
+def get_help() -> Image.Image:
     """绘制 帮助图片"""
     image_background_size = (1200, 2300)
     if plugin_config.splatoon3_schedule_plugin_priority_mode:
@@ -733,7 +733,7 @@ def get_help():
     return image_background
 
 
-def get_nso_help():
+def get_nso_help() -> Image.Image:
     """绘制 nso帮助图片"""
     image_background_size = (1200, 4300)
 
