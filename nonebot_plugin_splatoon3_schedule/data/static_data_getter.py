@@ -32,6 +32,10 @@ async def reload_weapon_info():
             zh_sub_name="None",
             zh_special_name="None",
         )
+        # 排除秩序dlc武器
+        introdeced: str = weapon_info[9].text
+        if introdeced.startswith("Version 7.0.0 (Side Order)"):
+            continue
         # 主武器，副武器，大招，武器类别，武器父类别 取翻译字典
         # 先从字典取武器名称翻译
         if weapon_data.name in dict_weapon_main_trans:
@@ -70,7 +74,7 @@ async def reload_weapon_info():
         await push_weapon_images(
             ImageInfo(
                 name=names[3],
-                url="https:" + weapon_info[ids[3]].contents[0].contents[0].attrs["src"],
+                url="https:" + weapon_info[ids[3]].contents[0].contents[0].contents[0].attrs["src"],
                 source_type=weapon_image_type[3],
                 zh_name=None,  # 多余项忽略
             )

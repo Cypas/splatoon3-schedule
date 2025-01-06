@@ -201,6 +201,29 @@ dict_keyword_replace = {
     "bigrun": "工",
 }
 
+# 配装武器关键词前置处理
+dict_builds_pre_replace = {
+    "无印": "",
+    "炮": "泡",
+    "息": "熄",
+    "篮": "蓝",
+    " ": "",
+    ".": "",
+    "。": "",
+    "·": "",
+    "-": "",
+    "/": "",
+}
+
+# 配装武器mode翻译
+dict_builds_mode_trans = {
+    "涂地": "TW",
+    "塔楼": "TC",
+    "鱼虎": "RM",
+    "蛤蜊": "CB",
+    "区域": "SZ",
+}
+
 # 规范翻译字典 装备 主武器名称
 # noinspection SpellCheckingInspection
 dict_weapon_main_trans = {
@@ -308,12 +331,33 @@ dict_weapon_main_trans = {
     "Custom Blaster": "火热爆破枪 改装",
     "Enperry Splat Dualies": "斯普拉机动枪 联名",
     "Foil Squeezer": "开瓶喷泉枪 金属箔",
-    "Neo Splatana Stamper": "工作刮水刀·新艺术",
     "Painbrush Nouveau": "文森·新艺术",
     "REEF-LUX 450 Deco": "LACT-450 装饰",
     "S-BLAST '91": "S-BLAST91",
     "Snipewriter 5B": "R-PEN/5B",
     "Undercover Sorella Brella": "特工配件 姐妹",
+    "Splatana Stamper Nouveau": "工作刮水刀·新艺术",
+    ".52 Gal Deco": ".52加仑 装饰",
+    "Custom E-liter 4K": "公升4K 改装",
+    "Custom E-liter 4K Scope": "4K准星枪 改装",
+    "Custom Explosher": "爆炸泼桶 改装",
+    "Douser Dualies FF": "灭熄FF",
+    "Dread Wringer D": "墨瀑淋D",
+    "Foil Flingza Roller": "可变式滚筒 金属箔",
+    "Glooga Dualies Deco": "开尔文525 装饰",
+    "Nautilus 79": "鹦鹉螺号79",
+    "New Squiffer": "鱿快洁β",
+    "Recycled Brella 24 Mk I": "24式可替换伞·甲",
+    "Bamboozler 14 Mk II": "14式竹筒枪·乙",
+    "Charcoal Decavitator": "巨齿刮水刀 墨黑",
+    "Custom Douser Dualies FF": "灭熄FF 改装",
+    "Custom Hydra Splatling": "消防栓旋转枪 改装",
+    "Custom Range Blaster": "远距爆破枪 改装",
+    "Custom Wellstring V": "邦普V 改装",
+    "Heavy Edit Splatling Nouveau": "审查者·新艺术",
+    "Mint Decavitator": "巨齿刮水刀 薄荷",
+    "Recycled Brella 24 Mk II": "24式可替换伞·乙",
+    "Wellstring V": "邦普V",
 }
 
 # 规范翻译字典 装备 副武器名称
@@ -443,6 +487,7 @@ dict_weapon_special = {
     "导弹": "多重导弹",
     "墨雨云": "墨雨云",
     "下雨": "墨雨云",
+    "元气弹": "赞气弹",
     "赞气弹": "赞气弹",
     "nice弹": "赞气弹",
     "弹跳声呐": "弹跳声呐",

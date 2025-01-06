@@ -1,7 +1,7 @@
 import asyncio
-from nonebot_plugin_splatoon3_schedule import reload_weapon_info
+from nonebot_plugin_splatoon3_schedule import reload_weapon_info, get_screenshot, init_blacklist
 from nonebot_plugin_splatoon3_schedule.image.image import *
-from nonebot_plugin_splatoon3_schedule.util import write_weapon_trans_dict, init_blacklist, check_msg_permission
+from nonebot_plugin_splatoon3_schedule.util import write_weapon_trans_dict
 
 # 测试打工图片
 # res = get_coop_stages_image(True)
@@ -101,7 +101,7 @@ from nonebot_plugin_splatoon3_schedule.util import write_weapon_trans_dict, init
 #     img = get_save_temp_image(plain_text, func, num_list, contest_match, rule_match)
 
 # # 测试nonebot 对战 命令文本触发
-# plain_text = "pp"
+# plain_text = "全部图"
 #
 # num_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 # # num_list = list(set([int(x) for x in plain_text[:-2]]))
@@ -129,9 +129,47 @@ from nonebot_plugin_splatoon3_schedule.util import write_weapon_trans_dict, init
 # res = get_festival_image()
 # res.show()
 
+
 # 测试帮助
-# res = get_help_image()
-# res.show()
+# async def get_help():
+#     img = await get_help_image()
+#     img.show()
+#
+#
+# asyncio.run(get_help())
+
+
+# 测试nso帮助
+# async def get_nso_help():
+#     img = await get_nso_help_image()
+#     img.show()
+#
+#
+# asyncio.run(get_nso_help())
+
+# 清空缓存
+# db_image.clean_image_temp()
+
+# 测试nso装备图片
+# async def get_weapon():
+#     img = await get_screenshot(shot_url="https://splatoon3.ink/gear")
+#     image = Image.open(io.BytesIO(img))
+#     image.show()
+# asyncio.run(get_weapon())
+
+
+# 测试获取配装截图
+# async def get_build():
+#     img = await get_build_image("蓝牙", True, "TW")
+#     if isinstance(img, str):
+#         logger.error(img)
+#
+#     else:
+#         image = Image.open(io.BytesIO(img))
+#         image.show()
+#
+#
+# asyncio.run(get_build())
 
 # 测试重载武器数据
 # asyncio.run(reload_weapon_info())
