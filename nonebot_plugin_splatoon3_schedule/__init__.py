@@ -240,7 +240,7 @@ async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
     # 查询对应武器
     build_info = db_image.get_build_info(weapon_name, is_deco)
     if not build_info:
-        msg = f"该关键词 {weapon_name} 未查询到对应武器，请试试使用官方中文武器名称或其他常用名称后再试，如:\n/配装 小绿\n指定模式查询:\n/配装 贴牌碳刷 塔楼"
+        msg = f"该关键词 {weapon_name} 未查询到对应武器，请试试使用官方中文武器名称或其他常用名称后再试，若为贴牌需要加上贴牌二字，如:\n/配装 小绿\n指定模式查询:\n/配装 贴牌碳刷 塔楼"
         logger.warning(f"该关键词未匹配到武器 {weapon_name}")
         await send_msg(bot, event, msg)
         return

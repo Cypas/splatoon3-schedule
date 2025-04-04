@@ -7,7 +7,7 @@ def get_festival(festivals) -> Image.Image:
     """绘制 全部区域 祭典地图"""
 
     # 先取日服最后一个祭典看是否为全服通用祭典
-    jp_festivals = festivals["JP"]["data"]["festRecords"]["nodes"]
+    jp_festivals = festivals["US"]["data"]["festRecords"]["nodes"]
     _id = jp_festivals[0]["__splatoon3ink_id"]
 
     ap_festivals = festivals["AP"]["data"]["festRecords"]["nodes"]
