@@ -1,5 +1,7 @@
 import time
-from nonebot.adapters.qq import AuditException, ActionFailed
+
+# from nonebot.adapters.qq import AuditException, ActionFailed
+from nonebot.adapters.qq import AuditException as QQ_AuditException, ActionFailed as QQ_ActionFailed
 
 from .config import plugin_config
 from .image.image import get_save_temp_image, get_stages_image, get_coop_stages_image, get_events_image
@@ -115,7 +117,13 @@ async def send_msg(bot: Bot, event: Event, msg: str | bytes):
         elif isinstance(bot, Kook_Bot):
             await bot.send(event, message=Kook_MsgSeg.text(msg), reply_sender=reply_mode)
         elif isinstance(bot, QQ_Bot):
-            await bot.send(event, message=QQ_MsgSeg.text(msg))
+            try:
+                await bot.send(event, message=QQ_MsgSeg.text(msg))
+            except QQ_ActionFailed as e:
+                if "消息被去重" in str(e):
+                    pass
+                else:
+                    logger.warning(f"QQ send msg error: {e}")
 
     elif isinstance(msg, bytes):
         # 图片
@@ -157,7 +165,13 @@ async def send_msg(bot: Bot, event: Event, msg: str | bytes):
                     # 使用kook的接口传图片
                     url = await kook_bot.upload_file(img)
                     # logger.info("url:" + url)
-                    await bot.send(event, message=QQ_MsgSeg.image(url))
+                    try:
+                        await bot.send(event, message=QQ_MsgSeg.image(url))
+                    except QQ_ActionFailed as e:
+                        if "消息被去重" in str(e):
+                            pass
+                        else:
+                            logger.warning(f"QQ send msg error: {e}")
 
 
 async def send_channel_msg(bot: Bot, source_id, msg: str | bytes):
@@ -169,9 +183,9 @@ async def send_channel_msg(bot: Bot, source_id, msg: str | bytes):
         elif isinstance(bot, QQ_Bot):
             try:
                 await bot.send_to_channel(channel_id=source_id, message=QQ_MsgSeg.text(msg))
-            except AuditException as e:
+            except QQ_AuditException as e:
                 logger.warning(f"主动消息审核结果为{e.__dict__}")
-            except ActionFailed as e:
+            except QQ_ActionFailed as e:
                 logger.warning(f"主动消息发送失败，api操作结果为{e.__dict__}")
         elif isinstance(bot, Tg_Bot):
             await bot.send_message(chat_id=source_id, text=msg)
@@ -184,9 +198,9 @@ async def send_channel_msg(bot: Bot, source_id, msg: str | bytes):
         elif isinstance(bot, QQ_Bot):
             try:
                 await bot.send_to_channel(channel_id=source_id, message=QQ_MsgSeg.file_image(img))
-            except AuditException as e:
+            except QQ_AuditException as e:
                 logger.warning(f"主动消息审核结果为{e.__dict__}")
-            except ActionFailed as e:
+            except QQ_ActionFailed as e:
                 logger.warning(f"主动消息发送失败，api操作结果为{e.__dict__}")
         elif isinstance(bot, Tg_Bot):
             await bot.send_photo(source_id, img)
@@ -202,9 +216,9 @@ async def send_private_msg(bot: Bot, source_id, msg: str | bytes, event=None):
             try:
                 if event:
                     await bot.send_to_dms(guild_id=event.guild_id, message=msg, msg_id=event.id)
-            except AuditException as e:
+            except QQ_AuditException as e:
                 logger.warning(f"主动消息审核结果为{e.__dict__}")
-            except ActionFailed as e:
+            except QQ_ActionFailed as e:
                 logger.warning(f"主动消息发送失败，api操作结果为{e.__dict__}")
         elif isinstance(bot, Tg_Bot):
             await bot.send_message(chat_id=source_id, text=msg)
@@ -218,9 +232,9 @@ async def send_private_msg(bot: Bot, source_id, msg: str | bytes, event=None):
         elif isinstance(bot, QQ_Bot):
             try:
                 await bot.send_to_dms(guild_id=event.guild_id, message=QQ_MsgSeg.file_image(img), msg_id=event.id)
-            except AuditException as e:
+            except QQ_AuditException as e:
                 logger.warning(f"主动消息审核结果为{e.__dict__}")
-            except ActionFailed as e:
+            except QQ_ActionFailed as e:
                 logger.warning(f"主动消息发送失败，api操作结果为{e.__dict__}")
         elif isinstance(bot, Tg_Bot):
             await bot.send_photo(source_id, img)
