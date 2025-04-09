@@ -152,7 +152,13 @@ async def send_msg(bot: Bot, event: Event, msg: str | bytes):
             await bot.send(event, Kook_MsgSeg.image(url), reply_sender=reply_mode)
         elif isinstance(bot, QQ_Bot):
             if not isinstance(event, GroupAtMessageCreateEvent):
-                await bot.send(event, message=QQ_MsgSeg.file_image(img))
+                try:
+                    await bot.send(event, message=QQ_MsgSeg.file_image(img))
+                except QQ_ActionFailed as e:
+                    if "消息被去重" in str(e):
+                        pass
+                    else:
+                        logger.warning(f"QQ send msg error: {e}")
             else:
                 # 目前q群只支持url图片，得想办法上传图片获取url
                 kook_bot = None
