@@ -1,4 +1,10 @@
-from ..data import get_coop_info, get_stage_info, get_weapon_info, get_schedule_data, get_screenshot
+from ..data import (
+    get_coop_info,
+    get_stage_info,
+    get_weapon_info,
+    get_schedule_data,
+    get_screenshot,
+)
 from .image_processer import *
 from .image_processer_tools import image_to_bytes
 
@@ -22,7 +28,9 @@ async def get_stages_image(*args):
     logger.info("contest_match为:" + str(contest_match))
     logger.info("rule_match为:" + str(rule_match))
     # 获取数据
-    schedule, new_num_list, new_contest_match, new_rule_match = get_stage_info(num_list, contest_match, rule_match)
+    schedule, new_num_list, new_contest_match, new_rule_match = get_stage_info(
+        num_list, contest_match, rule_match
+    )
     # 绘制图片
     image = get_stages(schedule, new_num_list, new_contest_match, new_rule_match)
     return image
@@ -67,9 +75,13 @@ async def get_build_image(*args):
 
     url = f"https://sendou.ink/builds/{sendou_name}?limit=6"
     if mode:
-        url += '&f=[{"type":"mode","mode":"' + mode + '"},{"type":"date","date":"2025-03-13"}]'
+        url += (
+            '&f=[{"type":"mode","mode":"'
+            + mode
+            + '"},{"type":"date","date":"2025-06-12"}]'
+        )
     else:
-        url += '&f=[{"type":"date","date":"2025-03-13"}]'
+        url += '&f=[{"type":"date","date":"2025-06-12"}]'
 
     logger.info(f"sendou.ink url: {url}")
     try:
@@ -142,13 +154,17 @@ async def get_save_temp_image(trigger_word, func, *args):
             image_data = compress_image(image_data, kb=1000, step=10, quality=80)
             logger.info("[ImageDB] new temp image {}".format(trigger_word))
             if "配装" not in trigger_word:
-                db_image.add_or_modify_IMAGE_TEMP(trigger_word, image_data, get_expire_time())
+                db_image.add_or_modify_IMAGE_TEMP(
+                    trigger_word, image_data, get_expire_time()
+                )
             else:
                 # 配装截图一个月过期
                 time_now = get_time_now_china()
                 expire_time = time_now + datetime.timedelta(days=30)
                 expire_time_str = expire_time.strftime(time_format_ymdh).strip()
-                db_image.add_or_modify_IMAGE_TEMP(trigger_word, image_data, expire_time_str)
+                db_image.add_or_modify_IMAGE_TEMP(
+                    trigger_word, image_data, expire_time_str
+                )
         return image_data
     else:
         image_expire_time = res.get("image_expire_time")
@@ -172,10 +188,14 @@ async def get_save_temp_image(trigger_word, func, *args):
                 # 如果是太大的图片，需要压缩到1000k以下确保最后发出图片的大小
                 image_data = compress_image(image_data, kb=1000, step=10, quality=80)
                 logger.info("[ImageDB] update temp image {}".format(trigger_word))
-                db_image.add_or_modify_IMAGE_TEMP(trigger_word, image_data, get_expire_time())
+                db_image.add_or_modify_IMAGE_TEMP(
+                    trigger_word, image_data, get_expire_time()
+                )
             return image_data
         else:
-            logger.info(f"触发词:{trigger_word} 存在时效范围内的缓存图片，将读取缓存图片")
+            logger.info(
+                f"触发词:{trigger_word} 存在时效范围内的缓存图片，将读取缓存图片"
+            )
             return image_to_bytes(Image.open(io.BytesIO(image_data)))
 
 
