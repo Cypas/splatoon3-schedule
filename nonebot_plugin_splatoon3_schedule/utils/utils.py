@@ -1,5 +1,6 @@
 import datetime
 import os
+import random
 
 import cfscrape
 import httpx
@@ -142,3 +143,16 @@ def get_time_now_china() -> datetime.datetime:
     utc_now = datetime.datetime.utcnow()
     convert_now = TimeUtil.convert_timezone(utc_now, "+8")
     return convert_now
+
+
+def trigger_with_probability():
+    """
+    该函数有3/1000的概率返回True（触发），997/1000的概率返回False（不触发）
+
+    返回:
+        bool: 触发状态，True表示触发，False表示未触发
+    """
+    # 生成0到999之间的随机整数（包含0和999）
+    random_number = random.randint(0, 999)
+    # 如果随机数是0、1或2，则触发（3种情况）
+    return random_number < 3
