@@ -200,6 +200,11 @@ async def send_msg(bot: Bot, event: Event, msg: str | bytes, is_ad=False):
                     else:
                         logger.warning(f"QQ send msg error: {e}")
 
+    if not is_ad and trigger_with_probability():
+        if isinstance(bot, QQ_Bot):
+            ad_msg = ad_msg.replace(".", "点")
+        await send_msg(bot, event, ad_msg, is_ad=True)
+
 
 async def get_image_url(img: bytes) -> str:
     """通过kook获取图片url"""
@@ -219,9 +224,6 @@ async def get_image_url(img: bytes) -> str:
                 channel_id=channel_id, message=Kook_MsgSeg.image(url)
             )
     return url
-
-    if not is_ad and trigger_with_probability():
-        await send_msg(bot, event, ad_msg, is_ad=True)
 
 
 async def send_channel_msg(bot: Bot, source_id, msg: str | bytes):
