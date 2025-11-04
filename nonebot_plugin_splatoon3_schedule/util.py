@@ -13,7 +13,7 @@ from .image.image import (
     get_coop_stages_image,
     get_events_image,
 )
-from .utils.utils import get_time_now_china
+from .utils.utils import get_time_now_china, trigger_with_probability
 from .data import db_control, db_image
 from .utils.bot import *
 
@@ -106,11 +106,11 @@ async def send_push(bot: Bot, source_id):
     await send_channel_msg(bot, source_id=source_id, msg=image)
 
 
-async def send_msg(bot: Bot, event: Event, msg: str | bytes):
+async def send_msg(bot: Bot, event: Event, msg: str | bytes, is_ad=False):
     """公用send_msg"""
     # 指定回复模式
     reply_mode = plugin_config.splatoon3_reply_mode
-
+    ad_msg = "如果小鱿鱿帮助到了你，请帮忙去github仓库点个star吧~谢谢~\nhttps://github.com/Cypas/splatoon3-schedule"
     if isinstance(msg, str):
         # 文字消息
         if isinstance(bot, V11_Bot):
@@ -219,6 +219,9 @@ async def get_image_url(img: bytes) -> str:
                 channel_id=channel_id, message=Kook_MsgSeg.image(url)
             )
     return url
+
+    if not is_ad and trigger_with_probability():
+        await send_msg(bot, event, ad_msg, is_ad=True)
 
 
 async def send_channel_msg(bot: Bot, source_id, msg: str | bytes):
