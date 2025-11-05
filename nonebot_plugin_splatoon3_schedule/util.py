@@ -106,7 +106,9 @@ async def send_push(bot: Bot, source_id):
     await send_channel_msg(bot, source_id=source_id, msg=image)
 
 
-async def send_msg(bot: Bot, event: Event, msg: str | bytes, is_ad=False):
+async def send_msg(
+    bot: Bot, event: Event, msg: str | bytes, is_ad=False, is_cache=False
+):
     """公用send_msg"""
     # 指定回复模式
     reply_mode = plugin_config.splatoon3_reply_mode
@@ -190,7 +192,7 @@ async def send_msg(bot: Bot, event: Event, msg: str | bytes, is_ad=False):
                         logger.warning(f"QQ send msg error: {e}")
             else:
                 # 目前q群只支持url图片，得想办法上传图片获取url
-                url = await get_image_url(img)
+                url = await get_image_url(img, is_cache)
                 logger.info("url:" + url)
                 try:
                     await bot.send(event, message=QQ_MsgSeg.image(url))
@@ -206,7 +208,7 @@ async def send_msg(bot: Bot, event: Event, msg: str | bytes, is_ad=False):
         await send_msg(bot, event, ad_msg, is_ad=True)
 
 
-async def get_image_url(img: bytes) -> str:
+async def get_image_url(img: bytes, is_cache) -> str:
     """通过kook获取图片url"""
     kook_bot = None
     bots = nonebot.get_bots()
@@ -218,7 +220,7 @@ async def get_image_url(img: bytes) -> str:
     if kook_bot is not None:
         # 使用kook的接口传图片
         url = await kook_bot.upload_file(img)
-        if url:
+        if url and not is_cache:
             channel_id = plugin_config.splatoon3_kk_channel_waste_chat_id
             await kook_bot.send_channel_msg(
                 channel_id=channel_id, message=Kook_MsgSeg.image(url)

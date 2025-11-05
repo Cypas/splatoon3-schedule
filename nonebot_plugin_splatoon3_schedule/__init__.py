@@ -24,7 +24,9 @@ __plugin_meta__ = PluginMetadata(
 )
 
 # 图 触发器  正则内需要涵盖所有的同义词
-matcher_stage_group = on_regex("^[\\/.,，。]?[0-9]*(全部)?下*图+[ ]?$", priority=8, block=True)
+matcher_stage_group = on_regex(
+    "^[\\/.,，。]?[0-9]*(全部)?下*图+[ ]?$", priority=8, block=True
+)
 
 
 # 图 触发器处理 二次判断正则前，已经进行了同义词替换，二次正则只需要判断最终词
@@ -71,9 +73,11 @@ async def _(bot: Bot, event: Event):
         # 传递函数指针
         func = get_stages_image
         # 获取图片
-        img = await get_save_temp_image(plain_text, func, num_list, contest_match, rule_match)
-        # 发送消息
-        await send_msg(bot, event, img)
+        is_cache, img = await get_save_temp_image(
+            plain_text, func, num_list, contest_match, rule_match
+        )
+        # 发送图片
+        await send_msg(bot, event, img, is_cache)
 
 
 # 对战 触发器
@@ -167,13 +171,19 @@ async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
         # 传递函数指针
         func = get_stages_image
         # 获取图片
-        img = await get_save_temp_image(plain_text, func, num_list, contest_match, rule_match)
-        # 发送消息
-        await send_msg(bot, event, img)
+        is_cache, img = await get_save_temp_image(
+            plain_text, func, num_list, contest_match, rule_match
+        )
+        # 发送图片
+        await send_msg(bot, event, img, is_cache)
 
 
 # 打工 触发器
-matcher_coop = on_regex("^[\\/.,，。]?(全部)?(工|打工|鲑鱼跑|bigrun|big run|团队打工)[ ]?$", priority=8, block=True)
+matcher_coop = on_regex(
+    "^[\\/.,，。]?(全部)?(工|打工|鲑鱼跑|bigrun|big run|团队打工)[ ]?$",
+    priority=8,
+    block=True,
+)
 
 
 # matcher_coop = on_command("全部打工", priority=8, block=True)
@@ -193,9 +203,9 @@ async def _(bot: Bot, event: Event):
     # 传递函数指针
     func = get_coop_stages_image
     # 获取图片
-    img = await get_save_temp_image(plain_text, func, _all)
-    # 发送消息
-    await send_msg(bot, event, img)
+    is_cache, img = await get_save_temp_image(plain_text, func, _all)
+    # 发送图片
+    await send_msg(bot, event, img, is_cache)
 
 
 # 配装 触发器
@@ -265,13 +275,17 @@ async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
     # 传递函数指针
     func = get_build_image
     # 获取图片
-    img = await get_save_temp_image(plain_text, func, sendou_name, mode)
+    is_cache, img = await get_save_temp_image(plain_text, func, sendou_name, mode)
     # 发送图片
-    await send_msg(bot, event, img)
+    await send_msg(bot, event, img, is_cache)
 
 
 # 其他命令 触发器
-matcher_else = on_regex("^[\\/.,，。]?(帮助|help|nso帮助|(随机武器).*|装备|衣服|祭典|活动)[ ]?$", priority=8, block=True)
+matcher_else = on_regex(
+    "^[\\/.,，。]?(帮助|help|nso帮助|(随机武器).*|装备|衣服|祭典|活动)[ ]?$",
+    priority=8,
+    block=True,
+)
 
 
 # 其他命令 触发器处理
@@ -298,32 +312,33 @@ async def _(bot: Bot, event: Event):
         # 传递函数指针
         func = get_festival_image
         # 获取图片
-        img = await get_save_temp_image(plain_text, func)
+        is_cache, img = await get_save_temp_image(plain_text, func)
         if img is None:
             msg = "近期没有任何祭典"
-            await send_msg(bot, event, msg)
+            await send_msg(bot, event, msg, is_cache)
         else:
             # 发送图片
-            await send_msg(bot, event, img)
+            await send_msg(bot, event, img, is_cache)
     elif re.search("^活动$", plain_text):
         # 传递函数指针
         func = get_events_image
         # 获取图片
-        img = await get_save_temp_image(plain_text, func)
+        is_cache, img = await get_save_temp_image(plain_text, func)
+
         if img is None:
             msg = "近期没有任何活动比赛"
-            await send_msg(bot, event, msg)
+            await send_msg(bot, event, msg, is_cache)
         else:
             # 发送图片
-            await send_msg(bot, event, img)
+            await send_msg(bot, event, img, is_cache)
 
     elif re.search("^帮助$", plain_text):
         # 传递函数指针
         func = get_help_image
         # 获取图片
-        img = await get_save_temp_image(plain_text, func)
+        is_cache, img = await get_save_temp_image(plain_text, func)
         # 发送图片
-        await send_msg(bot, event, img)
+        await send_msg(bot, event, img, is_cache)
         # 当优先帮助打开时，额外发送nso帮助
         if plugin_config.splatoon3_schedule_plugin_priority_mode:
             await send_msg(bot, event, "若需要查看完整的nso指令请发送 /nso帮助")
@@ -332,9 +347,9 @@ async def _(bot: Bot, event: Event):
         # 传递函数指针
         func = get_nso_help_image
         # 获取图片
-        img = await get_save_temp_image(plain_text, func)
+        is_cache, img = await get_save_temp_image(plain_text, func)
         # 发送图片
-        await send_msg(bot, event, img)
+        await send_msg(bot, event, img, is_cache)
 
     elif re.search("^装备$", plain_text):
         img = await get_screenshot(shot_url="https://splatoon3.ink/gear", mode="mobile")
@@ -343,7 +358,9 @@ async def _(bot: Bot, event: Event):
 
 
 # 管理命令 触发器
-matcher_manage = on_regex("^[\\/.,，。]?(开启|关闭)(查询|推送)[ ]?$", priority=8, block=True)
+matcher_manage = on_regex(
+    "^[\\/.,，。]?(开启|关闭)(查询|推送)[ ]?$", priority=8, block=True
+)
 
 
 # 管理命令 触发器处理
@@ -377,7 +394,9 @@ async def _(bot: Bot, event: Event, state: T_State, re_tuple: Tuple = RegexGroup
             init_blacklist()
         elif re_list[1] == "推送" in plain_text:
             user_level = state.get("_user_level_")
-            if (not plugin_config.splatoon3_guild_owner_switch_push) & (user_level == "owner"):
+            if (not plugin_config.splatoon3_guild_owner_switch_push) & (
+                user_level == "owner"
+            ):
                 logger.info(f"插件配置项未允许 频道服务器拥有者 修改主动推送开关")
                 return
             db_control.add_or_modify_MESSAGE_CONTROL(
@@ -393,7 +412,12 @@ async def _(bot: Bot, event: Event, state: T_State, re_tuple: Tuple = RegexGroup
         await send_msg(bot, event, f"已{re_list[0]}本频道 日程{re_list[1]} 功能")
 
 
-matcher_admin = on_regex("^[\\/.,，。]?(重载武器数据|更新武器数据|清空图片缓存)$", priority=8, block=True, permission=SUPERUSER)
+matcher_admin = on_regex(
+    "^[\\/.,，。]?(重载武器数据|更新武器数据|清空图片缓存)$",
+    priority=8,
+    block=True,
+    permission=SUPERUSER,
+)
 
 
 # 重载武器数据，包括：武器图片，副武器图片，大招图片，武器配置信息
@@ -420,7 +444,11 @@ async def _(bot: Bot, event: Event):
         try:
             await reload_weapon_info()
         except Exception as e:
-            msg = err_msg + str(e) + "\n如果错误信息是timed out，不妨可以等会儿重新发送指令"
+            msg = (
+                err_msg
+                + str(e)
+                + "\n如果错误信息是timed out，不妨可以等会儿重新发送指令"
+            )
         await send_msg(bot, event, msg)
 
 

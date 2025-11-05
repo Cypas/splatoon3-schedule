@@ -137,14 +137,15 @@ async def get_save_temp_image(trigger_word, func, *args):
     res = db_image.get_img_temp(trigger_word)
     image: Image
     image_data: bytes
+    is_cache = False
     if not res:
         # 重新生成图片并写入
         image = await func(*args)
         if image is None:
-            return image
+            return is_cache, image
         if isinstance(image, str):
             # 错误文本消息
-            return image
+            return is_cache, image
         if isinstance(image, Image.Image):
             image_data = image_to_bytes(image)
         else:
@@ -165,7 +166,7 @@ async def get_save_temp_image(trigger_word, func, *args):
                 db_image.add_or_modify_IMAGE_TEMP(
                     trigger_word, image_data, expire_time_str
                 )
-        return image_data
+        return is_cache, image_data
     else:
         image_expire_time = res.get("image_expire_time")
         image_data = res.get("image_data")
@@ -176,10 +177,10 @@ async def get_save_temp_image(trigger_word, func, *args):
             # 重新生成图片并写入
             image = await func(*args)
             if image is None:
-                return image
+                return is_cache, image
             if isinstance(image, str):
                 # 错误文本消息
-                return image
+                return is_cache, image
             if isinstance(image, Image.Image):
                 image_data = image_to_bytes(image)
             else:
@@ -191,12 +192,13 @@ async def get_save_temp_image(trigger_word, func, *args):
                 db_image.add_or_modify_IMAGE_TEMP(
                     trigger_word, image_data, get_expire_time()
                 )
-            return image_data
+            return is_cache, image_data
         else:
             logger.info(
                 f"触发词:{trigger_word} 存在时效范围内的缓存图片，将读取缓存图片"
             )
-            return image_to_bytes(Image.open(io.BytesIO(image_data)))
+            is_cache = True
+            return is_cache, image_to_bytes(Image.open(io.BytesIO(image_data)))
 
 
 # 旧版 取 随机武器图片 不能进行缓存，这个需要实时生成
