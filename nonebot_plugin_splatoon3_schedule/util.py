@@ -91,7 +91,9 @@ async def send_push(bot: Bot, source_id):
     num_list = [0]
     contest_match = None
     rule_match = None
-    is_cache, image = await get_save_temp_image("图", func, num_list, contest_match, rule_match)
+    is_cache, image = await get_save_temp_image(
+        "图", func, num_list, contest_match, rule_match
+    )
     await send_channel_msg(bot, source_id, image)
     time.sleep(1)
     # 发送 工
@@ -107,7 +109,7 @@ async def send_push(bot: Bot, source_id):
 
 
 async def send_msg(
-    bot: Bot, event: Event, msg: str | bytes, is_ad=False, is_cache=False
+    bot: Bot, event: Event, msg: str | bytes, is_ad=False, is_cache=True
 ):
     """公用send_msg"""
     # 指定回复模式

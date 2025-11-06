@@ -77,7 +77,7 @@ async def _(bot: Bot, event: Event):
             plain_text, func, num_list, contest_match, rule_match
         )
         # 发送图片
-        await send_msg(bot, event, img, is_cache)
+        await send_msg(bot, event, img, is_cache=is_cache)
 
 
 # 对战 触发器
@@ -175,7 +175,7 @@ async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
             plain_text, func, num_list, contest_match, rule_match
         )
         # 发送图片
-        await send_msg(bot, event, img, is_cache)
+        await send_msg(bot, event, img, is_cache=is_cache)
 
 
 # 打工 触发器
@@ -205,7 +205,7 @@ async def _(bot: Bot, event: Event):
     # 获取图片
     is_cache, img = await get_save_temp_image(plain_text, func, _all)
     # 发送图片
-    await send_msg(bot, event, img, is_cache)
+    await send_msg(bot, event, img, is_cache=is_cache)
 
 
 # 配装 触发器
@@ -277,7 +277,7 @@ async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
     # 获取图片
     is_cache, img = await get_save_temp_image(plain_text, func, sendou_name, mode)
     # 发送图片
-    await send_msg(bot, event, img, is_cache)
+    await send_msg(bot, event, img, is_cache=is_cache)
 
 
 # 其他命令 触发器
@@ -318,7 +318,7 @@ async def _(bot: Bot, event: Event):
             await send_msg(bot, event, msg, is_cache)
         else:
             # 发送图片
-            await send_msg(bot, event, img, is_cache)
+            await send_msg(bot, event, img, is_cache=is_cache)
     elif re.search("^活动$", plain_text):
         # 传递函数指针
         func = get_events_image
@@ -330,7 +330,7 @@ async def _(bot: Bot, event: Event):
             await send_msg(bot, event, msg, is_cache)
         else:
             # 发送图片
-            await send_msg(bot, event, img, is_cache)
+            await send_msg(bot, event, img, is_cache=is_cache)
 
     elif re.search("^帮助$", plain_text):
         # 传递函数指针
@@ -338,7 +338,7 @@ async def _(bot: Bot, event: Event):
         # 获取图片
         is_cache, img = await get_save_temp_image(plain_text, func)
         # 发送图片
-        await send_msg(bot, event, img, is_cache)
+        await send_msg(bot, event, img, is_cache=is_cache)
         # 当优先帮助打开时，额外发送nso帮助
         if plugin_config.splatoon3_schedule_plugin_priority_mode:
             await send_msg(bot, event, "若需要查看完整的nso指令请发送 /nso帮助")
@@ -349,7 +349,7 @@ async def _(bot: Bot, event: Event):
         # 获取图片
         is_cache, img = await get_save_temp_image(plain_text, func)
         # 发送图片
-        await send_msg(bot, event, img, is_cache)
+        await send_msg(bot, event, img, is_cache=is_cache)
 
     elif re.search("^装备$", plain_text):
         img = await get_screenshot(shot_url="https://splatoon3.ink/gear", mode="mobile")
