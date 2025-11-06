@@ -91,18 +91,18 @@ async def send_push(bot: Bot, source_id):
     num_list = [0]
     contest_match = None
     rule_match = None
-    image = await get_save_temp_image("图", func, num_list, contest_match, rule_match)
+    is_cache, image = await get_save_temp_image("图", func, num_list, contest_match, rule_match)
     await send_channel_msg(bot, source_id, image)
     time.sleep(1)
     # 发送 工
     func = get_coop_stages_image
     _all = False
-    image = await get_save_temp_image("工", func, _all)
+    is_cache, image = await get_save_temp_image("工", func, _all)
     await send_channel_msg(bot, source_id, image)
     time.sleep(1)
     # 发送 活动
     func = get_events_image
-    image = await get_save_temp_image("活动", func)
+    is_cache, image = await get_save_temp_image("活动", func)
     await send_channel_msg(bot, source_id=source_id, msg=image)
 
 
