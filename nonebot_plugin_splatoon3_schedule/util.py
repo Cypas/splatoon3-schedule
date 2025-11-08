@@ -201,6 +201,10 @@ async def send_msg(
                 except QQ_ActionFailed as e:
                     if "消息被去重" in str(e):
                         pass
+                    elif "富媒体文件格式不支持" in str(e):
+                        url = await get_image_url(img, is_cache=False)
+                        logger.info("图片上传失败，重新强制上传，url:" + url)
+                        await bot.send(event, message=QQ_MsgSeg.image(url))
                     else:
                         logger.warning(f"QQ send msg error: {e}")
 
