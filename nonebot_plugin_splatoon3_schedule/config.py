@@ -30,6 +30,8 @@ class Config(BaseModel):
     splatoon3_is_official_bot: bool = False
     # 日程插件的帮助菜单优先模式(会影响帮助菜单由哪个插件提供，该配置项与nso查询插件公用)
     splatoon3_schedule_plugin_priority_mode: bool = False
+    # 垃圾图片频道
+    splatoon3_kk_channel_waste_chat_id: str | int = ""
 
 
 # 本地测试时由于不启动 driver，需要将下面三行注释并取消再下面两行的注释
