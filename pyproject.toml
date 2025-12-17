@@ -13,7 +13,7 @@ cfscrape="^2.1.1"
 httpx="^0.26.0"
 nonebot2="^2.4.4"
 pydantic = ">=1.0.0,<3.0.0,!=2.5.0,!=2.5.1"
-Pillow="9.5.0"
+Pillow="^11.3.0"
 urllib3="1.26.16"
 playwright = "^1.40.0"
 nonebot-adapter-onebot = "^2.4.6"
@@ -25,3 +25,8 @@ nonebot-plugin-apscheduler = "^0.5.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[[tool.poetry.source]]
+name = "tsinghua"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple/"
+priority = "primary"

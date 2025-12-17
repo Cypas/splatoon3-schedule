@@ -1,25 +1,62 @@
 import asyncio
-from nonebot_plugin_splatoon3_schedule import reload_weapon_info, get_screenshot, init_blacklist
+from nonebot_plugin_splatoon3_schedule import (
+    reload_weapon_info,
+    get_screenshot,
+    init_blacklist,
+)
 from nonebot_plugin_splatoon3_schedule.image.image import *
 from nonebot_plugin_splatoon3_schedule.util import write_weapon_trans_dict
 
-# 测试打工图片
-# res = get_coop_stages_image(True)
-# res.show()
+# test_d = {
+#     "get_coop": {"plain_text": "工", "func": get_coop_stages_image, "args": ()},
+# "get_coop": {"plain_text": "全部图", "func": get_coop_stages_image, "args": ()},
+# "get_coop": {"plain_text": "工", "func": get_coop_stages_image, "args": ()},
+# "get_coop": {"plain_text": "工", "func": get_coop_stages_image, "args": ()},
+# "get_coop": {"plain_text": "工", "func": get_coop_stages_image, "args": ()},
+# "get_coop": {"plain_text": "工", "func": get_coop_stages_image, "args": ()},
+# }  # 走缓存接口的函数
 
+test2_d = {
+    "help_image": {"func": get_help_image},
+    # "nso_help_image": {"func": get_nso_help_image},
+    # "get_events_image": {"func": get_events_image},
+    # "get_festival_image": {"func": get_festival_image},
+    # "get_random_weapon_image": {
+    #     "func": get_random_weapon_image,
+    #     "args": "随机武器rpg rpg rpg rpg",
+    # },
+}  # 不走缓存的函数调用
+
+
+# 测试全部缓存图
+async def test_all():
+    # for k, v in test_d.items():
+    #     plain_text = v.get("plain_text")
+    #     func = v.get("func")
+    #     args = v.get("args")
+    #     res = await get_save_temp_image(plain_text, func, args)
+    #     ok, img = res
+    #     image = Image.open(io.BytesIO(img))
+    #     image.show()
+
+    for k, v in test2_d.items():
+        func = v.get("func")
+        args = v.get("args" or ())
+        res = await func(args)
+        img = res
+        if not isinstance(img, Image.Image):
+            image = Image.open(io.BytesIO(img))
+        else:
+            image = img
+        image.show()
+
+
+asyncio.run(test_all())
 
 # # 测试 旧版 随机武器
 # res = get_random_weapon(weapon1=None, weapon2=None)
 # file = open('../output/random_weapon.jpg', "wb")
 # file.write(res)
-
-# 测试nonebot 打工 命令文本触发
-# plain_text = "工"
-# # 传递函数指针
-# func = get_coop_stages_image
-# res = get_save_temp_image(plain_text, func, False)
-# img = res
-
 
 # 测试nonebot 对战 命令文本触发
 # re_tuple = ("", None, "下下", "挑战", None)
@@ -120,32 +157,6 @@ from nonebot_plugin_splatoon3_schedule.util import write_weapon_trans_dict
 # plain_text = "随机武器rpg rpg rpg rpg"
 # res = get_random_weapon_image(plain_text)
 # res.show()
-
-# 测试活动
-# res = get_events_image()
-# res.show()
-
-# 测试祭典
-# res = get_festival_image()
-# res.show()
-
-
-# 测试帮助
-# async def get_help():
-#     img = await get_help_image()
-#     img.show()
-#
-#
-# asyncio.run(get_help())
-
-
-# 测试nso帮助
-# async def get_nso_help():
-#     img = await get_nso_help_image()
-#     img.show()
-#
-#
-# asyncio.run(get_nso_help())
 
 # 清空缓存
 # db_image.clean_image_temp()

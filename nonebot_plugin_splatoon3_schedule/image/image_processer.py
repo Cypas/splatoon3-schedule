@@ -3,12 +3,11 @@ from .image_processer_tools import *
 from ..utils import *
 
 
-def get_festival(festivals) -> Image.Image:
+def get_festival(festivals, idx=0) -> Image.Image:
     """绘制 全部区域 祭典地图"""
-
     # 先取日服最后一个祭典看是否为全服通用祭典
     jp_festivals = festivals["US"]["data"]["festRecords"]["nodes"]
-    _id = jp_festivals[0]["__splatoon3ink_id"]
+    _id = jp_festivals[idx]["__splatoon3ink_id"]
 
     ap_festivals = festivals["AP"]["data"]["festRecords"]["nodes"]
     if str(_id).find("J") >= 0 and str(_id).find("A") >= 0:
@@ -17,20 +16,20 @@ def get_festival(festivals) -> Image.Image:
         # 保证至少含有J和A
         if str(_id).startswith("JUEA-"):
             image_background = get_area_festival(
-                jp_festivals[0], "全服祭典:", ttf_path_chinese
+                jp_festivals[idx], "全服祭典:", ttf_path_chinese
             )
         else:
             image_background = get_area_festival(
-                jp_festivals[0], "日港祭典:", ttf_path_chinese
+                jp_festivals[idx], "日港祭典:", ttf_path_chinese
             )
 
     else:
         # 分别渲染日服和港服祭典
         jp_image_background = get_area_festival(
-            jp_festivals[0], "日服祭典:", ttf_path_jp
+            jp_festivals[idx], "日服祭典:", ttf_path_jp
         )
         ap_image_background = get_area_festival(
-            ap_festivals[0], "港服祭典:", ttf_path_chinese
+            ap_festivals[idx], "港服祭典:", ttf_path_chinese
         )
         # 拼接图片
         image_background = Image.new(
@@ -147,7 +146,9 @@ def get_events(events: list) -> Image.Image:
         # 顶部活动标志(大号)
         pos_h += 20
         game_mode_img_size = (80, 80)
-        game_mode_img = get_file("event_bg").resize(game_mode_img_size, Image.ANTIALIAS)
+        game_mode_img = get_file("event_bg").resize(
+            game_mode_img_size, Image.Resampling.LANCZOS
+        )
         game_mode_img_pos = (20, pos_h)
         paste_with_a(image_background, game_mode_img, game_mode_img_pos)
         pos_h += game_mode_img_size[1] + 20
@@ -159,7 +160,7 @@ def get_events(events: list) -> Image.Image:
             game_mode_img_pos[0] + game_mode_img_size[0] + 20,
             game_mode_img_pos[1],
         )
-        main_title_size = ttf.getsize(main_title)
+        main_title_size = ttf_get_size(ttf, main_title)
         drawer.text(main_title_pos, main_title, font=ttf, fill=(255, 255, 255))
         # 绘制描述
         desc = cht_event_data["desc"]
@@ -476,7 +477,7 @@ def get_coop_stages(stage, weapon, time, boss, mode) -> Image.Image:
         # 绘制时间文字
         time_text_pos = (50, 5 + pos * 160)
 
-        time_text_size = font.getsize(val)
+        time_text_size = ttf_get_size(font, val)
         dr.text(time_text_pos, val, font=font, fill="#FFFFFF")
         if check_coop_fish(val):
             # 现在时间处于打工时间段内，绘制小鲑鱼
@@ -485,7 +486,7 @@ def get_coop_stages(stage, weapon, time, boss, mode) -> Image.Image:
             paste_with_a(coop_stage_bg, coop_fish_img, coop_fish_img_pos)
     for pos, val in enumerate(stage):
         # 绘制打工地图
-        stage_bg = get_save_file(val).resize(stage_bg_size, Image.ANTIALIAS)
+        stage_bg = get_save_file(val).resize(stage_bg_size, Image.Resampling.LANCZOS)
         stage_bg_pos = (500, 2 + 162 * pos)
         coop_stage_bg.paste(stage_bg, stage_bg_pos)
 
@@ -504,7 +505,7 @@ def get_coop_stages(stage, weapon, time, boss, mode) -> Image.Image:
             weapon_bg_img = Image.new("RGBA", weapon_size, (30, 30, 30))
             # 绘制武器图片
             weapon_image = get_save_file(val_weapon).resize(
-                weapon_size, Image.ANTIALIAS
+                weapon_size, Image.Resampling.LANCZOS
             )
             paste_with_a(weapon_bg_img, weapon_image, (0, 0))
             coop_stage_bg.paste(weapon_bg_img, (120 * pos_weapon + 20, 60 + 160 * pos))
