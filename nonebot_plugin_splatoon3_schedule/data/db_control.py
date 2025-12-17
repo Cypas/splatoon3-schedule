@@ -51,11 +51,11 @@ class DBCONTROL:
         # active_push 是否主动推送 0为false 1为true;
         self.conn.commit()
 
-    def check_msg_permission(self, bot_adapter: str, bot_id: str, msg_source_type: str, msg_source_id: str) -> bool:
+    def check_msg_permission(
+        self, bot_adapter: str, bot_id: str, msg_source_type: str, msg_source_id: str
+    ) -> bool:
         """查询sql 检查消息来源权限 资源消耗过多，非必要不要使用"""
-        sql = (
-            f"select * from MESSAGE_CONTROL where bot_adapter=? and bot_id=? and msg_source_type=? and msg_source_id=?"
-        )
+        sql = f"select * from MESSAGE_CONTROL where bot_adapter=? and bot_id=? and msg_source_type=? and msg_source_id=?"
         c = self.conn.cursor()
         c.execute(sql, (bot_adapter, bot_id, msg_source_type, msg_source_id))
         row = c.fetchone()
@@ -114,9 +114,7 @@ class DBCONTROL:
         active_push: int = None,
     ):
         """添加或修改 消息控制表"""
-        sql = (
-            f"select * from MESSAGE_CONTROL where bot_adapter=? and bot_id=? and msg_source_type=? and msg_source_id=?"
-        )
+        sql = f"select * from MESSAGE_CONTROL where bot_adapter=? and bot_id=? and msg_source_type=? and msg_source_id=?"
         c = self.conn.cursor()
         c.execute(sql, (bot_adapter, bot_id, msg_source_type, msg_source_id))
         row = c.fetchone()
@@ -151,7 +149,17 @@ class DBCONTROL:
             if active_push is None:
                 active_push = result["active_push"]
             sql = f"UPDATE MESSAGE_CONTROL set msg_source_name=?,msg_source_parent_id=?, msg_source_parent_name=?,status=?,active_push=? where id=?"
-            c.execute(sql, (msg_source_name, msg_source_parent_id, msg_source_parent_name, status, active_push, _id))
+            c.execute(
+                sql,
+                (
+                    msg_source_name,
+                    msg_source_parent_id,
+                    msg_source_parent_name,
+                    status,
+                    active_push,
+                    _id,
+                ),
+            )
 
 
 db_control = DBCONTROL()

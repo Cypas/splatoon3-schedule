@@ -74,9 +74,13 @@ def get_coop_info(_all=None):
         # for _i in range(4) 是循环执行4次，不是多余的代码
         return [
             ImageInfo(
-                name=sch["setting"]["weapons"][_i]["name"] + "_" + sch["setting"]["weapons"][_i]["__splatoon3ink_id"],
+                name=sch["setting"]["weapons"][_i]["name"]
+                + "_"
+                + sch["setting"]["weapons"][_i]["__splatoon3ink_id"],
                 url=sch["setting"]["weapons"][_i]["image"]["url"],
-                zh_name=get_trans_weapon(sch["setting"]["weapons"][_i]["__splatoon3ink_id"]),
+                zh_name=get_trans_weapon(
+                    sch["setting"]["weapons"][_i]["__splatoon3ink_id"]
+                ),
                 source_type="武器",
             )
             for _i in range(4)
@@ -207,27 +211,41 @@ def get_weapon_info(list_weapon: list):
         elif _type == weapon_image_type[4]:
             # father_class
             zh_father_class = name
-        weaponData = db_image.get_weapon_info(zh_weapon_class, zh_weapon_sub, zh_weapon_special, zh_father_class)
-        weaponData2 = db_image.get_weapon_info(zh_weapon_class, zh_weapon_sub, zh_weapon_special, zh_father_class)
+        weaponData = db_image.get_weapon_info(
+            zh_weapon_class, zh_weapon_sub, zh_weapon_special, zh_father_class
+        )
+        weaponData2 = db_image.get_weapon_info(
+            zh_weapon_class, zh_weapon_sub, zh_weapon_special, zh_father_class
+        )
         # 获取图片数据
         # Main
-        weaponData.image = db_image.get_weapon_image(weaponData.name, weapon_image_type[0]).get("image")
-        weaponData2.image = db_image.get_weapon_image(weaponData2.name, weapon_image_type[0]).get("image")
+        weaponData.image = db_image.get_weapon_image(
+            weaponData.name, weapon_image_type[0]
+        ).get("image")
+        weaponData2.image = db_image.get_weapon_image(
+            weaponData2.name, weapon_image_type[0]
+        ).get("image")
         # Sub
-        weaponData.sub_image = db_image.get_weapon_image(weaponData.sub_name, weapon_image_type[1]).get("image")
-        weaponData2.sub_image = db_image.get_weapon_image(weaponData2.sub_name, weapon_image_type[1]).get("image")
+        weaponData.sub_image = db_image.get_weapon_image(
+            weaponData.sub_name, weapon_image_type[1]
+        ).get("image")
+        weaponData2.sub_image = db_image.get_weapon_image(
+            weaponData2.sub_name, weapon_image_type[1]
+        ).get("image")
         # Special
-        weaponData.special_image = db_image.get_weapon_image(weaponData.special_name, weapon_image_type[2]).get("image")
-        weaponData2.special_image = db_image.get_weapon_image(weaponData2.special_name, weapon_image_type[2]).get(
-            "image"
-        )
+        weaponData.special_image = db_image.get_weapon_image(
+            weaponData.special_name, weapon_image_type[2]
+        ).get("image")
+        weaponData2.special_image = db_image.get_weapon_image(
+            weaponData2.special_name, weapon_image_type[2]
+        ).get("image")
         # Class
-        weaponData.weapon_class_image = db_image.get_weapon_image(weaponData.weapon_class, weapon_image_type[3]).get(
-            "image"
-        )
-        weaponData2.weapon_class_image = db_image.get_weapon_image(weaponData2.weapon_class, weapon_image_type[3]).get(
-            "image"
-        )
+        weaponData.weapon_class_image = db_image.get_weapon_image(
+            weaponData.weapon_class, weapon_image_type[3]
+        ).get("image")
+        weaponData2.weapon_class_image = db_image.get_weapon_image(
+            weaponData2.weapon_class, weapon_image_type[3]
+        ).get("image")
         # 添加
         weapon1.append(weaponData)
         weapon2.append(weaponData2)
@@ -284,9 +302,13 @@ async def get_screenshot(
     # playwright 要求不能有多个 browser 被同时唤起
     browser = await get_browser()
     if mode == "pc":
-        context = await browser.new_context(viewport={"width": 1920, "height": 1080}, locale="zh-CH")
+        context = await browser.new_context(
+            viewport={"width": 1920, "height": 1080}, locale="zh-CH"
+        )
     elif mode == "mobile":
-        context = await browser.new_context(viewport={"width": 500, "height": 2000}, locale="zh-CH")
+        context = await browser.new_context(
+            viewport={"width": 500, "height": 2000}, locale="zh-CH"
+        )
     page = await context.new_page()
 
     try:

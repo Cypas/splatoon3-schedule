@@ -43,7 +43,9 @@ class ChannelInfo:
         self.source_parent_name = source_parent_name
 
 
-async def get_channel_info(bot: any, source_type: str, _id: str, _parent_id: str = None) -> ChannelInfo:
+async def get_channel_info(
+    bot: any, source_type: str, _id: str, _parent_id: str = None
+) -> ChannelInfo:
     """获取服务器或频道信息"""
     global guilds_info
     bot_adapter = bot.adapter.get_name()
@@ -61,7 +63,14 @@ async def get_channel_info(bot: any, source_type: str, _id: str, _parent_id: str
                     source_name = guild_info["source_name"]
                     _parent_name = guild_info["source_name"]
                     return ChannelInfo(
-                        bot_adapter, bot_id, source_type, _id, source_name, owner_id, _parent_id, _parent_name
+                        bot_adapter,
+                        bot_id,
+                        source_type,
+                        _id,
+                        source_name,
+                        owner_id,
+                        _parent_id,
+                        _parent_name,
                     )
     # 写入新记录
     owner_id = ""
@@ -109,7 +118,16 @@ async def get_channel_info(bot: any, source_type: str, _id: str, _parent_id: str
     type_group.update({"name": source_name})
     type_group.update({"parent_id": _parent_id})
     type_group.update({"parent_name": _parent_name})
-    return ChannelInfo(bot_adapter, bot_id, source_type, _id, source_name, owner_id, _parent_id, _parent_name)
+    return ChannelInfo(
+        bot_adapter,
+        bot_id,
+        source_type,
+        _id,
+        source_name,
+        owner_id,
+        _parent_id,
+        _parent_name,
+    )
 
 
 def init_blacklist() -> None:
@@ -134,7 +152,9 @@ def init_blacklist() -> None:
 
 
 # 检查消息来源权限
-def check_msg_permission(bot_adapter: str, bot_id: str, msg_source_type: str, msg_source_id: str) -> bool:
+def check_msg_permission(
+    bot_adapter: str, bot_id: str, msg_source_type: str, msg_source_id: str
+) -> bool:
     """检查消息来源"""
     global blacklist
     adapter_group = blacklist.get(bot_adapter)
@@ -184,12 +204,18 @@ async def _permission_check(bot: Bot, event: Event, matcher: Matcher, state: T_S
             state["_msg_source_type_"] = "c2c"
             rule = plugin_config.splatoon3_permit_c2c
         if rule:
-            ok = check_msg_permission(bot_adapter, bot_id, state["_msg_source_type_"], uid)
+            ok = check_msg_permission(
+                bot_adapter, bot_id, state["_msg_source_type_"], uid
+            )
             if not ok:
-                logger.info(f'{state["_msg_source_type_"]} 对象 {uid} 位于黑名单或关闭中，不予提供服务')
+                logger.info(
+                    f'{state["_msg_source_type_"]} 对象 {uid} 位于黑名单或关闭中，不予提供服务'
+                )
             return ok
         else:
-            logger.info(f'插件配置项未允许 {state["_msg_source_type_"]} 类别用户触发查询')
+            logger.info(
+                f'插件配置项未允许 {state["_msg_source_type_"]} 类别用户触发查询'
+            )
             await matcher.finish()
     # 群聊
     elif isinstance(event, (V11_GME, V12_GME, Tg_GME, QQ_GME)):
@@ -202,7 +228,9 @@ async def _permission_check(bot: Bot, event: Event, matcher: Matcher, state: T_S
             elif isinstance(event, QQ_GME):
                 gid = event.group_openid
             state["_gid_"] = gid
-            ok = check_msg_permission(bot_adapter, bot_id, state["_msg_source_type_"], gid)
+            ok = check_msg_permission(
+                bot_adapter, bot_id, state["_msg_source_type_"], gid
+            )
             if ok:
                 # 再判断触发者是否有权限
                 ok = check_msg_permission(bot_adapter, bot_id, "c2c", uid)
@@ -213,7 +241,9 @@ async def _permission_check(bot: Bot, event: Event, matcher: Matcher, state: T_S
                 logger.info(f"group 对象 {gid} 位于黑名单或关闭中，不予提供服务")
                 await matcher.finish()
         else:
-            logger.info(f'插件配置项未允许 {state["_msg_source_type_"]} 类别用户触发查询')
+            logger.info(
+                f'插件配置项未允许 {state["_msg_source_type_"]} 类别用户触发查询'
+            )
             await matcher.finish()
     # 服务器频道
     elif isinstance(event, (V12_CME, Kook_CME, QQ_CME)):
@@ -239,7 +269,9 @@ async def _permission_check(bot: Bot, event: Event, matcher: Matcher, state: T_S
                     # 再判断触发者是否有权限
                     ok = check_msg_permission(bot_adapter, bot_id, "private", uid)
                     if not ok:
-                        logger.info(f"private 对象 {uid} 位于黑名单或关闭中，不予提供服务")
+                        logger.info(
+                            f"private 对象 {uid} 位于黑名单或关闭中，不予提供服务"
+                        )
                     return ok
                 else:
                     logger.info(f"channel 对象 {cid} 位于黑名单或关闭中，不予提供服务")
@@ -248,7 +280,9 @@ async def _permission_check(bot: Bot, event: Event, matcher: Matcher, state: T_S
                 logger.info(f"guild 对象 {guid} 位于黑名单或关闭中，不予提供服务")
                 await matcher.finish()
         else:
-            logger.info(f'插件配置项未允许 {state["_msg_source_type_"]} 类别用户触发查询')
+            logger.info(
+                f'插件配置项未允许 {state["_msg_source_type_"]} 类别用户触发查询'
+            )
             await matcher.finish()
     # 单频道
     elif isinstance(event, Tg_CME):
@@ -268,7 +302,9 @@ async def _permission_check(bot: Bot, event: Event, matcher: Matcher, state: T_S
                 logger.info(f"channel 对象 {cid} 位于黑名单或关闭中，不予提供服务")
                 await matcher.finish()
         else:
-            logger.info(f'插件配置项未允许 {state["_msg_source_type_"]} 类别用户触发查询')
+            logger.info(
+                f'插件配置项未允许 {state["_msg_source_type_"]} 类别用户触发查询'
+            )
             await matcher.finish()
     # 其他
     else:
