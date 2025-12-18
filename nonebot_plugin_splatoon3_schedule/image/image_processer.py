@@ -3,12 +3,11 @@ from .image_processer_tools import *
 from ..utils import *
 
 
-def get_festival(festivals) -> Image.Image:
+def get_festival(festivals, idx=0) -> Image.Image:
     """绘制 全部区域 祭典地图"""
-
     # 先取日服最后一个祭典看是否为全服通用祭典
     jp_festivals = festivals["US"]["data"]["festRecords"]["nodes"]
-    _id = jp_festivals[0]["__splatoon3ink_id"]
+    _id = jp_festivals[idx]["__splatoon3ink_id"]
 
     ap_festivals = festivals["AP"]["data"]["festRecords"]["nodes"]
     if str(_id).find("J") >= 0 and str(_id).find("A") >= 0:
@@ -16,17 +15,29 @@ def get_festival(festivals) -> Image.Image:
         # JP 日本  AP 亚太地区(韩国 香港) US 美洲大陆 EU 欧洲
         # 保证至少含有J和A
         if str(_id).startswith("JUEA-"):
-            image_background = get_area_festival(jp_festivals[0], "全服祭典:", ttf_path_chinese)
+            image_background = get_area_festival(
+                jp_festivals[idx], "全服祭典:", ttf_path_chinese
+            )
         else:
-            image_background = get_area_festival(jp_festivals[0], "日港祭典:", ttf_path_chinese)
+            image_background = get_area_festival(
+                jp_festivals[idx], "日港祭典:", ttf_path_chinese
+            )
 
     else:
         # 分别渲染日服和港服祭典
-        jp_image_background = get_area_festival(jp_festivals[0], "日服祭典:", ttf_path_jp)
-        ap_image_background = get_area_festival(ap_festivals[0], "港服祭典:", ttf_path_chinese)
+        jp_image_background = get_area_festival(
+            jp_festivals[idx], "日服祭典:", ttf_path_jp
+        )
+        ap_image_background = get_area_festival(
+            ap_festivals[idx], "港服祭典:", ttf_path_chinese
+        )
         # 拼接图片
         image_background = Image.new(
-            "RGBA", (jp_image_background.width, jp_image_background.height + ap_image_background.height)
+            "RGBA",
+            (
+                jp_image_background.width,
+                jp_image_background.height + ap_image_background.height,
+            ),
         )
         image_background.paste(jp_image_background, (0, 0))
         image_background.paste(ap_image_background, (0, jp_image_background.height))
@@ -76,13 +87,17 @@ def get_area_festival(festival, area_title, language_font_path) -> Image.Image:
 
     # 绘制组别卡片
     pos_h = 20
-    team_card = get_festival_team_card(festival, card_size, teams_list, area_title, font_path=language_font_path)
+    team_card = get_festival_team_card(
+        festival, card_size, teams_list, area_title, font_path=language_font_path
+    )
     team_card_pos = ((image_background_size[0] - card_size[0]) // 2, pos_h)
     paste_with_a(image_background, team_card, team_card_pos)
     pos_h += card_size[1] + 20
     if flag_festival_close:
         # 绘制结算卡片
-        result_card = get_festival_result_card(card_size, teams_list, font_path=language_font_path)
+        result_card = get_festival_result_card(
+            card_size, teams_list, font_path=language_font_path
+        )
         result_card_pos = ((image_background_size[0] - card_size[0]) // 2, pos_h)
         paste_with_a(image_background, result_card, result_card_pos)
 
@@ -118,14 +133,22 @@ def get_events(events: list) -> Image.Image:
         _id = cht_event_data["id"]
         trans_cht_event_data = get_trans_cht_data()["events"][_id]
         # 替换为翻译文本
-        cht_event_data["name"] = trans_cht_event_data.get("name", cht_event_data["name"])
-        cht_event_data["desc"] = trans_cht_event_data.get("desc", cht_event_data["desc"])
-        cht_event_data["regulation"] = trans_cht_event_data.get("regulation", cht_event_data["regulation"])
+        cht_event_data["name"] = trans_cht_event_data.get(
+            "name", cht_event_data["name"]
+        )
+        cht_event_data["desc"] = trans_cht_event_data.get(
+            "desc", cht_event_data["desc"]
+        )
+        cht_event_data["regulation"] = trans_cht_event_data.get(
+            "regulation", cht_event_data["regulation"]
+        )
 
         # 顶部活动标志(大号)
         pos_h += 20
         game_mode_img_size = (80, 80)
-        game_mode_img = get_file("event_bg").resize(game_mode_img_size, Image.ANTIALIAS)
+        game_mode_img = get_file("event_bg").resize(
+            game_mode_img_size, Image.Resampling.LANCZOS
+        )
         game_mode_img_pos = (20, pos_h)
         paste_with_a(image_background, game_mode_img, game_mode_img_pos)
         pos_h += game_mode_img_size[1] + 20
@@ -133,8 +156,11 @@ def get_events(events: list) -> Image.Image:
         main_title = cht_event_data["name"]
         drawer = ImageDraw.Draw(image_background)
         ttf = ImageFont.truetype(ttf_path_chinese, 40)
-        main_title_pos = (game_mode_img_pos[0] + game_mode_img_size[0] + 20, game_mode_img_pos[1])
-        main_title_size = ttf.getsize(main_title)
+        main_title_pos = (
+            game_mode_img_pos[0] + game_mode_img_size[0] + 20,
+            game_mode_img_pos[1],
+        )
+        main_title_size = ttf_get_size(ttf, main_title)
         drawer.text(main_title_pos, main_title, font=ttf, fill=(255, 255, 255))
         # 绘制描述
         desc = cht_event_data["desc"]
@@ -148,7 +174,9 @@ def get_events(events: list) -> Image.Image:
         except Exception:
             error = "乌贼研究所又整不出新活，开始输出问号活动了，活动卡片渲染失败"
             logger.error(error)
-            drawer.text((desc_pos[0], desc_pos[1] + 50), error, font=ttf, fill=(255, 255, 255))
+            drawer.text(
+                (desc_pos[0], desc_pos[1] + 50), error, font=ttf, fill=(255, 255, 255)
+            )
             pos_h += 100
             continue
         event_card_pos = (20, pos_h + 20)
@@ -195,18 +223,29 @@ def get_stages(schedule, num_list, contest_match=None, rule_match=None) -> Image
                     count_match_data += 1
         if contest_match is None or contest_match == "Ranked Challenge":
             if ranked[i]["bankaraMatchSettings"] is not None:
-                if rule_match is None or rule_match == ranked[i]["bankaraMatchSettings"][0]["vsRule"]["rule"]:
+                if (
+                    rule_match is None
+                    or rule_match
+                    == ranked[i]["bankaraMatchSettings"][0]["vsRule"]["rule"]
+                ):
                     cnt += 1
                     count_match_data += 1
         if contest_match is None or contest_match == "Ranked Open":
             if ranked[i]["bankaraMatchSettings"] is not None:
-                if rule_match is None or rule_match == ranked[i]["bankaraMatchSettings"][1]["vsRule"]["rule"]:
+                if (
+                    rule_match is None
+                    or rule_match
+                    == ranked[i]["bankaraMatchSettings"][1]["vsRule"]["rule"]
+                ):
                     cnt += 1
                     count_match_data += 1
 
         if contest_match is None or contest_match == "X Schedule":
             if xschedule[i]["xMatchSetting"] is not None:
-                if rule_match is None or rule_match == xschedule[i]["xMatchSetting"]["vsRule"]["rule"]:
+                if (
+                    rule_match is None
+                    or rule_match == xschedule[i]["xMatchSetting"]["vsRule"]["rule"]
+                ):
                     cnt += 1
                     count_match_data += 1
 
@@ -275,7 +314,11 @@ def get_stages(schedule, num_list, contest_match=None, rule_match=None) -> Image
         # 第二排绘制 默认为真格区域
         if contest_match is None or contest_match == "Ranked Challenge":
             if ranked[i]["bankaraMatchSettings"] is not None:
-                if rule_match is None or rule_match == ranked[i]["bankaraMatchSettings"][0]["vsRule"]["rule"]:
+                if (
+                    rule_match is None
+                    or rule_match
+                    == ranked[i]["bankaraMatchSettings"][0]["vsRule"]["rule"]
+                ):
                     count_match_data += 1
                     stage = ranked[i]["bankaraMatchSettings"][0]["vsStages"]
                     ranked_challenge_card = get_stage_card(
@@ -304,7 +347,11 @@ def get_stages(schedule, num_list, contest_match=None, rule_match=None) -> Image
         # 第三排绘制 默认为真格开放
         if contest_match is None or contest_match == "Ranked Open":
             if ranked[i]["bankaraMatchSettings"] is not None:
-                if rule_match is None or rule_match == ranked[i]["bankaraMatchSettings"][1]["vsRule"]["rule"]:
+                if (
+                    rule_match is None
+                    or rule_match
+                    == ranked[i]["bankaraMatchSettings"][1]["vsRule"]["rule"]
+                ):
                     count_match_data += 1
                     stage = ranked[i]["bankaraMatchSettings"][1]["vsStages"]
                     ranked_challenge_card = get_stage_card(
@@ -333,7 +380,10 @@ def get_stages(schedule, num_list, contest_match=None, rule_match=None) -> Image
         # 第四排绘制 默认为X赛
         if contest_match is None or contest_match == "X Schedule":
             if xschedule[i]["xMatchSetting"] is not None:
-                if rule_match is None or rule_match == xschedule[i]["xMatchSetting"]["vsRule"]["rule"]:
+                if (
+                    rule_match is None
+                    or rule_match == xschedule[i]["xMatchSetting"]["vsRule"]["rule"]
+                ):
                     count_match_data += 1
                     stage = xschedule[i]["xMatchSetting"]["vsStages"]
                     ranked_challenge_card = get_stage_card(
@@ -365,7 +415,9 @@ def get_stages(schedule, num_list, contest_match=None, rule_match=None) -> Image
             start_time = time_converter_hm(regular[i]["startTime"])
             end_time = time_converter_hm(regular[i]["endTime"])
             # 绘制时间表头
-            time_head_bg = get_time_head_bg(time_head_bg_size, date_time, start_time, end_time)
+            time_head_bg = get_time_head_bg(
+                time_head_bg_size, date_time, start_time, end_time
+            )
             # 贴到大图上
             time_head_bg_pos = (
                 (background_size[0] - time_head_bg_size[0]) // 2,
@@ -424,7 +476,8 @@ def get_coop_stages(stage, weapon, time, boss, mode) -> Image.Image:
     for pos, val in enumerate(time):
         # 绘制时间文字
         time_text_pos = (50, 5 + pos * 160)
-        time_text_size = font.getsize(val)
+
+        time_text_size = ttf_get_size(font, val)
         dr.text(time_text_pos, val, font=font, fill="#FFFFFF")
         if check_coop_fish(val):
             # 现在时间处于打工时间段内，绘制小鲑鱼
@@ -433,7 +486,7 @@ def get_coop_stages(stage, weapon, time, boss, mode) -> Image.Image:
             paste_with_a(coop_stage_bg, coop_fish_img, coop_fish_img_pos)
     for pos, val in enumerate(stage):
         # 绘制打工地图
-        stage_bg = get_save_file(val).resize(stage_bg_size, Image.ANTIALIAS)
+        stage_bg = get_save_file(val).resize(stage_bg_size, Image.Resampling.LANCZOS)
         stage_bg_pos = (500, 2 + 162 * pos)
         coop_stage_bg.paste(stage_bg, stage_bg_pos)
 
@@ -451,7 +504,9 @@ def get_coop_stages(stage, weapon, time, boss, mode) -> Image.Image:
             # 绘制武器底图
             weapon_bg_img = Image.new("RGBA", weapon_size, (30, 30, 30))
             # 绘制武器图片
-            weapon_image = get_save_file(val_weapon).resize(weapon_size, Image.ANTIALIAS)
+            weapon_image = get_save_file(val_weapon).resize(
+                weapon_size, Image.Resampling.LANCZOS
+            )
             paste_with_a(weapon_bg_img, weapon_image, (0, 0))
             coop_stage_bg.paste(weapon_bg_img, (120 * pos_weapon + 20, 60 + 160 * pos))
     for pos, val in enumerate(boss):
@@ -480,14 +535,25 @@ def get_random_weapon(weapon1: [WeaponData], weapon2: [WeaponData]) -> Image.Ima
     """绘制 随机武器"""
     # 底图
     image_background_size = (660, 500)
-    image_background = circle_corner(get_file("bg2").resize(image_background_size), radii=20)
+    image_background = circle_corner(
+        get_file("bg2").resize(image_background_size), radii=20
+    )
     # 绘制上下两块武器区域
-    weapon_card_bg_size = (image_background_size[0] - 10, (image_background_size[1] - 10) // 2)
-    top_weapon_card = get_weapon_card(weapon1, weapon_card_bg_size, dict_bg_rgb["上-武器卡片"], (34, 34, 34))
-    down_weapon_card = get_weapon_card(weapon2, weapon_card_bg_size, dict_bg_rgb["下-武器卡片"], (255, 255, 255))
+    weapon_card_bg_size = (
+        image_background_size[0] - 10,
+        (image_background_size[1] - 10) // 2,
+    )
+    top_weapon_card = get_weapon_card(
+        weapon1, weapon_card_bg_size, dict_bg_rgb["上-武器卡片"], (34, 34, 34)
+    )
+    down_weapon_card = get_weapon_card(
+        weapon2, weapon_card_bg_size, dict_bg_rgb["下-武器卡片"], (255, 255, 255)
+    )
     # 将武器区域贴到最下层背景
     paste_with_a(image_background, top_weapon_card, (5, 5))
-    paste_with_a(image_background, down_weapon_card, (5, (image_background_size[1]) // 2))
+    paste_with_a(
+        image_background, down_weapon_card, (5, (image_background_size[1]) // 2)
+    )
     # 绘制私房图标
     private_img_size = (35, 35)
     private_img_pos = (
@@ -502,9 +568,10 @@ def get_random_weapon(weapon1: [WeaponData], weapon2: [WeaponData]) -> Image.Ima
 
 def get_help() -> Image.Image:
     """绘制 帮助图片"""
-    image_background_size = (1200, 2300)
+    all_width = 1380
+    image_background_size = (all_width, 2400)
     if plugin_config.splatoon3_schedule_plugin_priority_mode:
-        image_background_size = (1200, 2820)
+        image_background_size = (all_width, 2920)
     # 取背景rgb颜色
     bg_rgb = dict_bg_rgb["活动"]
     # 创建纯色背景
@@ -515,7 +582,7 @@ def get_help() -> Image.Image:
     # 圆角
     image_background = circle_corner(image_background, radii=20)
     # 绘制标题
-    font_size = 30
+    font_size = 50
     text_bg = get_translucent_name_bg("帮助手册", 80, font_size)
     text_bg_size = text_bg.size
     # 贴上文字背景
@@ -523,7 +590,7 @@ def get_help() -> Image.Image:
     paste_with_a(image_background, text_bg, text_bg_pos)
     # 初始化一些参数
     drawer = ImageDraw.Draw(image_background)
-    text_width = 50
+    text_width = font_size
     height = text_bg_pos[1] + text_bg_size[1] + 20
     title_rgb = dict_bg_rgb["祭典时间-金黄"]
 
@@ -535,8 +602,13 @@ def get_help() -> Image.Image:
     # 绘制 帮助卡片 对战地图查询
     pre = "查询指令:"
     order_list = ["/图", "/图图", "/下图", "/下下图", "/全部图"]
-    desc_list = ["查询当前或指定时段 所有模式 的地图", "前面如果是 全部 则显示至多未来5个时段的地图"]
-    text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
+    desc_list = [
+        "查询当前或指定时段 所有模式 的地图",
+        "前面如果是 全部 则显示至多未来5个时段的地图",
+    ]
+    text_card, card_h = drawer_help_card(
+        pre, order_list, desc_list, text_width=text_width
+    )
     # 贴图
     text_bg_pos = (title_pos[0] + 30, height)
     paste_with_a(image_background, text_card, text_bg_pos)
@@ -544,8 +616,13 @@ def get_help() -> Image.Image:
     # 绘制 帮助卡片 对战地图查询
     pre = "指定时间段查询:"
     order_list = ["/0图", "/123图", "/1图", "/2468图"]
-    desc_list = ["可以在前面加上多个0-9的数字，不同数字代表不同时段", "如0代表当前，1代表下时段，2代表下下时段，以此类推"]
-    text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
+    desc_list = [
+        "可以在前面加上多个0-9的数字，不同数字代表不同时段",
+        "如0代表当前，1代表下时段，2代表下下时段，以此类推",
+    ]
+    text_card, card_h = drawer_help_card(
+        pre, order_list, desc_list, text_width=text_width
+    )
     # 贴图
     text_bg_pos = (title_pos[0] + 30, height)
     paste_with_a(image_background, text_card, text_bg_pos)
@@ -559,8 +636,13 @@ def get_help() -> Image.Image:
     # 绘制 帮助卡片 对战地图查询
     pre = "查询指令:"
     order_list = ["/挑战", "/涂地", "/x赛", "/塔楼", "/开放挑战", "/pp抢鱼"]
-    desc_list = ["支持指定规则或比赛，或同时指定规则比赛", "触发词进行了语义化处理，很多常用的称呼也能触发，如:pp和排排 都等同于 开放;抢鱼对应鱼虎;涂涂对应涂地 等"]
-    text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
+    desc_list = [
+        "支持指定规则或比赛，或同时指定规则比赛",
+        "触发词进行了语义化处理，很多常用的称呼也能触发，如:pp和排排 都等同于 开放;抢鱼对应鱼虎;涂涂对应涂地 等",
+    ]
+    text_card, card_h = drawer_help_card(
+        pre, order_list, desc_list, text_width=text_width
+    )
     # 贴图
     text_bg_pos = (title_pos[0] + 30, height)
     paste_with_a(image_background, text_card, text_bg_pos)
@@ -568,8 +650,13 @@ def get_help() -> Image.Image:
     # 绘制 帮助卡片 对战地图查询
     pre = "指定时间段查询:"
     order_list = ["/0挑战", "/1234开放塔楼", "/全部x赛区域"]
-    desc_list = ["与图图的指定时间段查询方法一致，如果指定时间段没有匹配的结果，会返回全部时间段满足该筛选的结果", "前面加上 全部 则显示未来24h满足条件的对战"]
-    text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
+    desc_list = [
+        "与图图的指定时间段查询方法一致，如果指定时间段没有匹配的结果，会返回全部时间段满足该筛选的结果",
+        "前面加上 全部 则显示未来24h满足条件的对战",
+    ]
+    text_card, card_h = drawer_help_card(
+        pre, order_list, desc_list, text_width=text_width
+    )
     # 贴图
     text_bg_pos = (title_pos[0] + 30, height)
     paste_with_a(image_background, text_card, text_bg_pos)
@@ -583,8 +670,13 @@ def get_help() -> Image.Image:
     # 绘制 帮助卡片 对战地图查询
     pre = "查询指令:"
     order_list = ["/工", "/打工", "/bigrun", "/团队打工", "/全部工"]
-    desc_list = ["查询当前和下一时段的打工地图，如果存在bigrun或团队打工时，也会显示在里面，并根据时间自动排序", "前面加上 全部 则显示接下来的五场打工地图"]
-    text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
+    desc_list = [
+        "查询当前和下一时段的打工地图，如果存在bigrun或团队打工时，也会显示在里面，并根据时间自动排序",
+        "前面加上 全部 则显示接下来的五场打工地图",
+    ]
+    text_card, card_h = drawer_help_card(
+        pre, order_list, desc_list, text_width=text_width
+    )
     # 贴图
     text_bg_pos = (title_pos[0] + 30, height)
     paste_with_a(image_background, text_card, text_bg_pos)
@@ -599,7 +691,9 @@ def get_help() -> Image.Image:
     pre = "查询指令:"
     order_list = ["/祭典", "/活动", "/装备", "/帮助", "/help"]
     desc_list = ["查询 祭典，活动，nso商店售卖装备", "帮助/help:回复本帮助图片"]
-    text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
+    text_card, card_h = drawer_help_card(
+        pre, order_list, desc_list, text_width=text_width
+    )
     # 贴图
     text_bg_pos = (title_pos[0] + 30, height)
     paste_with_a(image_background, text_card, text_bg_pos)
@@ -617,7 +711,9 @@ def get_help() -> Image.Image:
         "需携带武器名称或模式名称作为参数，若为贴牌武器需要加上'贴牌'两个字",
         "如/配装 小绿;/配装 贴牌洗洁精;/配装 鹦鹉螺 塔楼",
     ]
-    text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
+    text_card, card_h = drawer_help_card(
+        pre, order_list, desc_list, text_width=text_width
+    )
     # 贴图
     text_bg_pos = (title_pos[0] + 30, height)
     paste_with_a(image_background, text_card, text_bg_pos)
@@ -637,7 +733,9 @@ def get_help() -> Image.Image:
         "如果不带参数或参数小于4，剩下的会自动用 同一大类下的武器 进行筛选，如 狙 和 加特林 都属于 远程类，小枪 与 刷子，滚筒 等属于 近程类，保证尽可能公平",
         "如果不希望进行任何限制，也可以发送 /随机武器完全随机，来触发不加限制的真随机武器(平衡性就没法保证了)",
     ]
-    text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
+    text_card, card_h = drawer_help_card(
+        pre, order_list, desc_list, text_width=text_width
+    )
     # 贴图
     text_bg_pos = (title_pos[0] + 30, height)
     paste_with_a(image_background, text_card, text_bg_pos)
@@ -664,7 +762,9 @@ def get_help() -> Image.Image:
             "/me：获取自己个人数据(总场数，胜率，金银铜牌数量等)",
             "/fc：获取自己SW好友码",
         ]
-        text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
+        text_card, card_h = drawer_help_card(
+            pre, order_list, desc_list, text_width=text_width
+        )
         # 贴图
         text_bg_pos = (title_pos[0] + 30, height)
         paste_with_a(image_background, text_card, text_bg_pos)
@@ -724,7 +824,9 @@ def get_help() -> Image.Image:
         desc_list.append("小鱿鱿官方联系方式: Kook服务器id：85644423 Q群：827977720")
     desc_list.append("插件作者:Cypas_Nya;Paul;Sky_miner")
 
-    text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
+    text_card, card_h = drawer_help_card(
+        pre, order_list, desc_list, text_width=text_width
+    )
     # 贴图
     text_bg_pos = (title_pos[0] + 30, height)
     paste_with_a(image_background, text_card, text_bg_pos)
@@ -735,7 +837,8 @@ def get_help() -> Image.Image:
 
 def get_nso_help() -> Image.Image:
     """绘制 nso帮助图片"""
-    image_background_size = (1200, 4300)
+    all_width = 1200
+    image_background_size = (all_width, 4300)
 
     # 取背景rgb颜色
     bg_rgb = dict_bg_rgb["活动"]
@@ -747,8 +850,8 @@ def get_nso_help() -> Image.Image:
     # 圆角
     image_background = circle_corner(image_background, radii=20)
     # 绘制标题
-    font_size = 30
-    text_bg = get_translucent_name_bg("nso帮助手册", 80, font_size)
+    font_size = 50
+    text_bg = get_translucent_name_bg("nso帮助手册", 80, font_size, line_height=18)
     text_bg_size = text_bg.size
     # 贴上文字背景
     text_bg_pos = ((image_background_size[0] - text_bg_size[0]) // 2, 20)
@@ -756,7 +859,7 @@ def get_nso_help() -> Image.Image:
     # 初始化一些参数
     drawer = ImageDraw.Draw(image_background)
     # 文字分行字符数量
-    text_width = 50
+    text_width = font_size
     height = text_bg_pos[1] + text_bg_size[1] + 20
     title_rgb = dict_bg_rgb["祭典时间-金黄"]
 
@@ -769,8 +872,12 @@ def get_nso_help() -> Image.Image:
     # 绘制 帮助卡片 对战地图查询
     pre = ""
     order_list = []
-    desc_list = ["nso大部分查询指令都是如 /指令 参数 参数 的形式,多参数用空格隔开,如:/last 2 b m"]
-    text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=text_width)
+    desc_list = [
+        "nso大部分查询指令都是如 /指令 参数 参数 的形式,多参数用空格隔开,如:/last 2 b m"
+    ]
+    text_card, card_h = drawer_help_card(
+        pre, order_list, desc_list, text_width=text_width
+    )
     # 贴图
     text_bg_pos = (title_pos[0] + 30, height)
     paste_with_a(image_background, text_card, text_bg_pos)
@@ -812,7 +919,10 @@ def get_nso_help() -> Image.Image:
     # 绘制 帮助卡片
     cmd_list = ["/push", "/start", "/sp"]
     desc_list = [
-        ("无参数", "QQ平台此功能不可用!开启后定时向用户推送最新一局 对战/打工记录, 相当于/last的自动版本"),
+        (
+            "无参数",
+            "QQ平台此功能不可用!开启后定时向用户推送最新一局 对战/打工记录, 相当于/last的自动版本",
+        ),
         ("b", "只推送对战"),
         ("c", "只推送打工"),
         ("m", "用户名打码"),
@@ -843,7 +953,10 @@ def get_nso_help() -> Image.Image:
     cmd_list = ["/ss"]
     desc_list = [
         ("无参数", "截图 最近 对战列表"),
-        ("页面关键词", "全部页面关键词如下: 个人穿搭 好友 最近 涂地 蛮颓 x赛 活动 私房 武器 徽章 打工记录 击倒数量 打工 鲑鱼跑 祭典 祭典问卷"),
+        (
+            "页面关键词",
+            "全部页面关键词如下: 个人穿搭 好友 最近 涂地 蛮颓 x赛 活动 私房 武器 徽章 打工记录 击倒数量 打工 鲑鱼跑 祭典 祭典问卷",
+        ),
     ]
     text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=40)
     # 贴图
@@ -938,7 +1051,10 @@ def get_nso_help() -> Image.Image:
     # 绘制 帮助卡片
     cmd_list = ["/my_icon", "/myicon"]
     desc_list = [
-        ("无参数", "获取自己ns头像,在更换新的ns头像后，需要用一次/me命令才会刷新新的头像缓存"),
+        (
+            "无参数",
+            "获取自己ns头像,在更换新的ns头像后，需要用一次/me命令才会刷新新的头像缓存",
+        ),
     ]
     text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
     # 贴图
@@ -975,7 +1091,9 @@ def get_nso_help() -> Image.Image:
     # 绘制 帮助卡片 对战地图查询
     pre = ""
     order_list = []
-    desc_list = ["stat.ink是一个战绩同步网站，也可用于武器/地图/模式/胜率的战绩分析，在设置api key之后， bot会每2h同步你的游戏战绩至该网站"]
+    desc_list = [
+        "stat.ink是一个战绩同步网站，也可用于武器/地图/模式/胜率的战绩分析，在设置api key之后， bot会每2h同步你的游戏战绩至该网站"
+    ]
     text_card, card_h = drawer_help_card(pre, order_list, desc_list, text_width=55)
     # 贴图
     text_bg_pos = (title_pos[0] + 30, height)
@@ -984,7 +1102,10 @@ def get_nso_help() -> Image.Image:
     # 绘制 帮助卡片
     cmd_list = ["/set_stat_key"]
     desc_list = [
-        ("无参数", "得到stat.ink的绑定教程，之后无需触发命令，直接私发bot api key即可绑定"),
+        (
+            "无参数",
+            "得到stat.ink的绑定教程，之后无需触发命令，直接私发bot api key即可绑定",
+        ),
     ]
     text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
     # 贴图

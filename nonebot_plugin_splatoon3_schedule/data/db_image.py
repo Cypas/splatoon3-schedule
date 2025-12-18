@@ -91,7 +91,9 @@ class DBIMAGE:
         )
         self.conn.commit()
 
-    def add_or_modify_IMAGE_DATA(self, image_name: str, image_data, image_zh_name: str, image_source_type: str):
+    def add_or_modify_IMAGE_DATA(
+        self, image_name: str, image_data, image_zh_name: str, image_source_type: str
+    ):
         """添加或修改 图片数据表"""
         sql = f"select * from IMAGE_DATA where image_name=?"
         c = self.conn.cursor()
@@ -119,7 +121,9 @@ class DBIMAGE:
         self.conn.commit()
         return result
 
-    def add_or_modify_IMAGE_TEMP(self, trigger_word: str, image_data, image_expire_time: str):
+    def add_or_modify_IMAGE_TEMP(
+        self, trigger_word: str, image_data, image_expire_time: str
+    ):
         """添加或修改 图片缓存表"""
         sql = f"select * from IMAGE_TEMP where trigger_word=?"
         c = self.conn.cursor()
@@ -135,7 +139,9 @@ class DBIMAGE:
 
     def get_img_temp(self, trigger_word) -> dict:
         """取图片缓存(图片二进制数据)"""
-        sql = f"select image_data,image_expire_time from IMAGE_TEMP where trigger_word=?"
+        sql = (
+            f"select image_data,image_expire_time from IMAGE_TEMP where trigger_word=?"
+        )
         c = self.conn.cursor()
         c.execute(sql, (trigger_word,))
         # 单行查询结果
@@ -189,7 +195,9 @@ class DBIMAGE:
         )
         self.conn.commit()
 
-    def get_weapon_info(self, zh_weapon_class, zh_sub_name, zh_special_name, zh_father_class) -> WeaponData:
+    def get_weapon_info(
+        self, zh_weapon_class, zh_sub_name, zh_special_name, zh_father_class
+    ) -> WeaponData:
         """条件查询 武器信息 并随机输出一条结果"""
         # 故意创建一个全部结果的where方便后续sql拼接
         # 这里的where报错不用管，后续有字符串拼接
@@ -197,7 +205,12 @@ class DBIMAGE:
             f"select name,sub_name,special_name,special_points,level,weapon_class,"
             f"zh_name,zh_sub_name,zh_special_name,zh_weapon_class,zh_father_class from WEAPON_INFO where"
         )
-        if zh_weapon_class == "" and zh_sub_name == "" and zh_special_name == "" and zh_father_class == "":
+        if (
+            zh_weapon_class == ""
+            and zh_sub_name == ""
+            and zh_special_name == ""
+            and zh_father_class == ""
+        ):
             sql += " 1=1 or"
         sql += " zh_weapon_class=? or zh_father_class=? or zh_sub_name=? or zh_special_name=? ORDER BY RANDOM() LIMIT 1"
         c = self.conn.cursor()
@@ -222,7 +235,9 @@ class DBIMAGE:
             )
         else:
             weapon = None
-            logger.error("查询武器失败，请检查武器数据表WEAPON_INFO和WEAPON_IMAGES内是否存在数据")
+            logger.error(
+                "查询武器失败，请检查武器数据表WEAPON_INFO和WEAPON_IMAGES内是否存在数据"
+            )
         self.conn.commit()
         return weapon
 
@@ -240,7 +255,9 @@ class DBIMAGE:
                 result = dict(zip([column[0] for column in c.description], row))
                 results.append(result)
         else:
-            logger.error("查询武器失败，请检查武器数据表WEAPON_INFO和WEAPON_IMAGES内是否存在数据")
+            logger.error(
+                "查询武器失败，请检查武器数据表WEAPON_INFO和WEAPON_IMAGES内是否存在数据"
+            )
         self.conn.commit()
         return results
 

@@ -4,6 +4,7 @@ import random
 
 import cfscrape
 import httpx
+from PIL import ImageFont
 from httpx import Response
 
 from .dataClass import TimeUtil
@@ -158,3 +159,15 @@ def trigger_with_probability():
     random_number = random.randint(0, 999)
     # 如果随机数是0、1或2，则触发（3种情况）
     return random_number < 30
+
+
+def ttf_get_size(font: ImageFont.FreeTypeFont, text: str) -> tuple:
+    """
+    兼容pillow 9.5.0 版本 get_size函数的代码
+    """
+    # 替代 getsize()：计算文本宽高
+    bbox = font.getbbox(text)  # 返回 (left, top, right, bottom)
+    width = bbox[2] - bbox[0]  # 文本宽度
+    height = bbox[3] - bbox[1]  # 文本高度
+    time_text_size = (width, height)  # 与原 getsize() 返回格式一致
+    return time_text_size
