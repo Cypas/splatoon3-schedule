@@ -2,7 +2,7 @@ import datetime
 import os
 import random
 
-import cfscrape
+import cloudscraper
 import httpx
 from PIL import ImageFont
 from httpx import Response
@@ -41,9 +41,9 @@ dict_bg_rgb = {
 def cf_http_get(url: str):
     """cf get"""
     # 实例化一个create_scraper对象
-    scraper = cfscrape.create_scraper()
+    scraper = cloudscraper.create_scraper()
     # 请求报错，可以加上时延
-    # scraper = cfscrape.create_scraper(delay = 6)
+    # scraper = cloudscraper.create_scraper(delay = 6)
     if proxy_address:
         cf_proxies = {
             "http": "http://{}".format(proxy_address),
