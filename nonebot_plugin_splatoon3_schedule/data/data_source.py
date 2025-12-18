@@ -275,12 +275,16 @@ async def init_browser() -> Browser:
     """初始化 browser 并唤起"""
     global _browser
     p = await async_playwright().start()
+    browser_args = [
+        # 设置默认字体
+        '--default-font-family="Noto Sans CJK"',
+    ]
     if proxy_address:
         proxies = {"server": "http://{}".format(proxy_address)}
         # 代理访问
-        _browser = await p.chromium.launch(proxy=proxies)
+        _browser = await p.chromium.launch(proxy=proxies, args=browser_args)
     else:
-        _browser = await p.chromium.launch()
+        _browser = await p.chromium.launch(args=browser_args)
     return _browser
 
 

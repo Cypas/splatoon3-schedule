@@ -1,26 +1,29 @@
 [tool.poetry]
 name = "nonebot-plugin-splatoon3-schedule"
-version = "2.0.0"
+version = "2.0.1"
 description = "一个基于nonebot2框架的splatoon3游戏日程查询插件"
 authors = ["cypas <ayano05@outlook.com>"]
 readme = "README.md"
-packages = [{include = "nonebot_plugin_splatoon3_schedule"}]
+packages = [{ include = "nonebot_plugin_splatoon3_schedule" }]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-beautifulsoup4="^4.12.2"
-cfscrape="^2.1.1"
-httpx="^0.26.0"
-nonebot2="^2.4.4"
+beautifulsoup4 = "^4.12.2"
+cfscrape = "^2.1.1"
+httpx = "^0.28.1"
+nonebot2 = "^2.4.4"
 pydantic = ">=1.0.0,<3.0.0,!=2.5.0,!=2.5.1"
-Pillow="^11.3.0"
-urllib3="1.26.16"
+Pillow = "^11.3.0"
 playwright = "^1.40.0"
 nonebot-adapter-onebot = "^2.4.6"
-nonebot-adapter-telegram= "^0.1.0b20"
+nonebot-adapter-telegram = "^0.1.0b20"
 nonebot-adapter-kaiheila = "^0.3.4"
 nonebot-adapter-qq = "^1.6.6"
 nonebot-plugin-apscheduler = "^0.5.0"
+
+[tool.poetry.group.test.dependencies]
+nonebug = "^0.3.5"
+pytest-asyncio = "^0.23.5"
 
 [build-system]
 requires = ["poetry-core"]
