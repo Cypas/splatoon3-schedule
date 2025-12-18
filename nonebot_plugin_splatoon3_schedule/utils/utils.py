@@ -16,10 +16,9 @@ DIR_RESOURCE = (
 time_format_ymdh = "%Y-%m-%dT%H"
 HTTP_TIME_OUT = 10.0  # 请求超时，秒
 proxy_address = plugin_config.splatoon3_proxy_address
-if proxy_address:
-    proxies = "http://{}".format(proxy_address)
-else:
-    proxies = None
+
+proxies = f"http://{proxy_address}" if proxy_address else None
+
 
 # 背景 rgb颜色
 dict_bg_rgb = {
@@ -60,14 +59,14 @@ def cf_http_get(url: str):
 
 async def async_http_get(url: str) -> Response:
     """async http_get"""
-    async with httpx.AsyncClient(proxies=proxies) as client:
+    async with httpx.AsyncClient(proxy=proxies) as client:
         response = await client.get(url, timeout=HTTP_TIME_OUT)
         return response
 
 
 def http_get(url: str) -> Response:
     """http_get"""
-    response = httpx.get(url, proxies=proxies, timeout=HTTP_TIME_OUT)
+    response = httpx.get(url, proxy=proxies, timeout=HTTP_TIME_OUT)
     return response
 
 
