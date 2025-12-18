@@ -177,14 +177,15 @@ def drawer_help_card(
     """绘制文字 帮助卡片"""
     width = 0
     height = 10
-    font_size = 30
+    font_size = 35
+    font_text_size = 34
     # 创建一张纯透明图片 用来存放卡片
-    background = Image.new("RGBA", (1200, 1000), (0, 0, 0, 0))
+    background = Image.new("RGBA", (1380, 1000), (0, 0, 0, 0))
     drawer = ImageDraw.Draw(background)
     # pre
     text = pre
     pre_pos = (width, height)
-    w, h = drawer_text(drawer, text, pre_pos, text_width)
+    w, h = drawer_text(drawer, text, pre_pos, text_width, font_size=font_text_size)
     width += w + 10
     # order_list
     if len(order_list) > 0:
@@ -201,7 +202,9 @@ def drawer_help_card(
         for i, desc in enumerate(desc_list):
             text = desc
             text_pos = (width, height)
-            w, h = drawer_text(drawer, text, text_pos, text_width, font_size=25)
+            w, h = drawer_text(
+                drawer, text, text_pos, text_width, font_size=font_text_size - 5
+            )
             height += h + 5
     return background, height
 
@@ -216,7 +219,8 @@ def drawer_nso_help_card(
 
     width = 0
     height = 10
-    font_size = 30
+    font_size = 35
+    font_text_size = 34
     # 创建一张纯透明图片 用来存放卡片
     background = Image.new("RGBA", (1200, 1000), (0, 0, 0, 0))
     drawer = ImageDraw.Draw(background)
@@ -252,14 +256,14 @@ def drawer_nso_help_card(
     # 参数标题
     text = "参数:"
     arg_pre_pos = (width, height)
-    w, h = drawer_text(drawer, text, arg_pre_pos, text_width)
+    w, h = drawer_text(drawer, text, arg_pre_pos, text_width, font_size=font_text_size)
     width += w + 10
     # 参数与参数介绍
     if len(args_list) > 0:
         for i, tup in enumerate(args_list):
             arg, desc = tup
             # 参数
-            text_bg = get_translucent_name_bg(arg, 60, font_size, line_height=10)
+            text_bg = get_translucent_name_bg(arg, 60, font_size, line_height=20)
             text_bg_size = text_bg.size
             text_bg_pos = (width, height - 8)
             paste_with_a(background, text_bg, text_bg_pos)
@@ -315,10 +319,17 @@ def get_translucent_name_bg(
     text_bg = change_image_alpha(text_bg, transparency)
     drawer = ImageDraw.Draw(text_bg)
     # 文字居中绘制
-    text_pos = (
-        (text_bg_size[0] - w) / 2,
-        (text_bg_size[1] - h) / 2 - text_bg_size[1] // 10,
-    )
+    # 单字符时单独处理 将字符往上调整
+    if len(text) == 1:
+        text_pos = (
+            (text_bg_size[0] - w) / 2,
+            (text_bg_size[1] - h) / 2 - text_bg_size[1] // 4,
+        )
+    else:
+        text_pos = (
+            (text_bg_size[0] - w) / 2,
+            (text_bg_size[1] - h) / 2 - text_bg_size[1] // 8,
+        )
     drawer.text(text_pos, text, font=ttf, fill=(255, 255, 255))
     return text_bg
 
@@ -333,7 +344,7 @@ def get_time_head_bg(time_head_bg_size, date_time, start_time, end_time) -> Imag
     w, h = ttf_get_size(ttf, time_head_text)
     time_head_text_pos = (
         (time_head_bg_size[0] - w) / 2,
-        (time_head_bg_size[1] - h) / 2 - 12,
+        (time_head_bg_size[1] - h) / 2 - time_head_bg_size[1] // 2.1,
     )
     drawer = ImageDraw.Draw(time_head_bg)
     drawer.text(time_head_text_pos, time_head_text, font=ttf, fill=(255, 255))

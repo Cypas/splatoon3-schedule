@@ -7,42 +7,90 @@ from nonebot_plugin_splatoon3_schedule import (
 from nonebot_plugin_splatoon3_schedule.image.image import *
 from nonebot_plugin_splatoon3_schedule.util import write_weapon_trans_dict
 
-# test_d = {
-#     "get_coop": {"plain_text": "工", "func": get_coop_stages_image, "args": ()},
-# "get_coop": {"plain_text": "全部图", "func": get_coop_stages_image, "args": ()},
-# "get_coop": {"plain_text": "工", "func": get_coop_stages_image, "args": ()},
-# "get_coop": {"plain_text": "工", "func": get_coop_stages_image, "args": ()},
-# "get_coop": {"plain_text": "工", "func": get_coop_stages_image, "args": ()},
-# "get_coop": {"plain_text": "工", "func": get_coop_stages_image, "args": ()},
-# }  # 走缓存接口的函数
+# 走缓存接口的函数
+test_d = {
+    # "get_coop": {"plain_text": "工", "func": get_coop_stages_image, "args": []},
+    # "get_all_coop": {
+    #     "plain_text": "全部工",
+    #     "func": get_coop_stages_image,
+    #     "args": [True],
+    # },
+    # 对战图参数格式为  num_list, contest_match, rule_match
+    # "get_stage_group": {
+    #     "plain_text": "图",
+    #     "func": get_stages_image,
+    #     "args": [[0, 1], None, None],
+    # },
+    # "get_all_stage_group": {
+    #     "plain_text": "全部图",
+    #     "func": get_stages_image,
+    #     "args": [[0, 1, 2, 3, 4, 5], None, None],
+    # },
+    # "get_next_stage_group": {
+    #     "plain_text": "下图",
+    #     "func": get_stages_image,
+    #     "args": [[1, 2, 3, 4, 5], None, None],
+    # },
+    # "get_stage_X": {
+    #     "plain_text": "X段",
+    #     "func": get_stages_image,
+    #     "args": [[0, 1, 2], "X段", None],
+    # },
+    # "get_stage_ranked_goal": {
+    #     "plain_text": "真格鱼虎",
+    #     "func": get_stages_image,
+    #     "args": [[0, 1, 2, 3, 4, 5], "挑战", "鱼虎"],
+    # },
+    # "get_all_stage_X": {
+    #     "plain_text": "全部X段",
+    #     "func": get_stages_image,
+    #     "args": [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "X段", None],
+    # },
+    # "get_next_stage_X": {
+    #     "plain_text": "下X段",
+    #     "func": get_stages_image,
+    #     "args": [[1, 2], "X段", None],
+    # },
+    # "get_build_image": {
+    #     "func": get_build_image,
+    #     "args": ["蓝牙", "TW"],
+    # },
+}
 
+# 不走缓存的函数调用
 test2_d = {
-    "help_image": {"func": get_help_image},
-    # "nso_help_image": {"func": get_nso_help_image},
-    # "get_events_image": {"func": get_events_image},
-    # "get_festival_image": {"func": get_festival_image},
+    # "help_image": {"func": get_help_image, "args": []},
+    # "nso_help_image": {"func": get_nso_help_image, "args": []},
+    # "get_events_image": {"func": get_events_image, "args": []},
+    # "get_festival_image": {"func": get_festival_image, "args": []},
     # "get_random_weapon_image": {
     #     "func": get_random_weapon_image,
-    #     "args": "随机武器rpg rpg rpg rpg",
+    #     "args": ["随机武器rpg rpg rpg rpg"],
     # },
-}  # 不走缓存的函数调用
+    # "get_screenshot": {
+    #     "func": get_screenshot,
+    #     "args": ["https://splatoon3.ink/gear"],
+    # },
+}
 
 
-# 测试全部缓存图
+# 测试全部图片生成
 async def test_all():
-    # for k, v in test_d.items():
-    #     plain_text = v.get("plain_text")
-    #     func = v.get("func")
-    #     args = v.get("args")
-    #     res = await get_save_temp_image(plain_text, func, args)
-    #     ok, img = res
-    #     image = Image.open(io.BytesIO(img))
-    #     image.show()
+    # 清空缓存
+    db_image.clean_image_temp()
+    for k, v in test_d.items():
+        plain_text = v.get("plain_text")
+        func = v.get("func")
+        args = v.get("args")
+        res = await get_save_temp_image(plain_text, func, *args)
+        ok, img = res
+        image = Image.open(io.BytesIO(img))
+        image.show()
 
     for k, v in test2_d.items():
         func = v.get("func")
         args = v.get("args" or ())
-        res = await func(args)
+        res = await func(*args)
         img = res
         if not isinstance(img, Image.Image):
             image = Image.open(io.BytesIO(img))
@@ -52,6 +100,29 @@ async def test_all():
 
 
 asyncio.run(test_all())
+
+# 测试重载武器数据
+# asyncio.run(reload_weapon_info())
+
+# 写出武器翻译字典
+# write_weapon_trans_dict()
+
+# 黑名单初始化
+# init_blacklist()
+
+# 黑名单测试
+# init_blacklist()
+# check_msg_permission("Kaiheila", "2486998048", "guild", "4498783094960820")
+# check_msg_permission("Kaiheila", "2486998048", "channel", "1339318493016829")
+
+# imageDB.add_or_modify_MESSAGE_CONTROL(
+#     "Kaiheila",
+#     "2486998048",
+#     "channel",
+#     "1339318493016829",
+#     "嘤嘤嘤",
+#     1,
+# )
 
 # # 测试 旧版 随机武器
 # res = get_random_weapon(weapon1=None, weapon2=None)
@@ -151,56 +222,3 @@ asyncio.run(test_all())
 # func = get_stages_image
 # img = get_save_temp_image(plain_text, func, num_list, contest_match, rule_match)
 # # res.show()
-
-
-# 测试新版随机武器
-# plain_text = "随机武器rpg rpg rpg rpg"
-# res = get_random_weapon_image(plain_text)
-# res.show()
-
-# 清空缓存
-# db_image.clean_image_temp()
-
-# 测试nso装备图片
-# async def get_weapon():
-#     img = await get_screenshot(shot_url="https://splatoon3.ink/gear")
-#     image = Image.open(io.BytesIO(img))
-#     image.show()
-# asyncio.run(get_weapon())
-
-
-# 测试获取配装截图
-# async def get_build():
-#     img = await get_build_image("蓝牙", True, "TW")
-#     if isinstance(img, str):
-#         logger.error(img)
-#
-#     else:
-#         image = Image.open(io.BytesIO(img))
-#         image.show()
-#
-#
-# asyncio.run(get_build())
-
-# 测试重载武器数据
-# asyncio.run(reload_weapon_info())
-
-# 写出武器翻译字典
-# write_weapon_trans_dict()
-
-# 黑名单初始化
-# init_blacklist()
-
-# 黑名单测试
-# init_blacklist()
-# check_msg_permission("Kaiheila", "2486998048", "guild", "4498783094960820")
-# check_msg_permission("Kaiheila", "2486998048", "channel", "1339318493016829")
-
-# imageDB.add_or_modify_MESSAGE_CONTROL(
-#     "Kaiheila",
-#     "2486998048",
-#     "channel",
-#     "1339318493016829",
-#     "嘤嘤嘤",
-#     1,
-# )

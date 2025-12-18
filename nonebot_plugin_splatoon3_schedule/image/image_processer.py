@@ -568,9 +568,10 @@ def get_random_weapon(weapon1: [WeaponData], weapon2: [WeaponData]) -> Image.Ima
 
 def get_help() -> Image.Image:
     """绘制 帮助图片"""
-    image_background_size = (1200, 2300)
+    all_width = 1380
+    image_background_size = (all_width, 2400)
     if plugin_config.splatoon3_schedule_plugin_priority_mode:
-        image_background_size = (1200, 2820)
+        image_background_size = (all_width, 2920)
     # 取背景rgb颜色
     bg_rgb = dict_bg_rgb["活动"]
     # 创建纯色背景
@@ -581,7 +582,7 @@ def get_help() -> Image.Image:
     # 圆角
     image_background = circle_corner(image_background, radii=20)
     # 绘制标题
-    font_size = 30
+    font_size = 50
     text_bg = get_translucent_name_bg("帮助手册", 80, font_size)
     text_bg_size = text_bg.size
     # 贴上文字背景
@@ -589,7 +590,7 @@ def get_help() -> Image.Image:
     paste_with_a(image_background, text_bg, text_bg_pos)
     # 初始化一些参数
     drawer = ImageDraw.Draw(image_background)
-    text_width = 50
+    text_width = font_size
     height = text_bg_pos[1] + text_bg_size[1] + 20
     title_rgb = dict_bg_rgb["祭典时间-金黄"]
 
@@ -836,7 +837,8 @@ def get_help() -> Image.Image:
 
 def get_nso_help() -> Image.Image:
     """绘制 nso帮助图片"""
-    image_background_size = (1200, 4300)
+    all_width = 1200
+    image_background_size = (all_width, 4300)
 
     # 取背景rgb颜色
     bg_rgb = dict_bg_rgb["活动"]
@@ -848,8 +850,8 @@ def get_nso_help() -> Image.Image:
     # 圆角
     image_background = circle_corner(image_background, radii=20)
     # 绘制标题
-    font_size = 30
-    text_bg = get_translucent_name_bg("nso帮助手册", 80, font_size)
+    font_size = 50
+    text_bg = get_translucent_name_bg("nso帮助手册", 80, font_size, line_height=18)
     text_bg_size = text_bg.size
     # 贴上文字背景
     text_bg_pos = ((image_background_size[0] - text_bg_size[0]) // 2, 20)
@@ -857,7 +859,7 @@ def get_nso_help() -> Image.Image:
     # 初始化一些参数
     drawer = ImageDraw.Draw(image_background)
     # 文字分行字符数量
-    text_width = 50
+    text_width = font_size
     height = text_bg_pos[1] + text_bg_size[1] + 20
     title_rgb = dict_bg_rgb["祭典时间-金黄"]
 
