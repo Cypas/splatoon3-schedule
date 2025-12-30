@@ -120,6 +120,12 @@ def time_converter_mdhm(time_str):
     return datetime.datetime.strftime(dt, "%m-%d %H:%M")
 
 
+def time_converter_ymdhm(time_str):
+    """时间转换 年-月-日 时:分"""
+    dt = time_converter(time_str)
+    return datetime.datetime.strftime(dt, "%Y-%m-%d %H:%M")
+
+
 def time_converter_weekday(time_str):
     """时间转换 周几，如周一"""
     dt = time_converter(time_str)
@@ -149,15 +155,9 @@ def get_time_now_china() -> datetime.datetime:
 
 def trigger_with_probability():
     """
-    该函数有30/1000的概率返回True（触发），970/1000的概率返回False（不触发）
-
-    返回:
-        bool: 触发状态，True表示触发，False表示未触发
+    该函数有2/100的概率返回True（触发）
     """
-    # 生成0到999之间的随机整数（包含0和999）
-    random_number = random.randint(0, 999)
-    # 如果随机数是0、1或2，则触发（3种情况）
-    return random_number < 30
+    return random.random() < 0.02
 
 
 def ttf_get_size(font: ImageFont.FreeTypeFont, text: str) -> tuple:

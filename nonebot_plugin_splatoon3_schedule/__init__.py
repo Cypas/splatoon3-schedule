@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Union, Tuple
 
 from .check import _permission_check, _guild_owner_check, ChannelInfo, init_blacklist
@@ -252,6 +253,13 @@ async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
     if not build_info:
         msg = f"该关键词 {weapon_name} 未查询到对应武器，请试试使用官方中文武器名称或其他常用名称后再试，若为贴牌需要加上贴牌二字，如:\n/配装 小绿\n指定模式查询:\n/配装 贴牌碳刷 塔楼"
         logger.warning(f"该关键词未匹配到武器 {weapon_name}")
+        # 未匹配武器写到指定文件
+        file_path = Path(os.path.join(DIR_RESOURCE, "未匹配武器.txt"))
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        # 以追加模式打开文件，编码指定为utf-8（避免中文乱码）
+        with open(file_path, "a", encoding="utf-8") as f:
+            f.write(f"{weapon_name}\n")  # 每行一个关键词
+
         await send_msg(bot, event, msg)
         return
     zh_name: str = build_info.get("zh_name")

@@ -88,8 +88,8 @@ def get_coop_info(_all=None):
 
     # 取时间信息
     def get_str_time(sch):
-        _start_time = time_converter_mdhm(sch["startTime"])
-        _end_time = time_converter_mdhm(sch["endTime"])
+        _start_time = time_converter_ymdhm(sch["startTime"])
+        _end_time = time_converter_ymdhm(sch["endTime"])
         return "{} - {}".format(_start_time, _end_time)
 
     # 取boss名称
@@ -98,10 +98,6 @@ def get_coop_info(_all=None):
 
     # 校验普通打工时间，是否在特殊打工模式之后
     def check_salmonrun_time(_start_time, _special_mode_start_time):
-        # 输入时间都缺少年份，需要手动补充一个年份后还原为date对象
-        year = get_time_now_china().year
-        _start_time = str(year) + "-" + _start_time
-        _special_mode_start_time = str(year) + "-" + _special_mode_start_time
         st = datetime.datetime.strptime(_start_time, "%Y-%m-%d %H:%M")
         su_st = datetime.datetime.strptime(_special_mode_start_time, "%Y-%m-%d %H:%M")
         if st > su_st:

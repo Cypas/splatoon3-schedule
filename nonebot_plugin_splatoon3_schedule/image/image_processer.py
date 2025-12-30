@@ -445,13 +445,21 @@ def get_coop_stages(stage, weapon, time, boss, mode) -> Image.Image:
     def check_coop_fish(_time):
         start_time = _time.split(" - ")[0]
         now_time = get_time_now_china()
-        # 输入时间都缺少年份，需要手动补充一个年份后还原为date对象
-        year = now_time.year
-        start_time = str(year) + "-" + start_time
         st = datetime.datetime.strptime(start_time, "%Y-%m-%d %H:%M")
         if st < now_time:
             return True
         return False
+
+    def time_remove_year(_time):
+        """移除日期的年份数据"""
+        str_p = "%Y-%m-%d %H:%M"
+        str_f = "%m-%d %H:%M"
+        start_time = _time.split(" - ")[0]
+        end_time = _time.split(" - ")[1]
+        st = datetime.datetime.strptime(start_time, str_p)
+        et = datetime.datetime.strptime(end_time, str_p)
+        t = f"{st.strftime(str_f)} - {et.strftime(str_f)}"
+        return t
 
     top_size_pos = (0, -2)
     bg_size = (800, len(stage) * 162 + top_size_pos[1])
@@ -478,7 +486,7 @@ def get_coop_stages(stage, weapon, time, boss, mode) -> Image.Image:
         time_text_pos = (50, 5 + pos * 160)
 
         time_text_size = ttf_get_size(font, val)
-        dr.text(time_text_pos, val, font=font, fill="#FFFFFF")
+        dr.text(time_text_pos, time_remove_year(val), font=font, fill="#FFFFFF")
         if check_coop_fish(val):
             # 现在时间处于打工时间段内，绘制小鲑鱼
             coop_fish_img = get_file("coop_fish").resize(coop_fish_size)

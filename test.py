@@ -9,7 +9,7 @@ from nonebot_plugin_splatoon3_schedule.util import write_weapon_trans_dict
 
 # 走缓存接口的函数
 test_d = {
-    # "get_coop": {"plain_text": "工", "func": get_coop_stages_image, "args": []},
+    # "get_coop": {"plain_text": "工", "func": get_coop_stages_image, "args": [False]},
     # "get_all_coop": {
     #     "plain_text": "全部工",
     #     "func": get_coop_stages_image,
