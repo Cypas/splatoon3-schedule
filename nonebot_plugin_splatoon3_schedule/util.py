@@ -1,10 +1,7 @@
+import io
 import time
 
-# from nonebot.adapters.qq import AuditException, ActionFailed
-from nonebot.adapters.qq import (
-    AuditException as QQ_AuditException,
-    ActionFailed as QQ_ActionFailed,
-)
+from PIL import Image
 
 from .config import plugin_config
 from .image.image import (
@@ -184,29 +181,28 @@ async def send_msg(
             logger.info("url:" + url)
             await bot.send(event, Kook_MsgSeg.image(url), reply_sender=reply_mode)
         elif isinstance(bot, QQ_Bot):
-            if not isinstance(event, GroupAtMessageCreateEvent):
-                try:
-                    await bot.send(event, message=QQ_MsgSeg.file_image(img))
-                except QQ_ActionFailed as e:
-                    if "消息被去重" in str(e):
-                        pass
-                    else:
-                        logger.warning(f"QQ send msg error: {e}")
-            else:
-                # 目前q群只支持url图片，得想办法上传图片获取url
-                url = await get_image_url(img, is_cache)
-                logger.info("url:" + url)
-                try:
+            # 目前q群只支持url图片，得想办法上传图片获取url
+            url = await get_image_url(img, is_cache)
+            logger.info("url:" + url)
+            try:
+                if plugin_config.splatoon3_qq_md_mode:
+                    image = Image.open(io.BytesIO(img))
+                    image_size = image.size
+                    image.close()
+                    user_id = event.get_user_id()
+                    qq_md = await get_qq_md(user_id, image_size, url)
+                    await bot.send(event, qq_md)
+                else:
                     await bot.send(event, message=QQ_MsgSeg.image(url))
-                except QQ_ActionFailed as e:
-                    if "消息被去重" in str(e):
-                        pass
-                    elif "富媒体文件格式不支持" in str(e):
-                        url = await get_image_url(img, is_cache=False)
-                        logger.info("图片上传失败，重新强制上传，url:" + url)
-                        await bot.send(event, message=QQ_MsgSeg.image(url))
-                    else:
-                        logger.warning(f"QQ send msg error: {e}")
+            except QQ_ActionFailed as e:
+                if "消息被去重" in str(e):
+                    pass
+                elif "富媒体文件格式不支持" in str(e):
+                    url = await get_image_url(img, is_cache=False)
+                    logger.info("图片上传失败，重新强制上传，url:" + url)
+                    await bot.send(event, message=QQ_MsgSeg.image(url))
+                else:
+                    logger.warning(f"QQ send msg error: {e}")
 
     if not is_ad and trigger_with_probability():
         if isinstance(bot, QQ_Bot):
@@ -314,3 +310,55 @@ async def send_private_msg(bot: Bot, source_id, msg: str | bytes, event=None):
                 logger.warning(f"主动消息发送失败，api操作结果为{e.__dict__}")
         elif isinstance(bot, Tg_Bot):
             await bot.send_photo(source_id, img)
+
+
+async def get_or_set_plugin_data(key, value=None):
+    """获取或设置插件数据"""
+    from nonebot import require
+
+    require("nonebot_plugin_datastore")
+    from nonebot_plugin_datastore import get_plugin_data
+
+    if value is None:
+        # 读取配置
+        value = await get_plugin_data().config.get(key)
+        return value
+    else:
+        # 存储配置
+        await get_plugin_data().config.set(key, value)
+        return value
+
+
+async def get_qq_md(user_id: str, img_size: tuple[int, int], url: str) -> QQ_Msg:
+    """为/last查询拼装md结构"""
+    template_id = "102083290_1705920931"
+    keyboard_template_id = "102083290_1720695986"
+
+    image_width, image_height = img_size
+
+    text_start = "发送/帮助查看详细用法"
+
+    # text_end作为公告消息
+    text_end = await get_or_set_plugin_data("splatoon3_bot_notice")
+
+    params = []
+    if user_id:
+        params.append({"key": "at_user_id", "values": [f"<@{user_id}>"]})
+    params.extend(
+        [
+            {"key": "text_start", "values": [f"{text_start}"]},
+            {"key": "img_size", "values": [f"img#{image_width}px #{image_height}px"]},
+            {"key": "img_url", "values": [f"{url}"]},
+        ]
+    )
+    if text_end:
+        text_end = text_end.replace("\\n", "\r").replace("\\r", "\r")
+        params.append({"key": "text_end", "values": [f"{text_end}"]})
+    md = QQ_MsgMarkdown.model_validate(
+        {"custom_template_id": f"{template_id}", "params": params}
+    )
+
+    keyboard = QQ_MsgKeyboard.model_validate({"id": f"{keyboard_template_id}"})
+
+    qq_msg = QQ_Msg([QQ_MsgSeg.markdown(md), QQ_MsgSeg.keyboard(keyboard)])
+    return qq_msg

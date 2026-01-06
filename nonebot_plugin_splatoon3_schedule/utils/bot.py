@@ -46,6 +46,15 @@ from nonebot.adapters.kaiheila.event import ChannelMessageEvent as Kook_CME
 from nonebot.adapters.qq import Bot as QQ_Bot
 from nonebot.adapters.qq.event import MessageEvent as QQ_ME, GroupAtMessageCreateEvent
 from nonebot.adapters.qq import MessageSegment as QQ_MsgSeg
+from nonebot.adapters.qq.message import Message as QQ_Msg
+from nonebot.adapters.qq.models import (
+    MessageKeyboard as QQ_MsgKeyboard,
+    MessageMarkdown as QQ_MsgMarkdown,
+)
+from nonebot.adapters.qq import (
+    AuditException as QQ_AuditException,
+    ActionFailed as QQ_ActionFailed,
+)
 from nonebot.adapters.qq.event import GroupAtMessageCreateEvent as QQ_GME  # 群艾特信息
 from nonebot.adapters.qq.event import C2CMessageCreateEvent as QQ_C2CME  # Q私聊信息
 from nonebot.adapters.qq.event import DirectMessageCreateEvent as QQ_PME  # 频道私聊信息
