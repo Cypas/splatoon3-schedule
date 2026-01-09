@@ -32,6 +32,8 @@ class Config(BaseModel):
     splatoon3_schedule_plugin_priority_mode: bool = False
     # 垃圾图片频道
     splatoon3_kk_channel_waste_chat_id: str | int = ""
+    # 部分消息使用qq平台md卡片,开启了也没用，md模版需要在qqbot端进行审核，模板id目前在代码里是写死的
+    splatoon3_qq_md_mode: bool = False
 
 
 # 本地测试时由于不启动 driver，需要将下面三行注释并取消再下面两行的注释
