@@ -182,7 +182,7 @@ async def send_msg(
             await bot.send(event, Kook_MsgSeg.image(url), reply_sender=reply_mode)
         elif isinstance(bot, QQ_Bot):
             # 目前q群只支持url图片，得想办法上传图片获取url
-            url = await get_image_url(img, is_cache)
+            url = await get_image_url(img, is_cache=False)
             logger.info("url:" + url)
             try:
                 if plugin_config.splatoon3_qq_md_mode:
@@ -321,18 +321,18 @@ async def get_or_set_plugin_data(key, value=None):
 
     if value is None:
         # 读取配置
-        value = await get_plugin_data().config.get(key)
+        value = await get_plugin_data("sp3_xyy_bot").config.get(key)
         return value
     else:
         # 存储配置
-        await get_plugin_data().config.set(key, value)
+        await get_plugin_data("sp3_xyy_bot").config.set(key, value)
         return value
 
 
 async def get_qq_md(user_id: str, img_size: tuple[int, int], url: str) -> QQ_Msg:
-    """为/last查询拼装md结构"""
+    """日程md结构"""
     template_id = "102083290_1705920931"
-    keyboard_template_id = "102083290_1720695986"
+    keyboard_template_id = "102083290_1767587639"
 
     image_width, image_height = img_size
 
