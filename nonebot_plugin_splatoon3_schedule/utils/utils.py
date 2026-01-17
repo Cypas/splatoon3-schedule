@@ -1,10 +1,11 @@
 import datetime
+import io
 import os
 import random
 
 import cloudscraper
 import httpx
-from PIL import ImageFont
+from PIL import ImageFont, Image
 from httpx import Response
 
 from .dataClass import TimeUtil
@@ -18,7 +19,6 @@ HTTP_TIME_OUT = 10.0  # 请求超时，秒
 proxy_address = plugin_config.splatoon3_proxy_address
 
 proxies = f"http://{proxy_address}" if proxy_address else None
-
 
 # 背景 rgb颜色
 dict_bg_rgb = {
@@ -170,3 +170,11 @@ def ttf_get_size(font: ImageFont.FreeTypeFont, text: str) -> tuple:
     height = bbox[3] - bbox[1]  # 文本高度
     time_text_size = (width, height)  # 与原 getsize() 返回格式一致
     return time_text_size
+
+
+def get_image_size(img_data):
+    # 通过pillow库获取图片宽高数据
+    image = Image.open(io.BytesIO(img_data))
+    width, height = image.size
+    image.close()
+    return width, height
