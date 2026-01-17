@@ -178,12 +178,12 @@ async def send_msg(
                 await bot.send(event, Tg_File.photo(img))
         elif isinstance(bot, Kook_Bot):
             url = await bot.upload_file(img)
-            logger.info("url:" + url)
+            # logger.info("url:" + url)
             await bot.send(event, Kook_MsgSeg.image(url), reply_sender=reply_mode)
         elif isinstance(bot, QQ_Bot):
             # 目前q群只支持url图片，得想办法上传图片获取url
             url = await get_image_url(img, is_cache=False)
-            logger.info("url:" + url)
+            # logger.info("url:" + url)
             try:
                 if plugin_config.splatoon3_qq_md_mode:
                     image = Image.open(io.BytesIO(img))
