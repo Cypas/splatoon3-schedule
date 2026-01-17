@@ -10,6 +10,7 @@ from .image.image import (
     get_coop_stages_image,
     get_events_image,
 )
+from .utils.cos_upload import cos_uploader, simple_upload_file
 from .utils.utils import get_time_now_china, trigger_with_probability
 from .data import db_control, db_image
 from .utils.bot import *
@@ -178,12 +179,12 @@ async def send_msg(
                 await bot.send(event, Tg_File.photo(img))
         elif isinstance(bot, Kook_Bot):
             url = await bot.upload_file(img)
-            logger.info("url:" + url)
+            # logger.info("url:" + url)
             await bot.send(event, Kook_MsgSeg.image(url), reply_sender=reply_mode)
         elif isinstance(bot, QQ_Bot):
             # 目前q群只支持url图片，得想办法上传图片获取url
             url = await get_image_url(img, is_cache=False)
-            logger.info("url:" + url)
+            # logger.info("url:" + url)
             try:
                 if plugin_config.splatoon3_qq_md_mode:
                     image = Image.open(io.BytesIO(img))
@@ -212,13 +213,20 @@ async def send_msg(
 
 async def get_image_url(img: bytes, is_cache) -> str:
     """通过kook获取图片url"""
+    url = ""
+    # 优先使用腾讯cos上传
+    if plugin_config.splatoon3_cos_config.enabled and cos_uploader.client is not None:
+        url = simple_upload_file(img)
+        if url:
+            return url
+
+    # 使用kook的接口传图片
     kook_bot = None
     bots = nonebot.get_bots()
     for k, b in bots.items():
         if isinstance(b, Kook_Bot):
             kook_bot = b
             break
-    url = ""
     if kook_bot is not None:
         # 使用kook的接口传图片
         url = await kook_bot.upload_file(img)

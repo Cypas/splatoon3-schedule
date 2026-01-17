@@ -6,6 +6,7 @@ from nonebot_plugin_splatoon3_schedule import (
 )
 from nonebot_plugin_splatoon3_schedule.image.image import *
 from nonebot_plugin_splatoon3_schedule.util import write_weapon_trans_dict
+from nonebot_plugin_splatoon3_schedule.utils.cos_upload import simple_upload_file
 
 # 走缓存接口的函数
 test_d = {
@@ -84,6 +85,8 @@ async def test_all():
         args = v.get("args")
         res = await get_save_temp_image(plain_text, func, *args)
         ok, img = res
+        # url = simple_upload_file(img)
+        # print(url)
         image = Image.open(io.BytesIO(img))
         image.show()
 
