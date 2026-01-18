@@ -10,8 +10,8 @@ from .image.image import (
     get_coop_stages_image,
     get_events_image,
 )
-from .utils.cos_upload import cos_uploader, simple_upload_file
-from .utils.utils import get_time_now_china, trigger_with_probability
+from .utils.cos_upload import cos_uploader, cos_upload_file
+from .utils.utils import get_time_now_china, trigger_with_probability, get_image_size
 from .data import db_control, db_image
 from .utils.bot import *
 
@@ -107,7 +107,7 @@ async def send_push(bot: Bot, source_id):
 
 
 async def send_msg(
-    bot: Bot, event: Event, msg: str | bytes, is_ad=False, is_cache=True
+        bot: Bot, event: Event, msg: str | bytes, is_ad=False, is_cache=True
 ):
     """公用send_msg"""
     # 指定回复模式
@@ -183,13 +183,10 @@ async def send_msg(
             await bot.send(event, Kook_MsgSeg.image(url), reply_sender=reply_mode)
         elif isinstance(bot, QQ_Bot):
             # 目前q群只支持url图片，得想办法上传图片获取url
-            url = await get_image_url(img, is_cache=False)
+            url, image_size = await get_image_url_and_size(img)
             # logger.info("url:" + url)
             try:
                 if plugin_config.splatoon3_qq_md_mode:
-                    image = Image.open(io.BytesIO(img))
-                    image_size = image.size
-                    image.close()
                     user_id = event.get_user_id()
                     qq_md = await get_qq_md(user_id, image_size, url)
                     await bot.send(event, qq_md)
@@ -199,7 +196,7 @@ async def send_msg(
                 if "消息被去重" in str(e):
                     pass
                 elif "富媒体文件格式不支持" in str(e):
-                    url = await get_image_url(img, is_cache=False)
+                    url, image_size = await get_image_url_and_size(img)
                     logger.info("图片上传失败，重新强制上传，url:" + url)
                     await bot.send(event, message=QQ_MsgSeg.image(url))
                 else:
@@ -211,14 +208,17 @@ async def send_msg(
         await send_msg(bot, event, ad_msg, is_ad=True)
 
 
-async def get_image_url(img: bytes, is_cache) -> str:
-    """通过kook获取图片url"""
+async def get_image_url_and_size(img_data: bytes) -> tuple[str, tuple[int, int]]:
+    """通过cos图床或kook图床获取图片url"""
     url = ""
+    image_size = (300, 300)
     # 优先使用腾讯cos上传
     if plugin_config.splatoon3_cos_config.enabled and cos_uploader.client is not None:
-        url = simple_upload_file(img)
+        url, image_size = cos_upload_file(img_data)
         if url:
-            return url
+            return url, image_size
+        else:
+            logger.warning("腾讯cos上传失败，使用kook上传")
 
     # 使用kook的接口传图片
     kook_bot = None
@@ -229,13 +229,14 @@ async def get_image_url(img: bytes, is_cache) -> str:
             break
     if kook_bot is not None:
         # 使用kook的接口传图片
-        url = await kook_bot.upload_file(img)
-        if url and not is_cache:
+        url = await kook_bot.upload_file(img_data)
+        image_size = get_image_size(img_data)
+        if url:
             channel_id = plugin_config.splatoon3_kk_channel_waste_chat_id
             await kook_bot.send_channel_msg(
                 channel_id=channel_id, message=Kook_MsgSeg.image(url)
             )
-    return url
+    return url, image_size
 
 
 async def send_channel_msg(bot: Bot, source_id, msg: str | bytes):

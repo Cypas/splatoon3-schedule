@@ -1,11 +1,13 @@
 import os, logging, mimetypes, re, sys, hashlib
+import traceback
 from datetime import datetime
 from typing import Optional, Dict, Any, Tuple
 from io import BytesIO
 
 from nonebot import logger
 
-from .utils import plugin_config, get_image_size
+from .utils import get_image_size
+from .. import plugin_config
 
 try:
     from qcloud_cos import CosConfig, CosS3Client
@@ -20,6 +22,7 @@ class COSUploader:
     
     提供文件上传、删除、查询等功能
     """
+
     def __init__(self):
         """初始化COS上传器
 
@@ -87,7 +90,8 @@ class COSUploader:
         return sys.getsizeof(file_data) <= self.config.max_file_size
 
     def _generate_cos_key(self, user_id: str = None,
-                          md5: str = None, file_data: bytes = None) -> str:
+                          md5: str = None, file_data: bytes = None,
+                          width: int = 300, height: int = 300) -> str:
         """生成COS上传路径
         
         Args:
@@ -100,15 +104,15 @@ class COSUploader:
         """
         # 使用MD5作为文件名
         ext = self._get_file_extension(file_data)
-        filename = f"{md5}{ext}"
-        
+        filename = f"{md5}_w{width}h{height}{ext}"
+
         # 获取上传路径前缀
         upload_prefix = self.config.upload_path_prefix
-        
+
         # 确保前缀以/结尾，避免路径拼接问题
         if upload_prefix and not upload_prefix.endswith('/'):
             upload_prefix += '/'
-        
+
         if user_id:
             return f"{upload_prefix}{user_id}/{filename}"
         else:
@@ -171,18 +175,24 @@ class COSUploader:
         try:
             if not self._validate_file(file_data):
                 return None
-            
+
             # 计算文件MD5
             md5 = self._calculate_md5(file_data)
-            
+
             # 检查缓存中是否已存在该MD5的URL
             cached_url = self._get_cached_url(md5)
             if cached_url:
-                # 从缓存中获取尺寸信息
-                try:
-                    dimensions = get_image_size(file_data)
-                except:
-                    dimensions = (300, 300)
+                # 从URL中提取尺寸信息
+                dimensions = get_image_dimensions_from_url(cached_url)
+                if dimensions:
+                    width, height = dimensions
+                else:
+                    # 如果无法从URL中提取尺寸信息，尝试重新获取，否则则使用默认值
+                    try:
+                        width, height = get_image_size(file_data)
+                    except:
+                        width, height = (300, 300)
+
                 # 返回缓存的结果
                 return {
                     'success': True,
@@ -190,19 +200,21 @@ class COSUploader:
                     'file_url': cached_url,
                     'filename': os.path.basename(cached_url),
                     'file_size': sys.getsizeof(file_data),
-                    'width': dimensions[0],
-                    'height': dimensions[1],
-                    'px': f'#{dimensions[0]}px #{dimensions[1]}px',
+                    'width': width,
+                    'height': height,
+                    'px': f'#{width}px #{height}px',
                     'cached': True
                 }
-            
+
+            # 获取图片尺寸
             try:
                 dimensions = get_image_size(file_data)
             except:
                 dimensions = (300, 300)
-            
+            width, height = dimensions
+
             # 使用MD5作为文件名生成cos_key
-            cos_key = self._generate_cos_key(user_id, md5, file_data)
+            cos_key = self._generate_cos_key(user_id, md5, file_data, width, height)
             response = self.client.put_object(Bucket=self.config.bucket_name, Body=BytesIO(file_data),
                                               Key=cos_key, ContentType=self._get_content_type(file_data))
             base_url = f"https://{self.config.domain}" if self.config.domain else \
@@ -213,10 +225,14 @@ class COSUploader:
             return {
                 'success': True, 'cos_key': cos_key, 'file_url': file_url,
                 'filename': os.path.basename(cos_key), 'file_size': sys.getsizeof(file_data),
-                'width': dimensions[0], 'height': dimensions[1], 'px': f'#{dimensions[0]}px #{dimensions[1]}px',
+                'width': width, 'height': height, 'px': f'#{width}px #{height}px',
                 'cached': False
             }
         except:
+            if response:
+                logger.warning(f"cos上传失败:resp为:{response}\ntraceback:{traceback.format_exc()}")
+            else:
+                logger.warning(f"cos上传失败:traceback:{traceback.format_exc()}")
             return None
 
     def delete_file(self, cos_key: str) -> bool:
@@ -304,17 +320,30 @@ def upload_image(file_data: bytes, user_id: str = None, return_url_only: bool = 
     return result['file_url'] if result and return_url_only else result
 
 
-def upload_file(file_data: bytes, user_id: str = None, return_url_only: bool = False):
-    return upload_image(file_data, user_id, return_url_only=return_url_only)
+def cos_upload_file(file_data: bytes, user_id: str = None):
+    """上传文件到COS
+
+    Args:
+        file_data: 文件数据的bytes类型
+        user_id: 用户ID
+
+    Returns:
+        上传结果
+    """
+    result = upload_image(file_data, user_id)
+    url = result.get('file_url')
+    width = result.get('width', 300)
+    height = result.get('height', 300)
+    return url, (width, height)
 
 
-def simple_upload_file(file_data: bytes, user_id: str = None):
+def cos_simple_upload_file(file_data: bytes, user_id: str = None):
     return upload_image(file_data, user_id, return_url_only=True)
 
 
 def _get_cos_base_url() -> str:
-    base_url = f"https://{cos_uploader.config['domain']}" if cos_uploader.config.get('domain') else \
-        f"https://{cos_uploader.config['bucket_name']}.cos.{cos_uploader.config['region']}.myqcloud.com"
+    base_url = f"https://{cos_uploader.config.domain}" if cos_uploader.config.domain else \
+        f"https://{cos_uploader.config.bucket_name}.cos.{cos_uploader.config.region}.myqcloud.com"
     return base_url
 
 
@@ -327,3 +356,26 @@ def delete_by_url(file_url: str):
         return False
     base_url = _get_cos_base_url()
     return cos_uploader.delete_file(file_url[len(base_url):]) if file_url.startswith(base_url) else False
+
+
+def get_image_dimensions_from_url(url: str) -> Optional[Tuple[int, int]]:
+    """从URL中提取图片的宽高数据
+
+    Args:
+        url: 图片URL，文件名格式为: {md5}_w{width}h{height}{ext}
+
+    Returns:
+        Optional[Tuple[int, int]]: 图片的宽高元组(width, height)，如果解析失败则返回None
+    """
+    try:
+        # 从URL中提取文件名
+        filename = os.path.basename(url)
+        # 使用正则表达式匹配宽高数据
+        match = re.search(r'_w(\d+)h(\d+)', filename)
+        if match:
+            width = int(match.group(1))
+            height = int(match.group(2))
+            return (width, height)
+        return None
+    except:
+        return None
