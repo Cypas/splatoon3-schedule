@@ -299,7 +299,7 @@ class DBIMAGE:
         if not is_deco:
             sql = f"select * from BUILDS where keywords LIKE '%|{keyword}|%'"
         else:
-            sql = f"select * from BUILDS where keywords LIKE '%|{keyword}|%' AND is_deco=1"
+            sql = f"select * from BUILDS where keywords LIKE '%|{keyword}|%' AND is_deco={is_deco}"
         c = self.conn.cursor()
         c.execute(
             sql,

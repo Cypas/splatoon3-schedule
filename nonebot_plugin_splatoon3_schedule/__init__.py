@@ -236,22 +236,25 @@ async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
     logger.info("同义文本替换后触发参数为:" + json.dumps(re_list, ensure_ascii=False))
 
     if not re_list[0]:
-        msg = "请携带需要查询的武器或模式信息作为参数，若为贴牌需要加上贴牌二字，如:\n/配装 小绿\n指定模式查询:\n/配装 贴牌碳刷 塔楼"
+        msg = "请携带需要查询的武器或模式信息作为参数，若为贴牌需要加上贴牌二字,新贴牌需要加上'新贴牌' 或 '彩牌'，如:\n/配装 小绿\n指定模式查询:\n/配装 贴牌碳刷 塔楼"
         await send_msg(bot, event, msg)
         return
 
     # 整理参数
-    is_deco = False
+    is_deco = 0
     mode = None
     weapon_name = re_list[0]
-    if "贴牌" in weapon_name:
-        is_deco = True
+    if "新贴牌" in weapon_name or "彩牌" in weapon_name:
+        is_deco = 2
+        weapon_name = weapon_name.replace("新贴牌", "").replace("彩牌", "")
+    elif "贴牌" in weapon_name:
+        is_deco = 1
         weapon_name = weapon_name.replace("贴牌", "")
 
     # 查询对应武器
     build_info = db_image.get_build_info(weapon_name, is_deco)
     if not build_info:
-        msg = f"该关键词 {weapon_name} 未查询到对应武器，请试试使用官方中文武器名称或其他常用名称后再试，若为贴牌需要加上贴牌二字，如:\n/配装 小绿\n指定模式查询:\n/配装 贴牌碳刷 塔楼"
+        msg = f"该关键词 {weapon_name} 未查询到对应武器，请试试使用官方中文武器名称或其他常用名称后再试，若为贴牌需要加上'贴牌'二字,新贴牌需要加上'新贴牌' 或 '彩牌'，如:\n/配装 小绿\n指定模式查询:\n/配装 贴牌碳刷 塔楼"
         logger.warning(f"该关键词未匹配到武器 {weapon_name}")
         # 未匹配武器写到指定文件
         file_path = Path(os.path.join(DIR_RESOURCE, "未匹配武器.txt"))
