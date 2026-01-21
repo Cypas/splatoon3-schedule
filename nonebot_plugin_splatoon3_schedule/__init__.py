@@ -35,6 +35,7 @@ matcher_stage_group = on_regex(
 async def _(bot: Bot, event: Event):
     plain_text = event.get_message().extract_plain_text().strip()
     # 触发关键词  替换.。\/ 等前缀触发词
+    plain_text = str_convert_to_simplified(plain_text)
     plain_text = multiple_replace(plain_text, dict_keyword_replace)
     logger.info("同义文本替换后触发词为:" + plain_text)
     # 判断是否满足进一步正则
@@ -99,6 +100,7 @@ matcher_stage = on_regex(
 async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
     re_list = []
     for k, v in enumerate(re_tuple):
+        v = str_convert_to_simplified(v)
         # 遍历正则匹配字典进行替换文本
         re_list.append(dict_keyword_replace.get(v, v))
     logger.info("同义文本替换后触发词组为:" + json.dumps(re_list, ensure_ascii=False))
@@ -194,6 +196,7 @@ matcher_coop = on_regex(
 @matcher_coop.handle(parameterless=[Depends(_permission_check)])
 async def _(bot: Bot, event: Event):
     plain_text = event.get_message().extract_plain_text().strip()
+    plain_text = str_convert_to_simplified(plain_text)
     # 触发关键词  替换.。\/ 等前缀触发词
     plain_text = multiple_replace(plain_text, dict_keyword_replace)
     logger.info("同义文本替换后触发词为:" + plain_text)
@@ -227,6 +230,7 @@ async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
             # 武器名
             if v:
                 v = v.upper()
+                v = str_convert_to_simplified(v)
                 v = multiple_replace(v, dict_builds_pre_replace)
             re_list.append(v)
         if k == len(re_tuple) - 1:
@@ -303,6 +307,7 @@ matcher_else = on_regex(
 @matcher_else.handle(parameterless=[Depends(_permission_check)])
 async def _(bot: Bot, event: Event):
     plain_text = event.get_message().extract_plain_text().strip()
+    plain_text = str_convert_to_simplified(plain_text)
     # 触发关键词  替换.。\/ 等前缀触发词
     plain_text = multiple_replace(plain_text, dict_prefix_replace)
     plain_text = plain_text.replace("help", "帮助")
@@ -379,6 +384,7 @@ matcher_manage = on_regex(
 async def _(bot: Bot, event: Event, state: T_State, re_tuple: Tuple = RegexGroup()):
     re_list = []
     for k, v in enumerate(re_tuple):
+        v = str_convert_to_simplified(v)
         re_list.append(v)
     # 触发关键词  替换.。\/ 等前缀触发词
     plain_text = event.get_message().extract_plain_text().strip()
@@ -436,6 +442,7 @@ matcher_admin = on_regex(
 async def _(bot: Bot, event: Event):
     # 触发关键词  替换.。\/ 等前缀触发词
     plain_text = event.get_message().extract_plain_text().strip()
+    plain_text = str_convert_to_simplified(plain_text)
     plain_text = multiple_replace(plain_text, dict_prefix_replace)
     err_msg = "执行失败，错误日志为: "
     # 清空图片缓存

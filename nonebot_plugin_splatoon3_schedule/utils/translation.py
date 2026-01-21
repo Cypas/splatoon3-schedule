@@ -2,6 +2,7 @@ import datetime
 import json
 import random
 
+import zhconv
 from nonebot.log import logger
 from .utils import (
     get_time_ymd,
@@ -123,6 +124,15 @@ def weapon_semantic_word_conversion(word: str):
     for v in dict_weapon_class.values():
         father_class_list.append(dict_weapon_father_class_trans.get(v))
     return word_type[4], random.choice(list(father_class_list))
+
+
+def str_convert_to_simplified(words: str):
+    """字符串转简体中文"""
+    if words:
+        simplified_text = zhconv.convert(words, "zh-hans")
+        return simplified_text
+    else:
+        return words
 
 
 # 翻译字典
