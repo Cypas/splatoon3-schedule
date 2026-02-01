@@ -74,11 +74,11 @@ async def get_build_image(*args):
     mode = dict_builds_mode_trans.get(mode, mode)
 
     url = f"https://sendou.ink/builds/{sendou_name}?limit=6"
-    if mode:
+    if mode and mode != "全部":
         url += (
-            '&f=[{"type":"mode","mode":"'
-            + mode
-            + '"},{"type":"date","date":"2026-01-29"}]'
+                '&f=[{"type":"mode","mode":"'
+                + mode
+                + '"},{"type":"date","date":"2026-01-29"}]'
         )
     else:
         url += '&f=[{"type":"date","date":"2026-01-29"}]'
@@ -199,7 +199,6 @@ async def get_save_temp_image(trigger_word, func, *args):
             )
             is_cache = True
             return is_cache, image_to_bytes(Image.open(io.BytesIO(image_data)))
-
 
 # 旧版 取 随机武器图片 不能进行缓存，这个需要实时生成
 # def old_get_random_weapon_image(*args):
