@@ -12,7 +12,7 @@ from .image.image import (
 )
 from .utils.cos_upload import cos_uploader, cos_upload_file
 from .utils.utils import get_time_now_china, trigger_with_probability, get_image_size
-from .data import db_control, db_image
+from .data import db_control, db_image, get_newest_event_or_coop
 from .utils.bot import *
 
 
@@ -345,7 +345,8 @@ async def get_qq_md(user_id: str, img_size: tuple[int, int], url: str) -> QQ_Msg
 
     image_width, image_height = img_size
 
-    text_start = "发送/帮助查看详细用法"
+    text_start = get_newest_event_or_coop() or "发送/帮助查看详细用法"
+    text_start = text_start.replace("\n", "\r")
 
     # text_end作为公告消息
     text_end = await get_or_set_plugin_data("splatoon3_bot_notice")

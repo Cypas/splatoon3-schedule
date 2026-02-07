@@ -1,3 +1,5 @@
+import time
+
 from playwright.async_api import Browser, async_playwright
 from playwright.sync_api import FloatRect
 
@@ -75,8 +77,8 @@ def get_coop_info(_all=None):
         return [
             ImageInfo(
                 name=sch["setting"]["weapons"][_i]["name"]
-                + "_"
-                + sch["setting"]["weapons"][_i]["__splatoon3ink_id"],
+                     + "_"
+                     + sch["setting"]["weapons"][_i]["__splatoon3ink_id"],
                 url=sch["setting"]["weapons"][_i]["image"]["url"],
                 zh_name=get_trans_weapon(
                     sch["setting"]["weapons"][_i]["__splatoon3ink_id"]
@@ -267,6 +269,131 @@ def get_stage_info(num_list=None, contest_match=None, rule_match=None):
     return schedule, num_list, new_contest_match, new_rule_match
 
 
+def get_newest_event_or_coop():
+    """
+    取最新活动或者团工数据
+    :return: 文本拼接为 (今天/明天/后天)，周一X时会有(活动/团工/BigRun) (名称)
+    """
+
+    def check_date_relation(target_dt: datetime.datetime) -> tuple:
+        """
+        判断指定 datetime 日期是今天/明天/后天，并返回是否近期、日期关系、周几描述
+
+        参数：
+            target_dt: 待判断的 datetime 类型日期
+
+        返回：
+            tuple: (是否近期, 日期关系描述, 周几描述)
+                   是否近期：bool类型，今天/明天/后天返回True，其他返回False
+                   日期关系描述："今天" / "明天" / "后天" / "其他日期"
+                   周几描述："周一" / "周二" ... / "周日"
+        """
+        # 1. 处理时区和日期截取（只保留年月日，忽略时分秒）
+        # 获取当前 UTC+8 时间的日期部分
+        today = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=8)
+        today_date = today.date()
+
+        # 提取目标日期的日期部分
+        target_date = target_dt.date()
+
+        # 2. 计算目标日期与今天的差值（天数）
+        delta_days = (target_date - today_date).days
+
+        # 3. 判断日期关系和是否近期
+        if delta_days == 0:
+            date_relation = "今天"
+            is_recent = True
+        elif delta_days == 1:
+            date_relation = "明天"
+            is_recent = True
+        elif delta_days == 2:
+            date_relation = "后天"
+            is_recent = True
+        else:
+            date_relation = "其他日期"
+            is_recent = False
+
+        # 4. 计算周几
+        weekday_num = target_dt.weekday()  # weekday() 返回 0(周一)~6(周日)
+        weekday_desc = "周" + dict_weekday_trans.get(weekday_num, "")
+
+        # 是否近期，今天/明天/后天，周一
+        return is_recent, date_relation, weekday_desc
+
+    n_event_st, n_event_name = get_newest_event_data()
+    n_coop_st, n_coop_name = get_newest_salmonrun_data()
+    msg = ""
+    if n_event_st:
+        is_recent, date_relation, weekday_desc = check_date_relation(time_converter(n_event_st))
+        if is_recent:
+            msg += f"{date_relation}{weekday_desc},{time_converter_h(n_event_st)}时开始会有活动:{n_event_name}"
+    if n_coop_st:
+        is_recent, date_relation, weekday_desc = check_date_relation(time_converter(n_coop_st))
+        if is_recent:
+            if msg:
+                msg += "\n"
+            msg += f"{date_relation}{weekday_desc},{time_converter_h(n_coop_st)}时开始会有 {n_coop_name}"
+    return msg
+
+
+def get_newest_event_data():
+    """
+    取最新活动数据
+    返回  (时间(年月日T时分秒Z)，名称)
+    """
+    # 取日程
+    schedule = get_schedule_data()
+    events = schedule["eventSchedules"]["nodes"]
+    # 如果存在活动
+    if len(events) > 0:
+        newest_event = events[0]
+        # 取时间
+        st = newest_event["timePeriods"][0]["startTime"]
+        # time_converter_yd(st),
+        # "周" + dict_weekday_trans.get(time_converter_weekday(st))
+        # 取中文翻译
+        cht_event_data = newest_event["leagueMatchSetting"]["leagueMatchEvent"]
+        _id = cht_event_data["id"]
+        trans_cht_event_data = get_trans_cht_data()["events"][_id]
+        # 替换为翻译文本
+        cht_event_data["name"] = trans_cht_event_data.get(
+            "name", cht_event_data["name"]
+        )
+        event_name = cht_event_data["name"]
+        return st, event_name
+    else:
+        return "", ""
+
+
+def get_newest_salmonrun_data():
+    """
+    取最新big run或者团工 数据
+    返回  (时间(年月日T时分秒Z)，名称)
+    """
+    # 取日程
+    schedule = get_schedule_data()
+    # 取翻译
+    get_trans_cht_data()
+    # 团队打工竞赛
+    team_schedule = schedule["coopGroupingSchedule"]["teamContestSchedules"]["nodes"]
+    # big run 数据
+    bigrun_schedule = schedule["coopGroupingSchedule"]["bigRunSchedules"]["nodes"]
+    newest_coop = None
+    coop_name = ""
+    st = ""
+    if len(team_schedule) > 0:
+        newest_coop = team_schedule[0]
+        coop_name = "团队打工"
+    elif len(bigrun_schedule) > 0:
+        newest_coop = bigrun_schedule[0]
+        coop_name = "BigRun"
+
+    if newest_coop is not None:
+        # coop_stage_name = get_trans_stage(newest_coop["setting"]["coopStage"]["id"])
+        st = newest_coop["startTime"]
+    return st, coop_name
+
+
 async def init_browser() -> Browser:
     """初始化 browser 并唤起"""
     global _browser
@@ -293,10 +420,10 @@ async def get_browser() -> Browser:
 
 
 async def get_screenshot(
-    shot_url,
-    mode="pc",
-    selector=None,
-    shot_path=None,
+        shot_url,
+        mode="pc",
+        selector=None,
+        shot_path=None,
 ) -> bytes:
     """通过 browser 获取 shot_url 中的网页截图"""
     # playwright 要求不能有多个 browser 被同时唤起

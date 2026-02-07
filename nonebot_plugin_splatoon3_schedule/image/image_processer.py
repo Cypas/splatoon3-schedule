@@ -182,7 +182,7 @@ def get_events(events: list) -> Image.Image:
         event_card_pos = (20, pos_h + 20)
         paste_with_a(image_background, event_card, event_card_pos)
         pos_h += event_card.size[1] + 30
-        # 绘制祭典说明卡片
+        # 绘制活动说明卡片
         event_desc_card_bg_size = (event_card_bg_size[0], 300)
         event_desc_card = get_event_desc_card(cht_event_data, event_desc_card_bg_size)
         event_card_pos = (20, pos_h)

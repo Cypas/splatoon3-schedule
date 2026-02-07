@@ -113,6 +113,10 @@ def time_converter_hm(time_str):
     dt = time_converter(time_str)
     return datetime.datetime.strftime(dt, "%H:%M")
 
+def time_converter_h(time_str):
+    """时间转换 时"""
+    dt = time_converter(time_str)
+    return datetime.datetime.strftime(dt, "%H")
 
 def time_converter_mdhm(time_str):
     """时间转换 月-日 时:分"""
