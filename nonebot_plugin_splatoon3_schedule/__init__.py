@@ -214,7 +214,7 @@ async def _(bot: Bot, event: Event):
 
 # 配装 触发器
 matcher_build = on_regex(
-    "^[\\/.,，。]{0,1}配装[\s　]{0,2}([\u4e00-\u9fa5a-zA-Z0-9·\-/\s　]{2,20})$",
+    "^[\\/.,，。]{0,1}配装[\s　]{0,2}([\u4e00-\u9fa5a-zA-Z0-9·\-/\s　]{0,20})$",
     priority=8,
     block=True,
 )
