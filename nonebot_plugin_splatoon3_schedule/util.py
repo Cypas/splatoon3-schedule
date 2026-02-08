@@ -362,7 +362,7 @@ async def get_qq_md(user_id: str, img_size: tuple[int, int], url: str) -> QQ_Msg
         ]
     )
     if text_end:
-        text_end = text_end.replace("\\n", "\r").replace("\\r", "\r")
+        text_end = "\r" + text_end.replace("\\n", "\r").replace("\\r", "\r")
         params.append({"key": "text_end", "values": [f"{text_end}"]})
     md = QQ_MsgMarkdown.model_validate(
         {"custom_template_id": f"{template_id}", "params": params}
