@@ -846,7 +846,7 @@ def get_help() -> Image.Image:
 def get_nso_help() -> Image.Image:
     """绘制 nso帮助图片"""
     all_width = 1200
-    image_background_size = (all_width, 4300)
+    image_background_size = (all_width, 4550)
 
     # 取背景rgb颜色
     bg_rgb = dict_bg_rgb["活动"]
@@ -1019,7 +1019,7 @@ def get_nso_help() -> Image.Image:
     # 绘制 帮助卡片
     cmd_list = ["/me"]
     desc_list = [
-        ("无参数", "显示个人技术，奖牌，对战/打工数量，胜率等信息"),
+        ("无参数", "显示个人技术，奖牌，对战/打工数量，胜率等信息(私聊使用该命令时将展示更多信息，如武器分，x分)"),
     ]
     text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
     # 贴图
@@ -1073,7 +1073,7 @@ def get_nso_help() -> Image.Image:
     cmd_list = ["/report"]
     desc_list = [
         ("无参数", "查询昨天的日报数据(对战/打工情况，胜率变化等)"),
-        ("2024-01-30", "查询某日日报数据，日期格式为2024-01-30"),
+        ("2024-01-30", "查询指定日期到最新日报间的数据变化，日期格式为2024-01-30"),
     ]
     text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
     # 贴图
@@ -1084,6 +1084,26 @@ def get_nso_help() -> Image.Image:
     cmd_list = ["/report_all"]
     desc_list = [
         ("无参数", "查询过去30天全部日报数据"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 10
+    # 绘制 帮助卡片
+    cmd_list = ["/观星导出"]
+    desc_list = [
+        ("无参数", "导出观星网站所需要的装备json文件"),
+    ]
+    text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
+    # 贴图
+    text_bg_pos = (title_pos[0] + 30, height)
+    paste_with_a(image_background, text_card, text_bg_pos)
+    height += card_h + 10
+    # 绘制 帮助卡片
+    cmd_list = ["/nso网页版"]
+    desc_list = [
+        ("无参数", "让你可以在任何支持油猴脚本的浏览器内打开喷三鱿鱼圈，\n适用于网络太差进不去nso或nso不方便升级的时候使用"),
     ]
     text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
     # 贴图
@@ -1169,7 +1189,7 @@ def get_nso_help() -> Image.Image:
     # 绘制 帮助卡片
     cmd_list = ["/report_notify"]
     desc_list = [
-        ("open", "开启每日日报主动推送(早上8点定时发送)"),
+        ("open", "开启每日日报主动推送(早上9点定时发送)"),
         ("close", "关闭日报主动推送"),
     ]
     text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
