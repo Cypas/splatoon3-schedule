@@ -2,6 +2,7 @@ import datetime
 import json
 import random
 
+import zhconv
 from nonebot.log import logger
 from .utils import (
     get_time_ymd,
@@ -125,6 +126,15 @@ def weapon_semantic_word_conversion(word: str):
     return word_type[4], random.choice(list(father_class_list))
 
 
+def str_convert_to_simplified(words: str):
+    """字符串转简体中文"""
+    if words:
+        simplified_text = zhconv.convert(words, "zh-hans")
+        return simplified_text
+    else:
+        return words
+
+
 # 翻译字典
 dict_rule_reverse_trans = {
     "LOFT": "真格塔楼",
@@ -210,13 +220,32 @@ dict_keyword_replace = {
 # 配装武器关键词前置处理
 dict_builds_pre_replace = {
     "无印": "",
+    "原版": "",
     "炮": "泡",
     "息": "熄",
     "篮": "蓝",
-    "斯普拉顿": "斯普拉遁",
+    "斯普拉顿": "斯普拉",
+    "斯普拉遁": "斯普拉",
     "拴": "栓",
-    "四开": "四K",
+    "四开": "4K",
+    "四K": "4K",
+    "4开": "4K",
+    "新形": "新型",
     "设计": "射击",
+    "渔工": "鱼弓",
+    "渡": "镀",
+    "防空露营": "露营防空",
+    "锯齿": "巨齿",
+    "针筒": "针管",
+    "牙膏刀": "太刀",
+    "牙膏": "太刀",
+    "顶级": "顶尖",
+    "酸奶": "奶",
+    "牛奶": "奶",
+    "笔桶": "笔桶",
+    "抢": "枪",
+    "雨刮": "雨刷",
+    "挂水刀": "刮水刀",
     " ": "",
     ".": "",
     "。": "",

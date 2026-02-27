@@ -74,21 +74,44 @@ async def get_build_image(*args):
     mode = dict_builds_mode_trans.get(mode, mode)
 
     url = f"https://sendou.ink/builds/{sendou_name}?limit=6"
-    if mode:
+    if mode and mode != "全部":
         url += (
             '&f=[{"type":"mode","mode":"'
             + mode
-            + '"},{"type":"date","date":"2025-09-03"}]'
+            + '"},{"type":"date","date":"2026-01-29"}]'
         )
     else:
-        url += '&f=[{"type":"date","date":"2025-09-03"}]'
+        url += '&f=[{"type":"date","date":"2026-01-29"}]'
 
     logger.info(f"sendou.ink url: {url}")
     try:
         img = await get_screenshot(shot_url=url, mode="pc", selector=".layout__main")
+        im = Image.open(io.BytesIO(img))
+        # 裁切顶部虚影部分
+        crop_box = (
+            0,
+            60,
+            im.width,
+            im.height - 70,
+        )  # 传入的四个参数可以理解为是 左上角的x点，y点，和右下角的x点，y点
+        cropped_img = im.crop(crop_box)
+        # 添加一行文本版权声明
+        ttf = ImageFont.truetype(ttf_path_chinese, 20)
+        img_width = cropped_img.width
+        img_height = cropped_img.height
+        # 写一行网址
+        time_head_text = f"配装数据来源: https://sendou.ink/builds"
+        w, h = ttf_get_size(ttf, time_head_text)
+        time_head_text_pos = (
+            (img_width - w) / 2,
+            img_height - 33,
+        )
+        drawer = ImageDraw.Draw(cropped_img)
+        drawer.text(time_head_text_pos, time_head_text, font=ttf, fill=(247, 62, 139))
+        return cropped_img
+
     except Exception as e:
         return f"bot服务器网络错误，网页截图失败，请稍后再试:{e}"
-    return img
 
 
 async def get_random_weapon_image(*args):

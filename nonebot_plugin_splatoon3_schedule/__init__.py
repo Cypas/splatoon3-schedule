@@ -35,6 +35,7 @@ matcher_stage_group = on_regex(
 async def _(bot: Bot, event: Event):
     plain_text = event.get_message().extract_plain_text().strip()
     # 触发关键词  替换.。\/ 等前缀触发词
+    plain_text = str_convert_to_simplified(plain_text)
     plain_text = multiple_replace(plain_text, dict_keyword_replace)
     logger.info("同义文本替换后触发词为:" + plain_text)
     # 判断是否满足进一步正则
@@ -99,6 +100,7 @@ matcher_stage = on_regex(
 async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
     re_list = []
     for k, v in enumerate(re_tuple):
+        v = str_convert_to_simplified(v)
         # 遍历正则匹配字典进行替换文本
         re_list.append(dict_keyword_replace.get(v, v))
     logger.info("同义文本替换后触发词组为:" + json.dumps(re_list, ensure_ascii=False))
@@ -194,6 +196,7 @@ matcher_coop = on_regex(
 @matcher_coop.handle(parameterless=[Depends(_permission_check)])
 async def _(bot: Bot, event: Event):
     plain_text = event.get_message().extract_plain_text().strip()
+    plain_text = str_convert_to_simplified(plain_text)
     # 触发关键词  替换.。\/ 等前缀触发词
     plain_text = multiple_replace(plain_text, dict_keyword_replace)
     logger.info("同义文本替换后触发词为:" + plain_text)
@@ -211,7 +214,7 @@ async def _(bot: Bot, event: Event):
 
 # 配装 触发器
 matcher_build = on_regex(
-    "^[\\/.,，。]?配装\s{0,2}([\\u4e00-\\u9fa5a-zA-Z0-9·-]{2,20}?(\s(装饰|改装|联名|新型|新艺术|金属箔|精英|精英装饰|姐妹|高磁波|墨黑|薄荷|黑|白|甲|乙))?)?\s?(区域|区|推塔|抢塔|塔楼|塔|蛤蜊|蛤|抢鱼|鱼虎|鱼|涂地|涂涂|涂)?$",
+    "^[\\/.,，。]{0,1}配装[\s　]{0,2}([\u4e00-\u9fa5a-zA-Z0-9·\-/\s　]{0,20})$",
     priority=8,
     block=True,
 )
@@ -220,45 +223,80 @@ matcher_build = on_regex(
 # 配装 触发器处理
 @matcher_build.handle(parameterless=[Depends(_permission_check)])
 async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
-    re_list = []
-    for k, v in enumerate(re_tuple):
-        # 遍历正则匹配字典进行替换文本
-        if k == 0:
-            # 武器名
-            if v:
-                v = v.upper()
-                v = multiple_replace(v, dict_builds_pre_replace)
-            re_list.append(v)
-        if k == len(re_tuple) - 1:
-            # 模式
-            value = dict_keyword_replace.get(v, v)
-            re_list.append(value)
-    logger.info("同义文本替换后触发参数为:" + json.dumps(re_list, ensure_ascii=False))
+    # 分两步处理，外层只过滤前缀，将关键词分离出来
+    keywords = re_tuple[0]
+    keywords = str(keywords).strip()
+    # 第二步再处理是否有模式选项
+    # 场景词列表（按长度从长到短排序，优先匹配长词）
+    mode_words = [
+        "推塔",
+        "抢塔",
+        "塔楼",
+        "蛤蜊",
+        "抢鱼",
+        "鱼虎",
+        "涂地",
+        "涂涂",
+        "区域",
+        "区",
+        "塔",
+        "蛤",
+        "鱼",
+        "涂",
+    ]
+    # 第二步场景词剥离正则（核心：匹配末尾的最长场景词）
+    # 动态生成正则：(场景词1|场景词2|...) （长词在前）
+    mode_pattern = rf"^(.*?)({'|'.join(mode_words)})$"
+    scene_regex = re.compile(mode_pattern)
+    # 第二步：用正则剥离末尾的场景词
+    middle_text = keywords  # 默认中间文本=原关键词（无场景词）
+    scene = None  # 默认无场景词
 
-    if not re_list[0]:
-        msg = "请携带需要查询的武器或模式信息作为参数，若为贴牌需要加上贴牌二字，如:\n/配装 小绿\n指定模式查询:\n/配装 贴牌碳刷 塔楼"
+    # 匹配末尾的场景词
+    scene_match = scene_regex.match(keywords)
+    if scene_match:
+        # 提取剥离场景词后的中间文本（去首尾空格）
+        temp_middle = scene_match.group(1).strip()
+        # 校验中间文本长度≥2（核心约束）
+        if len(temp_middle) >= 2:
+            middle_text = temp_middle
+            scene = scene_match.group(2)
+
+    # 武器名过滤
+    middle_text = middle_text.upper()
+    middle_text = str_convert_to_simplified(middle_text)
+    middle_text = multiple_replace(middle_text, dict_builds_pre_replace)
+    if scene:
+        scene = dict_keyword_replace.get(scene, scene)
+
+    logger.info(f"同义文本替换后武器:{middle_text},模式:{scene or '全部'}")
+
+    if not middle_text:
+        msg = "请携带需要查询的武器或模式信息作为参数，若为贴牌需要加上贴牌二字,新贴牌需要加上'新贴牌' 或 '彩牌'，如:\n/配装 小绿\n指定模式查询:\n/配装 贴牌碳刷 塔楼"
         await send_msg(bot, event, msg)
         return
 
     # 整理参数
-    is_deco = False
-    mode = None
-    weapon_name = re_list[0]
-    if "贴牌" in weapon_name:
-        is_deco = True
+    is_deco = 0
+    weapon_name = middle_text
+    if "新贴牌" in weapon_name or "彩牌" in weapon_name:
+        is_deco = 2
+        weapon_name = weapon_name.replace("新贴牌", "").replace("彩牌", "")
+    elif "贴牌" in weapon_name:
+        is_deco = 1
         weapon_name = weapon_name.replace("贴牌", "")
 
     # 查询对应武器
     build_info = db_image.get_build_info(weapon_name, is_deco)
     if not build_info:
-        msg = f"该关键词 {weapon_name} 未查询到对应武器，请试试使用官方中文武器名称或其他常用名称后再试，若为贴牌需要加上贴牌二字，如:\n/配装 小绿\n指定模式查询:\n/配装 贴牌碳刷 塔楼"
-        logger.warning(f"该关键词未匹配到武器 {weapon_name}")
+        msg = f"该关键词 {middle_text} 未查询到对应武器，请试试使用官方中文武器名称或其他常用名称后再试，若为贴牌需要加上'贴牌'二字,新贴牌需要加上'新贴牌' 或 '彩牌'，如:\n/配装 小绿\n指定模式查询:\n/配装 贴牌碳刷 塔楼"
+        logger.warning(f"该关键词未匹配到武器 {middle_text}")
         # 未匹配武器写到指定文件
         file_path = Path(os.path.join(DIR_RESOURCE, "未匹配武器.txt"))
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         # 以追加模式打开文件，编码指定为utf-8（避免中文乱码）
         with open(file_path, "a", encoding="utf-8") as f:
-            f.write(f"{weapon_name}\n")  # 每行一个关键词
+            f.write(f"{middle_text}\n")  # 每行一个关键词
 
         await send_msg(bot, event, msg)
         return
@@ -266,24 +304,23 @@ async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
     sendou_name: str = build_info.get("sendou_name")
 
     plain_text = "配装"
-    re_list[0] = f'{zh_name.replace(" ", "")}'
-    plain_text = f"{plain_text} {re_list[0]}"
-    if re_list[1]:
-        plain_text = f"{plain_text} {re_list[1]}"
+    zh_name = f'{zh_name.replace(" ", "")}'
+    plain_text += f" {zh_name}"
+    if scene:
+        plain_text += f" {scene}"
 
     # mode
-    if re_list[1]:
-        mode = re_list[1]
-        mode_str = mode
+    if scene:
+        mode_str = scene
     else:
         mode_str = "全部"
-    msg = f"正在获取武器 {re_list[0]} 在 {mode_str}模式下的配装推荐，请稍等..."
+    msg = f"正在获取武器 {zh_name} 在 {mode_str}模式下的配装推荐，请稍等..."
     await send_msg(bot, event, msg)
 
     # 传递函数指针
     func = get_build_image
     # 获取图片
-    is_cache, img = await get_save_temp_image(plain_text, func, sendou_name, mode)
+    is_cache, img = await get_save_temp_image(plain_text, func, sendou_name, mode_str)
     # 发送图片
     await send_msg(bot, event, img, is_cache=is_cache)
 
@@ -300,6 +337,7 @@ matcher_else = on_regex(
 @matcher_else.handle(parameterless=[Depends(_permission_check)])
 async def _(bot: Bot, event: Event):
     plain_text = event.get_message().extract_plain_text().strip()
+    plain_text = str_convert_to_simplified(plain_text)
     # 触发关键词  替换.。\/ 等前缀触发词
     plain_text = multiple_replace(plain_text, dict_prefix_replace)
     plain_text = plain_text.replace("help", "帮助")
@@ -376,6 +414,7 @@ matcher_manage = on_regex(
 async def _(bot: Bot, event: Event, state: T_State, re_tuple: Tuple = RegexGroup()):
     re_list = []
     for k, v in enumerate(re_tuple):
+        v = str_convert_to_simplified(v)
         re_list.append(v)
     # 触发关键词  替换.。\/ 等前缀触发词
     plain_text = event.get_message().extract_plain_text().strip()
@@ -433,6 +472,7 @@ matcher_admin = on_regex(
 async def _(bot: Bot, event: Event):
     # 触发关键词  替换.。\/ 等前缀触发词
     plain_text = event.get_message().extract_plain_text().strip()
+    plain_text = str_convert_to_simplified(plain_text)
     plain_text = multiple_replace(plain_text, dict_prefix_replace)
     err_msg = "执行失败，错误日志为: "
     # 清空图片缓存

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nonebot-plugin-splatoon3-schedule"
-version = "2.0.6"
+version = "2.0.7"
 description = "一个基于nonebot2框架的splatoon3游戏日程查询插件"
 authors = ["cypas <ayano05@outlook.com>"]
 readme = "README.md"
@@ -22,6 +22,7 @@ nonebot-adapter-qq = "^1.6.6"
 nonebot-plugin-apscheduler = "^0.5.0"
 nonebot_plugin_datastore = "^1.3.0"
 cos_python_sdk_v5 = "^1.9.30"
+zhconv = "^1.4.3"
 
 [tool.poetry.group.test.dependencies]
 nonebug = "^0.3.5"
