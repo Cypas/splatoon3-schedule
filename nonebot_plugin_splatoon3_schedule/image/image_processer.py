@@ -577,9 +577,9 @@ def get_random_weapon(weapon1: [WeaponData], weapon2: [WeaponData]) -> Image.Ima
 def get_help() -> Image.Image:
     """绘制 帮助图片"""
     all_width = 1380
-    image_background_size = (all_width, 2400)
+    image_background_size = (all_width, 2450)
     if plugin_config.splatoon3_schedule_plugin_priority_mode:
-        image_background_size = (all_width, 2920)
+        image_background_size = (all_width, 2970)
     # 取背景rgb颜色
     bg_rgb = dict_bg_rgb["活动"]
     # 创建纯色背景
@@ -714,10 +714,10 @@ def get_help() -> Image.Image:
     height += h
     # 绘制 帮助卡片 对战地图查询
     pre = "查询指令:"
-    order_list = ["/配装 枫叶", "/配装 贴牌长弓 塔楼"]
+    order_list = ["/配装 枫叶", "/配装 贴牌长弓 塔楼", "/配装 彩牌小绿 蛤蜊"]
     desc_list = [
-        "需携带武器名称或模式名称作为参数，若为贴牌武器需要加上'贴牌'两个字",
-        "如/配装 小绿;/配装 贴牌洗洁精;/配装 鹦鹉螺 塔楼",
+        "需携带武器名称或模式名称作为参数，若为贴牌武器需要加上'贴牌'两个字，\n若为新贴牌武器需要加上'新贴牌'或'彩牌'",
+        "如/配装 小绿;/配装 贴牌洗洁精;/配装 鹦鹉螺 塔楼;/配装 彩牌小绿 蛤蜊",
     ]
     text_card, card_h = drawer_help_card(
         pre, order_list, desc_list, text_width=text_width
@@ -759,16 +759,25 @@ def get_help() -> Image.Image:
         height += h
         # 绘制 帮助卡片 对战地图查询
         pre = "指令:"
-        order_list = ["/login", "/last", "/friends", "/report", "/me", "/fc"]
+        order_list = [
+            "/login",
+            "/last",
+            "/friends",
+            "/report",
+            "/me",
+            "/fc",
+            "/观星导出",
+        ]
         desc_list = [
             "以下是部分常用nso指令，完整nso指令请再发送 /nso帮助 查看",
-            "/login：绑定nso账号，后续指令都是需要完成绑定后才可以使用，Q群使用请先加入下面联系方式里的 kook频道",
+            "/login：绑定nso账号，后续指令都是需要完成绑定后才可以使用",
             "/last：查询上一局比赛或打工的数据",
             "/lasti：以图片模式查询上一局比赛或打工的数据",
             "/friends：显示在线的ns好友",
-            "/report：获取昨天或指定日期的日报数据(胜场，游戏局数，金银铜牌，打工鳞片等数量变化)，支持指定日期，如 /report 2023-12-17",
+            "/report：获取昨天或指定日期到最新日报的区间变化(胜场，游戏局数，金银铜牌，打工鳞片等数量变化)，支持指定日期，如 /report 2023-12-17",
             "/me：获取自己个人数据(总场数，胜率，金银铜牌数量等)",
             "/fc：获取自己SW好友码",
+            "/观星导出：导出观星网站所需要的json文件",
         ]
         text_card, card_h = drawer_help_card(
             pre, order_list, desc_list, text_width=text_width
@@ -828,8 +837,7 @@ def get_help() -> Image.Image:
         "有github账号的人可以去帮忙点个star，这是对我们最大的支持了",
     ]
 
-    if not plugin_config.splatoon3_is_official_bot:
-        desc_list.append("小鱿鱿官方联系方式: Kook服务器id：85644423 Q群：827977720")
+    desc_list.append("小鱿鱿官方联系方式: Kook服务器id：85644423 Q群：827977720")
     desc_list.append("插件作者:Cypas_Nya;Paul;Sky_miner")
 
     text_card, card_h = drawer_help_card(
@@ -846,7 +854,7 @@ def get_help() -> Image.Image:
 def get_nso_help() -> Image.Image:
     """绘制 nso帮助图片"""
     all_width = 1200
-    image_background_size = (all_width, 4550)
+    image_background_size = (all_width, 4600)
 
     # 取背景rgb颜色
     bg_rgb = dict_bg_rgb["活动"]
@@ -960,10 +968,10 @@ def get_nso_help() -> Image.Image:
     # 绘制 帮助卡片
     cmd_list = ["/ss"]
     desc_list = [
-        ("无参数", "截图 最近 对战列表"),
+        ("无参数", "默认截图 最近 对战列表页面"),
         (
             "页面关键词",
-            "全部页面关键词如下: 个人穿搭 好友 最近 涂地 蛮颓 x赛 活动 私房 武器 徽章 打工记录 击倒数量 打工 鲑鱼跑 祭典 祭典问卷",
+            "全部页面关键词如下: 总览 个人穿搭 好友 最近 涂地 蛮颓 x赛 活动 私房 \n武器进度 武器分数 徽章 打工记录 击倒数量 打工 鲑鱼跑 祭典 祭典问卷",
         ),
     ]
     text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=40)
@@ -1001,7 +1009,7 @@ def get_nso_help() -> Image.Image:
     cmd_list = ["/history", "/his"]
     desc_list = [
         ("无参数", "查询最近一个时段的 开放模式组队 记录"),
-        ("o", "同无参数情况"),
+        ("o", "同无参数情况,最近一个时段的 开放模式组队 记录"),
         ("f", "最近一个时段 祭典 记录"),
         ("e", "最近一个时段 活动 记录"),
     ]
@@ -1019,7 +1027,10 @@ def get_nso_help() -> Image.Image:
     # 绘制 帮助卡片
     cmd_list = ["/me"]
     desc_list = [
-        ("无参数", "显示个人技术，奖牌，对战/打工数量，胜率等信息(私聊使用该命令时将展示更多信息，如武器分，x分)"),
+        (
+            "无参数",
+            "显示个人技术，奖牌，对战/打工数量，胜率等信息(私聊使用该命令时将展示更多信息)",
+        ),
     ]
     text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
     # 贴图
@@ -1029,7 +1040,7 @@ def get_nso_help() -> Image.Image:
     # 绘制 帮助卡片
     cmd_list = ["/friends", "/fr"]
     desc_list = [
-        ("无参数", "显示splatoon3在线好友"),
+        ("无参数", "显示splatoon3在线好友状态"),
     ]
     text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
     # 贴图
@@ -1039,7 +1050,7 @@ def get_nso_help() -> Image.Image:
     # 绘制 帮助卡片
     cmd_list = ["/ns_friends", "/ns_fr", "/nsfr"]
     desc_list = [
-        ("无参数", "显示ns在线好友"),
+        ("无参数", "显示ns在线好友状态"),
     ]
     text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
     # 贴图
@@ -1050,6 +1061,7 @@ def get_nso_help() -> Image.Image:
     cmd_list = ["/friend_code", "/fc"]
     desc_list = [
         ("无参数", "显示我的SW好友码"),
+        ("force", "当更换了好友码之后可加这个参数强制刷新SW好友码缓存"),
     ]
     text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
     # 贴图
@@ -1063,6 +1075,7 @@ def get_nso_help() -> Image.Image:
             "无参数",
             "获取自己ns头像,在更换新的ns头像后，需要用一次/me命令才会刷新新的头像缓存",
         ),
+        ("force", "立刻刷新头像缓存"),
     ]
     text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
     # 贴图
@@ -1103,7 +1116,10 @@ def get_nso_help() -> Image.Image:
     # 绘制 帮助卡片
     cmd_list = ["/nso网页版"]
     desc_list = [
-        ("无参数", "让你可以在任何支持油猴脚本的浏览器内打开喷三鱿鱼圈，\n适用于网络太差进不去nso或nso不方便升级的时候使用"),
+        (
+            "无参数",
+            "让你可以在任何支持油猴脚本的浏览器内打开喷三鱿鱼圈，\n适用于网络太差进不去nso或nso不方便升级的时候使用",
+        ),
     ]
     text_card, card_h = drawer_nso_help_card(cmd_list, desc_list, text_width=text_width)
     # 贴图
