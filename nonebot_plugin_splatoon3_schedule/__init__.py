@@ -289,14 +289,14 @@ async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
     # 查询对应武器
     build_info = db_image.get_build_info(weapon_name, is_deco)
     if not build_info:
-        msg = f"该关键词 {weapon_name} 未查询到对应武器，请试试使用官方中文武器名称或其他常用名称后再试，若为贴牌需要加上'贴牌'二字,新贴牌需要加上'新贴牌' 或 '彩牌'，如:\n/配装 小绿\n指定模式查询:\n/配装 贴牌碳刷 塔楼"
-        logger.warning(f"该关键词未匹配到武器 {weapon_name}")
+        msg = f"该关键词 {middle_text} 未查询到对应武器，请试试使用官方中文武器名称或其他常用名称后再试，若为贴牌需要加上'贴牌'二字,新贴牌需要加上'新贴牌' 或 '彩牌'，如:\n/配装 小绿\n指定模式查询:\n/配装 贴牌碳刷 塔楼"
+        logger.warning(f"该关键词未匹配到武器 {middle_text}")
         # 未匹配武器写到指定文件
         file_path = Path(os.path.join(DIR_RESOURCE, "未匹配武器.txt"))
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         # 以追加模式打开文件，编码指定为utf-8（避免中文乱码）
         with open(file_path, "a", encoding="utf-8") as f:
-            f.write(f"{weapon_name}\n")  # 每行一个关键词
+            f.write(f"{middle_text}\n")  # 每行一个关键词
 
         await send_msg(bot, event, msg)
         return

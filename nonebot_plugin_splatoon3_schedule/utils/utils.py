@@ -7,6 +7,7 @@ import cloudscraper
 import httpx
 from PIL import ImageFont, Image
 from httpx import Response
+from nonebot import logger
 
 from .dataClass import TimeUtil
 from ..config import plugin_config
@@ -45,12 +46,18 @@ def cf_http_get(url: str):
     # 请求报错，可以加上时延
     # scraper = cloudscraper.create_scraper(delay = 6)
     if proxy_address:
-        cf_proxies = {
-            "http": "http://{}".format(proxy_address),
-            "https": "http://{}".format(proxy_address),
-        }
-        # 获取网页内容 代理访问
-        res = scraper.get(url, proxies=cf_proxies)
+        try:
+            cf_proxies = {
+                "http": "http://{}".format(proxy_address),
+                "https": "http://{}".format(proxy_address),
+            }
+            # 获取网页内容 代理访问
+            res = scraper.get(url, proxies=cf_proxies)
+        except Exception as e:
+            # 可能是代理挂了，切换为直连模式再请求一次
+            logger.warning("代理请求失败，将进行直连请求重试")
+            res = scraper.get(url)
+
     else:
         # 获取网页内容
         res = scraper.get(url)
@@ -113,10 +120,12 @@ def time_converter_hm(time_str):
     dt = time_converter(time_str)
     return datetime.datetime.strftime(dt, "%H:%M")
 
+
 def time_converter_h(time_str):
     """时间转换 时"""
     dt = time_converter(time_str)
     return datetime.datetime.strftime(dt, "%H")
+
 
 def time_converter_mdhm(time_str):
     """时间转换 月-日 时:分"""
