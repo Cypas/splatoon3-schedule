@@ -294,12 +294,26 @@ class DBIMAGE:
         self.conn.commit()
         return result
 
-    def get_build_info(self, keyword, is_deco) -> dict:
-        """取配装数据"""
+    def get_build_info_by_deco(self, keywords, is_deco) -> dict:
+        """通过关键词和贴牌取配装数据"""
         if not is_deco:
-            sql = f"select * from BUILDS where keywords LIKE '%|{keyword}|%'"
+            sql = f"select * from BUILDS where keywords LIKE '%|{keywords}|%'"
         else:
-            sql = f"select * from BUILDS where keywords LIKE '%|{keyword}|%' AND is_deco={is_deco}"
+            sql = f"select * from BUILDS where keywords LIKE '%|{keywords}|%' AND is_deco={is_deco}"
+        return self.model_get_build_info(sql)
+
+    def get_build_info_by_group_id(self, group_id, is_deco) -> dict:
+        """通过分组和贴牌取配装数据"""
+        sql = f"select * from BUILDS where group_id ={group_id} and is_deco ={is_deco}"
+        return self.model_get_build_info(sql)
+
+    def get_build_info_by_keywords(self, keywords) -> dict:
+        """通过关键词取配装数据"""
+        sql = f"select * from BUILDS where keywords LIKE '%{keywords}%'"
+        return self.model_get_build_info(sql)
+
+    def model_get_build_info(self, sql: str) -> dict:
+        """取配装数据"""
         c = self.conn.cursor()
         c.execute(
             sql,
@@ -313,6 +327,25 @@ class DBIMAGE:
             result = None
         self.conn.commit()
         return result
+
+    def get_build_info(self, keywords, is_deco) -> dict:
+        """取配装数据"""
+        res = self.get_build_info_by_deco(keywords, is_deco)
+        if not res:
+            # 尝试不限制贴牌搜索武器
+            res = self.get_build_info_by_deco(keywords, is_deco=0)
+            if res:
+                group_id = res.get("group_id")
+                # 通过group_id找到同组的武器
+                res = self.get_build_info_by_group_id(
+                    group_id=group_id, is_deco=is_deco
+                )
+            else:
+                # 如果完整关键词大于等于两个字，兜底允许两个关键词直接匹配
+                if len(keywords) >= 2:
+                    res = self.get_build_info_by_keywords(keywords)
+
+        return res
 
 
 db_image = DBIMAGE()
