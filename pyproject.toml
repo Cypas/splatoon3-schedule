@@ -1,6 +1,6 @@
 [project]
 name = "nonebot-plugin-splatoon3-schedule"
-version = "2.0.7"
+version = "2.0.8"
 description = "一个基于nonebot2框架的splatoon3游戏日程查询插件"
 authors = [{ name = "cypas", email = "ayano05@outlook.com" }]
 requires-python = ">=3.9,<4"
