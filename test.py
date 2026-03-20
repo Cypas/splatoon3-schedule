@@ -5,7 +5,10 @@ from nonebot_plugin_splatoon3_schedule import (
     init_blacklist,
 )
 from nonebot_plugin_splatoon3_schedule.image.image import *
-from nonebot_plugin_splatoon3_schedule.util import write_weapon_trans_dict
+from nonebot_plugin_splatoon3_schedule.util import (
+    write_weapon_trans_dict,
+    write_weapon_father_dict,
+)
 from nonebot_plugin_splatoon3_schedule.utils.cos_upload import cos_simple_upload_file
 
 # 走缓存接口的函数
@@ -72,10 +75,10 @@ test2_d = {
     #     "func": get_screenshot,
     #     "args": ["https://splatoon3.ink/gear"],
     # },
-    "get_build_image": {
-        "func": get_build_image,
-        "args": ["sploosh-o-matic", "全部"],
-    }
+    # "get_build_image": {
+    #     "func": get_build_image,
+    #     "args": ["sploosh-o-matic", "全部"],
+    # }
 }
 
 
@@ -113,6 +116,9 @@ asyncio.run(test_all())
 
 # 写出武器翻译字典
 # write_weapon_trans_dict()
+
+# 写出父级分类字典
+# write_weapon_father_dict()
 
 # 黑名单初始化
 # init_blacklist()

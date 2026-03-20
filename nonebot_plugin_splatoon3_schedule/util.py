@@ -29,14 +29,24 @@ def write_weapon_trans_dict() -> None:
     """写出武器翻译字典"""
     weapon_trans_dict = db_image.get_all_weapon_info()
     if len(weapon_trans_dict) > 0:
-        with open("weapon_trans_dict.txt", "a") as file:
+        with open("weapon_trans_dict.txt", "a", encoding="utf-8") as file:
             file.write("{")
-        for val in weapon_trans_dict:
-            # s += '"' + val["name"] + '":"' + val["zh_name"] + '",'
-            s = '"{}":"{}",'.format(val["name"], val["zh_name"])
-            with open("weapon_trans_dict.txt", "a") as file:
+            for val in weapon_trans_dict:
+                # s += '"' + val["name"] + '":"' + val["zh_name"] + '",'
+                s = '"{}":"{}",'.format(val["name"], val["zh_name"])
                 file.write(s)
-        with open("weapon_trans_dict.txt", "a") as file:
+            file.write("}")
+
+
+def write_weapon_father_dict() -> None:
+    """写出武器父级分类字典"""
+    weapon_father_dict = db_image.get_all_weapon_info()
+    if len(weapon_father_dict) > 0:
+        with open("weapon_father_dict.txt", "a", encoding="utf-8") as file:
+            file.write("{")
+            for val in weapon_father_dict:
+                s = '"{}":"{}",'.format(val["name"], val["zh_father_class"])
+                file.write(s)
             file.write("}")
 
 
@@ -107,7 +117,7 @@ async def send_push(bot: Bot, source_id):
 
 
 async def send_msg(
-        bot: Bot, event: Event, msg: str | bytes, is_ad=False, is_cache=True
+    bot: Bot, event: Event, msg: str | bytes, is_ad=False, is_cache=True
 ):
     """公用send_msg"""
     # 指定回复模式

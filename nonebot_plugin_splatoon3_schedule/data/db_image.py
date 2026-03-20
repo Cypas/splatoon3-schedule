@@ -243,7 +243,7 @@ class DBIMAGE:
 
     def get_all_weapon_info(self) -> [dict]:
         """查询 全部武器信息"""
-        sql = f"select name,zh_name from WEAPON_INFO"
+        sql = f"select name,zh_name,zh_father_class from WEAPON_INFO"
         c = self.conn.cursor()
         c.execute(sql)
         rows = c.fetchall()
