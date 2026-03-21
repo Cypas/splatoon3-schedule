@@ -356,10 +356,11 @@ async def get_qq_md(user_id: str, img_size: tuple[int, int], url: str) -> QQ_Msg
     image_width, image_height = img_size
 
     text_start = get_newest_event_or_coop() or "发送/帮助查看详细用法"
-    text_start = text_start.replace("\n", "\r")
+    text_start = md_text_replace(text_start)
 
     # text_end作为公告消息
-    text_end = await get_or_set_plugin_data("splatoon3_bot_notice")
+    text_notice = await get_or_set_plugin_data("splatoon3_bot_notice")
+    text_end = "公告消息:" + md_text_replace(text_notice)
 
     params = []
     if user_id:
@@ -372,7 +373,7 @@ async def get_qq_md(user_id: str, img_size: tuple[int, int], url: str) -> QQ_Msg
         ]
     )
     if text_end:
-        text_end = "\r" + text_end.replace("\\n", "\r").replace("\\r", "\r")
+        text_end = "\r" + md_text_replace(text_end)
         params.append({"key": "text_end", "values": [f"{text_end}"]})
     md = QQ_MsgMarkdown.model_validate(
         {"custom_template_id": f"{template_id}", "params": params}
@@ -382,3 +383,7 @@ async def get_qq_md(user_id: str, img_size: tuple[int, int], url: str) -> QQ_Msg
 
     qq_msg = QQ_Msg([QQ_MsgSeg.markdown(md), QQ_MsgSeg.keyboard(keyboard)])
     return qq_msg
+
+
+def md_text_replace(text: str):
+    return text.replace("\\n", "\r").replace("\n", "\r").replace("\\r", "\r")
