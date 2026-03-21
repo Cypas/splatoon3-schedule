@@ -86,7 +86,7 @@ async def get_build_image(*args):
     logger.info(f"sendou.ink url: {url}")
     try:
         img = await get_screenshot(
-            shot_url=url, mode="pc", selector="._buildsContainer_1fbr7_3"
+            shot_url=url, mode="pc", selector='main[class*="_main_"]'
         )
         im = Image.open(io.BytesIO(img))
         # 裁切顶部虚影部分
@@ -106,7 +106,7 @@ async def get_build_image(*args):
         w, h = ttf_get_size(ttf, time_head_text)
         time_head_text_pos = (
             (img_width - w) / 2,
-            img_height - 33,
+            img_height - 25,
         )
         drawer = ImageDraw.Draw(cropped_img)
         drawer.text(time_head_text_pos, time_head_text, font=ttf, fill=(247, 62, 139))
