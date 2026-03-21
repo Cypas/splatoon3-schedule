@@ -479,9 +479,17 @@ async def get_screenshot(
         await page.goto(shot_url, wait_until="load", timeout=300000)
         await page.wait_for_timeout(1500)
         if selector:
-            # 元素选择器
-            await page.wait_for_selector(selector)
-            element = await page.query_selector(selector)
+            # 元素选择器 - 支持动态类名，使用CSS属性选择器匹配以特定前缀开头的类名
+            # 如果selector是动态类名（如_buildsContainer_1fbr7_3），自动转换为前缀匹配模式
+            if selector.startswith('.') and '_' in selector:
+                # 提取类名前缀（如._buildsContainer_1fbr7_3 -> [class^="_buildsContainer_"]）
+                base_class = selector[1:].split('_')[0] + '_'
+                dynamic_selector = f'[class^="{base_class}"]'
+                await page.wait_for_selector(dynamic_selector)
+                element = await page.query_selector(dynamic_selector)
+            else:
+                await page.wait_for_selector(selector)
+                element = await page.query_selector(selector)
             screenshot = await element.screenshot(path=shot_path)
             img = screenshot
         else:

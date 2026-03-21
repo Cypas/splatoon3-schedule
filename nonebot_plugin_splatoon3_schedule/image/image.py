@@ -85,7 +85,9 @@ async def get_build_image(*args):
 
     logger.info(f"sendou.ink url: {url}")
     try:
-        img = await get_screenshot(shot_url=url, mode="pc", selector=".layout__main")
+        img = await get_screenshot(
+            shot_url=url, mode="pc", selector="._buildsContainer_1fbr7_3"
+        )
         im = Image.open(io.BytesIO(img))
         # 裁切顶部虚影部分
         crop_box = (
