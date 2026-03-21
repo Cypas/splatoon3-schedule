@@ -467,7 +467,7 @@ async def get_screenshot(
     browser = await get_browser()
     if mode == "pc":
         context = await browser.new_context(
-            viewport={"width": 1920, "height": 1380}, locale="zh-CH"
+            viewport={"width": 1920, "height": 1080}, locale="zh-CH"
         )
     elif mode == "mobile":
         context = await browser.new_context(
