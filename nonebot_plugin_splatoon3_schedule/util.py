@@ -360,7 +360,10 @@ async def get_qq_md(user_id: str, img_size: tuple[int, int], url: str) -> QQ_Msg
 
     # text_end作为公告消息
     text_notice = await get_or_set_plugin_data("splatoon3_bot_notice")
-    text_end = "公告消息:" + md_text_replace(text_notice)
+    if text_notice:
+        text_end = "公告消息:" + md_text_replace(text_notice)
+    else:
+        text_end = ""
 
     params = []
     if user_id:
