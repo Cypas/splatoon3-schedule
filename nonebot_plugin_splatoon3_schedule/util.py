@@ -1,9 +1,7 @@
-import io
 import time
 
-from PIL import Image
-
 from .config import plugin_config
+from .data.utils import get_or_set_plugin_data
 from .image.image import (
     get_save_temp_image,
     get_stages_image,
@@ -329,23 +327,6 @@ async def send_private_msg(bot: Bot, source_id, msg: str | bytes, event=None):
                 logger.warning(f"主动消息发送失败，api操作结果为{e.__dict__}")
         elif isinstance(bot, Tg_Bot):
             await bot.send_photo(source_id, img)
-
-
-async def get_or_set_plugin_data(key, value=None):
-    """获取或设置插件数据"""
-    from nonebot import require
-
-    require("nonebot_plugin_datastore")
-    from nonebot_plugin_datastore import get_plugin_data
-
-    if value is None:
-        # 读取配置
-        value = await get_plugin_data("sp3_xyy_bot").config.get(key)
-        return value
-    else:
-        # 存储配置
-        await get_plugin_data("sp3_xyy_bot").config.set(key, value)
-        return value
 
 
 async def get_qq_md(user_id: str, img_size: tuple[int, int], url: str) -> QQ_Msg:

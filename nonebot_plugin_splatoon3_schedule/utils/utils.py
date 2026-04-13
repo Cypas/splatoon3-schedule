@@ -39,6 +39,12 @@ dict_bg_rgb = {
 }
 
 
+def get_msg_id(platform, user_id):
+    """获取 msg_id 字符串，提供统一格式"""
+    msg_id = f"{platform}-{user_id}"
+    return msg_id
+
+
 def cf_http_get(url: str):
     """cf get"""
     # 实例化一个create_scraper对象
