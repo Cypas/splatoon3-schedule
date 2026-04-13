@@ -70,6 +70,13 @@ def get_area_festival(festival, area_title, language_font_path) -> Image.Image:
         for v in range(3):
             teams_list.append(festival["teams"][v])
 
+    # 祭典结束了，重新判断是否有实际的祭典结算数据
+    if flag_festival_close:
+        for k, v in enumerate(teams_list):
+            result = v.get("result")
+            if result is None:
+                flag_festival_close = False
+                break
     # 开始绘图
     image_background_size = (1100, 700)
     if flag_festival_close:
