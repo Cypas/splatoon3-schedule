@@ -9,6 +9,10 @@ from .image_processer import *
 from .image_processer_tools import image_to_bytes
 
 
+# 为了避免循环导入，在本地导入
+from ..data.playwright_handler import ErrorImage
+
+
 async def get_coop_stages_image(*args):
     """取 打工图片"""
     _all = args[0]
@@ -84,10 +88,21 @@ async def get_build_image(*args):
         url += '&f=[{"type":"date","date":"2026-03-18"}]'
 
     logger.info(f"sendou.ink url: {url}")
+    
+    img_result = await get_screenshot(
+        shot_url=url, mode="pc", selector='main[class*="_main_"]'
+    )
+    
+    # 检查是否是 ErrorImage（错误截图）
+    if isinstance(img_result, ErrorImage):
+        # 处理错误截图
+        img = img_result.image
+        logger.warning(f"Element not found, returning error screenshot: {img_result.error_message}")
+    else:
+        # 正常截图
+        img = img_result
+    
     try:
-        img = await get_screenshot(
-            shot_url=url, mode="pc", selector='main[class*="_main_"]'
-        )
         im = Image.open(io.BytesIO(img))
         # 裁切顶部虚影部分
         crop_box = (
@@ -110,10 +125,15 @@ async def get_build_image(*args):
         )
         drawer = ImageDraw.Draw(cropped_img)
         drawer.text(time_head_text_pos, time_head_text, font=ttf, fill=(247, 62, 139))
-        return cropped_img
+        
+        # 如果是错误截图，包装成 ErrorImage 对象
+        if isinstance(img_result, ErrorImage):
+            return ErrorImage(cropped_img, img_result.error_message)
+        else:
+            return cropped_img
 
     except Exception as e:
-        return f"bot服务器网络错误，网页截图失败，请稍后再试:{e}"
+        return f"bot服务器网络错误，图片处理失败，请稍后再试:{e}"
 
 
 async def get_random_weapon_image(*args):
@@ -171,6 +191,12 @@ async def get_save_temp_image(trigger_word, func, *args):
         if isinstance(image, str):
             # 错误文本消息
             return is_cache, image
+        if isinstance(image, ErrorImage):
+            # 错误图片对象，不应缓存但仍返回图片数据
+            image_data = image_to_bytes(image.image)
+            # 不缓存错误图片
+            logger.info(f"ErrorImage detected for {trigger_word}, skipping cache")
+            return is_cache, image_data
         if isinstance(image, Image.Image):
             image_data = image_to_bytes(image)
         else:
@@ -206,6 +232,12 @@ async def get_save_temp_image(trigger_word, func, *args):
             if isinstance(image, str):
                 # 错误文本消息
                 return is_cache, image
+            if isinstance(image, ErrorImage):
+                # 错误图片对象，不应缓存但仍返回图片数据
+                image_data = image_to_bytes(image.image)
+                # 不缓存错误图片
+                logger.info(f"ErrorImage detected for {trigger_word}, skipping cache update")
+                return is_cache, image_data
             if isinstance(image, Image.Image):
                 image_data = image_to_bytes(image)
             else:

@@ -1,13 +1,13 @@
 import time
+import random
 
-from playwright.async_api import Browser, async_playwright
 from playwright.sync_api import FloatRect
 
 from .db_image import db_image
+from .playwright_handler import get_screenshot
 from ..utils import *
 
 schedule_res = None
-_browser = None
 festivals_res = None
 festivals_res_save_ymdt: str
 
@@ -429,69 +429,3 @@ def get_newest_salmonrun_data():
         # coop_stage_name = get_trans_stage(newest_coop["setting"]["coopStage"]["id"])
         st = newest_coop["startTime"]
     return st, coop_name
-
-
-async def init_browser() -> Browser:
-    """初始化 browser 并唤起"""
-    global _browser
-    p = await async_playwright().start()
-    browser_args = [
-        # 设置默认字体
-        '--default-font-family="Noto Sans CJK"',
-    ]
-    if proxy_address:
-        proxies = {"server": "http://{}".format(proxy_address)}
-        # 代理访问
-        _browser = await p.chromium.launch(proxy=proxies, args=browser_args)
-    else:
-        _browser = await p.chromium.launch(args=browser_args)
-    return _browser
-
-
-async def get_browser() -> Browser:
-    """获取目前唤起的 browser"""
-    global _browser
-    if _browser is None or not _browser.is_connected():
-        _browser = await init_browser()
-    return _browser
-
-
-async def get_screenshot(
-    shot_url,
-    mode="pc",
-    selector=None,
-    shot_path=None,
-) -> bytes:
-    """通过 browser 获取 shot_url 中的网页截图"""
-    # playwright 要求不能有多个 browser 被同时唤起
-    browser = await get_browser()
-    if mode == "pc":
-        context = await browser.new_context(
-            viewport={"width": 1920, "height": 1080}, locale="zh-CH"
-        )
-    elif mode == "mobile":
-        context = await browser.new_context(
-            viewport={"width": 500, "height": 2000}, locale="zh-CH"
-        )
-    page = await context.new_page()
-
-    try:
-        await page.goto(shot_url, wait_until="load", timeout=300000)
-        await page.wait_for_timeout(1500)
-        if selector:
-            # 元素选择器 - 支持CSS选择器表达式，包括动态类名匹配
-            # 例如：传入 [class^="_buildsContainer_"] 来匹配以 _buildsContainer_ 开头的类名
-            await page.wait_for_selector(selector)
-            element = await page.query_selector(selector)
-            screenshot = await element.screenshot(path=shot_path)
-            img = screenshot
-        else:
-            img = await page.screenshot(path=shot_path)
-
-        return img
-    except Exception as e:
-        logger.error("Screenshot failed" + str(e))
-        # return await page.screenshot(full_page=True)
-        raise e
-    finally:
-        await context.close()
