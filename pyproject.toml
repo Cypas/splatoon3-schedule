@@ -22,7 +22,7 @@ dependencies = [
     "pydantic>=1.0.0,<3.0.0,!=2.5.0,!=2.5.1",
     "Pillow>=11.3.0,<12",
     "playwright>=1.40.0,<2",
-    "cf_clearance>=0.31.0",
+    "playwright-stealth>=2.0.3",
     "nonebot-adapter-onebot>=2.4.6,<3",
     "nonebot-adapter-telegram>=0.1.0b20,<0.2",
     "nonebot-adapter-kaiheila>=0.3.4,<0.4",

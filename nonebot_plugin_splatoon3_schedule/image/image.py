@@ -202,8 +202,8 @@ async def get_save_temp_image(trigger_word, func, *args):
         else:
             image_data = image
         if len(image_data) != 0:
-            # 如果是太大的图片，需要压缩到1000k以下确保最后发出图片的大小
-            image_data = compress_image(image_data, kb=1000, step=10, quality=80)
+            # 如果是太大的图片，需要压缩到1500k以下确保最后发出图片的大小
+            image_data = compress_image(image_data, kb=1500, step=10, quality=80)
             logger.info("[ImageDB] new temp image {}".format(trigger_word))
             if "配装" not in trigger_word:
                 db_image.add_or_modify_IMAGE_TEMP(
@@ -212,7 +212,9 @@ async def get_save_temp_image(trigger_word, func, *args):
             else:
                 # 配装截图一个月过期
                 time_now = get_time_now_china()
-                expire_time = time_now + datetime.timedelta(days=30)
+                # 随机过期时间30-50天, 避免同一时间全部过期
+                days = random.randint(30, 50)
+                expire_time = time_now + datetime.timedelta(days=days)
                 expire_time_str = expire_time.strftime(time_format_ymdh).strip()
                 db_image.add_or_modify_IMAGE_TEMP(
                     trigger_word, image_data, expire_time_str
@@ -243,8 +245,8 @@ async def get_save_temp_image(trigger_word, func, *args):
             else:
                 image_data = image
             if len(image_data) != 0:
-                # 如果是太大的图片，需要压缩到1000k以下确保最后发出图片的大小
-                image_data = compress_image(image_data, kb=1000, step=10, quality=80)
+                # 如果是太大的图片，需要压缩到1500k以下确保最后发出图片的大小
+                image_data = compress_image(image_data, kb=1500, step=10, quality=80)
                 logger.info("[ImageDB] update temp image {}".format(trigger_word))
                 db_image.add_or_modify_IMAGE_TEMP(
                     trigger_word, image_data, get_expire_time()

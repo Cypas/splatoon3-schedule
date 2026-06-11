@@ -12,9 +12,9 @@ from urllib.parse import urlparse
 import time
 import random
 
+# 使用 playwright-stealth 2.0.x 版本（新版 API）
 from playwright.async_api import Browser, async_playwright
-from playwright.sync_api import FloatRect
-from cf_clearance import async_stealth, async_cf_retry
+from playwright_stealth import Stealth
 
 from ..utils import logger
 from ..config import plugin_config
@@ -128,7 +128,7 @@ async def get_cf_clearance(target_url: str, context, timeout: int = 60) -> tuple
     """获取 cf_clearance cookies 和 user_agent（必须传入已有的 context）
     
     此函数专门为截图服务，必须在已有 browser context 的情况下调用。
-    返回已解决 CF 挑战的页面，供调用方直接使用。
+    使用 cloudscraper 获取 cookies（更可靠的 Cloudflare 绕过），然后在 Playwright 中使用。
     
     Args:
         target_url: 目标网址
@@ -137,7 +137,7 @@ async def get_cf_clearance(target_url: str, context, timeout: int = 60) -> tuple
         
     Returns:
         (cookies_dict, user_agent_str, page) 或 (None, None, None) 如果失败
-        page 是已经通过 CF 挑战的页面，可直接用于截图
+        page 是已经准备好的页面，可直接用于截图
     """
     global cf_clearance_cookies, cf_clearance_ua, cf_clearance_expire_time
     
@@ -152,21 +152,136 @@ async def get_cf_clearance(target_url: str, context, timeout: int = 60) -> tuple
         logger.info("目标网站没有 Cloudflare 保护，跳过 cf_clearance 获取")
         return None, None, None
     
-    # 使用传入的 context 创建新页面来获取 cookies
+    # 使用 cloudscraper 获取 cookies（更可靠）
+    try:
+        import cloudscraper
+        
+        # 创建增强版 cloudscraper 实例
+        # 添加更多伪装配置来绕过更严格的 Cloudflare 检测
+        scraper = cloudscraper.create_scraper(
+            delay=10,  # 添加延迟
+            browser={
+                'custom': DEFAULT_USER_AGENT,
+                'platform': 'windows',
+                'mobile': False
+            }
+        )
+        
+        # 添加更多请求头来模拟真实浏览器
+        scraper.headers.update({
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Connection': 'keep-alive',
+            'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="148", "Microsoft Edge";v="148"',
+            'Sec-Ch-Ua-Mobile': '?0',
+            'Sec-Ch-Ua-Platform': '"Windows"',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Sec-Fetch-User': '?1',
+            'Upgrade-Insecure-Requests': '1',
+        })
+        
+        # 设置代理（如果有）
+        if proxy_address:
+            scraper.proxies = {
+                'http': f'http://{proxy_address}',
+                'https': f'http://{proxy_address}'
+            }
+        
+        # 发送请求获取 cookies
+        logger.info(f"使用 cloudscraper 访问 {target_url}")
+        response = scraper.get(target_url, timeout=timeout)
+        
+        if response.status_code == 200:
+            logger.info("cloudscraper 成功获取页面")
+        else:
+            logger.warning(f"cloudscraper 收到状态码: {response.status_code}")
+            # 如果收到 403，尝试增加延迟并重试
+            if response.status_code == 403:
+                logger.info("收到 403，尝试增加延迟并重试...")
+                # 使用更长的延迟重试（time 已在文件顶部导入）
+                time.sleep(5)  # 等待 5 秒
+                # 创建新的 scraper 实例（可能需要新的会话）
+                scraper = cloudscraper.create_scraper(
+                    delay=30,
+                    browser={
+                        'custom': DEFAULT_USER_AGENT
+                    }
+                )
+                response = scraper.get(target_url, timeout=timeout * 2)
+                logger.info(f"重试后状态码: {response.status_code}")
+        
+        # 提取 cookies
+        cf_clearance_cookies = {}
+        for cookie in scraper.cookies:
+            cf_clearance_cookies[cookie.name] = cookie.value
+        
+        # 检查是否获取到了 cf_clearance cookie
+        if 'cf_clearance' not in cf_clearance_cookies:
+            logger.warning("未获取到 cf_clearance cookie，可能无法绕过 Cloudflare")
+        
+        # 获取 user_agent
+        cf_clearance_ua = scraper.headers.get('User-Agent', DEFAULT_USER_AGENT)
+        cf_clearance_expire_time = time.time()
+        
+        logger.info(f"cloudscraper 获取 cookies: {list(cf_clearance_cookies.keys())}")
+        
+        # 将 cookies 添加到 context
+        if cf_clearance_cookies:
+            parsed = urlparse(target_url)
+            domain = parsed.netloc
+            cookies_to_add = []
+            for name, value in cf_clearance_cookies.items():
+                cookies_to_add.append({
+                    'name': name,
+                    'value': value,
+                    'domain': '.' + domain if not domain.startswith('.') else domain,
+                    'path': '/'
+                })
+            await context.add_cookies(cookies_to_add)
+            logger.info(f"已将 {len(cookies_to_add)} 个 cookies 添加到 context")
+        
+        # 创建页面（此时 cookies 已经在 context 中）
+        page = await context.new_page()
+        
+        # 应用隐身插件（额外保护）
+        stealth = Stealth()
+        await stealth.apply_stealth_async(context)
+        
+        # 访问目标页面（使用已获取的 cookies）
+        await page.goto(target_url, timeout=timeout * 1000)
+        
+        # 等待页面加载
+        await page.wait_for_load_state("load", timeout=30000)
+        
+        return cf_clearance_cookies, cf_clearance_ua, page
+            
+    except Exception as e:
+        logger.error(f"使用 cloudscraper 获取 cf_clearance 时出错: {str(e)}")
+        # 降级到纯 playwright 方式
+        return await _get_cf_clearance_fallback(target_url, context, timeout)
+
+
+async def _get_cf_clearance_fallback(target_url: str, context, timeout: int = 60) -> tuple:
+    """降级方案：纯 Playwright 方式获取 cf_clearance（当 cloudscraper 失败时使用）"""
+    global cf_clearance_cookies, cf_clearance_ua, cf_clearance_expire_time
+    
+    logger.info("降级到纯 Playwright 方式获取 cf_clearance")
+    
     try:
         page = await context.new_page()
         
-        # 应用隐身插件绕过检测
-        await async_stealth(page)
+        # 应用隐身插件
+        stealth = Stealth()
+        await stealth.apply_stealth_async(context)
         
         # 访问目标页面
         await page.goto(target_url, timeout=timeout * 1000)
         
-        # 尝试解决 Cloudflare 挑战
-        success = await async_cf_retry(page)
-        
-        if not success:
-            logger.warning("Cloudflare 挑战可能未完全解决，但继续尝试获取 cookies")
+        # 等待页面加载
+        await page.wait_for_load_state("load", timeout=30000)
         
         # 获取 cookies
         cookies = await context.cookies()
@@ -176,13 +291,12 @@ async def get_cf_clearance(target_url: str, context, timeout: int = 60) -> tuple
         cf_clearance_ua = await page.evaluate('() => {return navigator.userAgent}')
         cf_clearance_expire_time = time.time()
         
-        logger.info(f"成功获取 cookies: {list(cf_clearance_cookies.keys())}")
+        logger.info(f"Playwright 方式获取 cookies: {list(cf_clearance_cookies.keys())}")
         
-        # 不关闭页面，返回供调用方使用
         return cf_clearance_cookies, cf_clearance_ua, page
             
     except Exception as e:
-        logger.error(f"获取 cf_clearance 时出错: {str(e)}")
+        logger.error(f"降级方案也失败: {str(e)}")
         return None, None, None
 
 
@@ -273,7 +387,8 @@ async def get_screenshot(
             # 例如：传入 [class^="_buildsContainer_"] 来匹配以 _buildsContainer_ 开头的类名
             try:
                 await page.wait_for_selector(selector, timeout=30000)
-                img = await page.screenshot(path=shot_path)
+                element = await page.query_selector(selector)
+                img = await element.screenshot(path=shot_path)
                 return img  # 成功找到元素，返回正常截图
             except Exception as selector_error:
                 logger.error(f"Selector '{selector}' not found within timeout: {str(selector_error)}")
