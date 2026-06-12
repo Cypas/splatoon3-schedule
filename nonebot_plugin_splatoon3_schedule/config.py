@@ -47,6 +47,9 @@ class Config(BaseModel):
     splatoon3_qq_md_mode: bool = False
     # 腾讯云cos配置
     splatoon3_cos_config: CosConfig = Field(default_factory=CosConfig)
+    # Flaresolverr 服务 URL（用于绕过 Cloudflare 保护）
+    # 格式示例: http://localhost:8191/v1
+    splatoon3_cf_flaresolverr_server_url: str = ""
 
 
 # 本地测试时由于不启动 driver，需要将下面三行注释并取消再下面两行的注释
