@@ -59,9 +59,7 @@ async def reload_weapon_info():
             weapon_data.zh_weapon_class = dict_weapon_class_trans[
                 weapon_data.weapon_class
             ]
-            weapon_data.zh_father_class = dict_weapon_father_class_trans[
-                weapon_data.zh_weapon_class
-            ]
+            weapon_data.zh_father_class = dict_weapon_weapon_father[weapon_data.name]
         logger.info(
             "Reload Weapon data: {}, {}, {}, {}".format(
                 weapon_data.name,

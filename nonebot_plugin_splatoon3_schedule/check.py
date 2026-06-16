@@ -1,11 +1,24 @@
+import time
 from typing import Union
+from collections import deque
+from datetime import datetime as dt, timedelta
 
+from .utils.utils import get_msg_id
+from .util import send_msg
 from .config import plugin_config, global_config
 from .data import db_control
+from .data.utils import get_blacklist_msg_id
 from .utils.bot import *
 
 blacklist = {}
 guilds_info = {}
+
+# QPS限制配置
+QPS_LIMIT_COUNT = 10  # 60秒内最多请求次数
+QPS_LIMIT_TIME = 60  # 时间窗口(秒)
+
+# 用户请求时间戳记录 {user_key: deque([timestamp1, timestamp2, ...])}
+user_request_times = {}
 
 
 def get_or_init(dictionary: dict, key: str, default=None):
@@ -170,6 +183,50 @@ def check_msg_permission(
     return True
 
 
+async def _check_session_blacklist_handler(bot: Bot, event: Event, matcher: Matcher):
+    """校验用户是否在黑名单"""
+    platform = bot.adapter.get_name()
+    user_id = event.get_user_id()
+    user_key = get_msg_id(platform, user_id)
+    # 黑名单列表
+    black_l = await get_blacklist_msg_id()
+    if user_key in black_l:
+        msg = "你已无权使用小鱿鱿bot，若存在误封，请联系q群827977720"
+        logger.warning(f"黑名单 {user_key} 已禁止使用bot")
+        await send_msg(bot, event, msg=msg)
+        matcher.stop_propagation()
+        await matcher.finish()
+
+
+async def _check_session_qps_limit_handler(bot: Bot, event: Event, matcher: Matcher):
+    """校验用户请求qps"""
+    platform = bot.adapter.get_name()
+    user_id = event.get_user_id()
+    user_key = get_msg_id(platform, user_id)
+
+    # QPS检测
+    current_time = time.time()
+    if user_key not in user_request_times:
+        user_request_times[user_key] = deque()
+
+    # 移除超过时间窗口的记录
+    while (
+        user_request_times[user_key]
+        and current_time - user_request_times[user_key][0] > QPS_LIMIT_TIME
+    ):
+        user_request_times[user_key].popleft()
+
+    # 检查请求次数是否超过限制
+    if len(user_request_times[user_key]) >= QPS_LIMIT_COUNT:
+        msg = "请勿频繁请求"
+        await send_msg(bot, event, msg=msg)
+        matcher.stop_propagation()
+        await matcher.finish()
+
+    # 记录当前请求时间
+    user_request_times[user_key].append(current_time)
+
+
 async def _permission_check(bot: Bot, event: Event, matcher: Matcher, state: T_State):
     """检查消息来源权限
     return值无意义，主要是靠matcher.finish()阻断事件"""
@@ -178,6 +235,12 @@ async def _permission_check(bot: Bot, event: Event, matcher: Matcher, state: T_S
         plain_text = event.get_message().extract_plain_text().strip()
         if not plain_text.startswith("/"):
             await matcher.finish()
+
+    # xyy qps校验
+    await _check_session_qps_limit_handler(bot, event, matcher)
+    # xyy 黑名单校验
+    await _check_session_blacklist_handler(bot, event, matcher)
+
     # id定义
     default_id = 25252
     guid: Union[int, str] = default_id  # 服务器id

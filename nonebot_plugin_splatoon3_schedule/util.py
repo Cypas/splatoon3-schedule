@@ -1,9 +1,7 @@
-import io
 import time
 
-from PIL import Image
-
 from .config import plugin_config
+from .data.utils import get_or_set_plugin_data
 from .image.image import (
     get_save_temp_image,
     get_stages_image,
@@ -29,14 +27,24 @@ def write_weapon_trans_dict() -> None:
     """写出武器翻译字典"""
     weapon_trans_dict = db_image.get_all_weapon_info()
     if len(weapon_trans_dict) > 0:
-        with open("weapon_trans_dict.txt", "a") as file:
+        with open("weapon_trans_dict.txt", "a", encoding="utf-8") as file:
             file.write("{")
-        for val in weapon_trans_dict:
-            # s += '"' + val["name"] + '":"' + val["zh_name"] + '",'
-            s = '"{}":"{}",'.format(val["name"], val["zh_name"])
-            with open("weapon_trans_dict.txt", "a") as file:
+            for val in weapon_trans_dict:
+                # s += '"' + val["name"] + '":"' + val["zh_name"] + '",'
+                s = '"{}":"{}",'.format(val["name"], val["zh_name"])
                 file.write(s)
-        with open("weapon_trans_dict.txt", "a") as file:
+            file.write("}")
+
+
+def write_weapon_father_dict() -> None:
+    """写出武器父级分类字典"""
+    weapon_father_dict = db_image.get_all_weapon_info()
+    if len(weapon_father_dict) > 0:
+        with open("weapon_father_dict.txt", "a", encoding="utf-8") as file:
+            file.write("{")
+            for val in weapon_father_dict:
+                s = '"{}":"{}",'.format(val["name"], val["zh_father_class"])
+                file.write(s)
             file.write("}")
 
 
@@ -107,7 +115,7 @@ async def send_push(bot: Bot, source_id):
 
 
 async def send_msg(
-        bot: Bot, event: Event, msg: str | bytes, is_ad=False, is_cache=True
+    bot: Bot, event: Event, msg: str | bytes, is_ad=False, is_cache=True
 ):
     """公用send_msg"""
     # 指定回复模式
@@ -321,23 +329,6 @@ async def send_private_msg(bot: Bot, source_id, msg: str | bytes, event=None):
             await bot.send_photo(source_id, img)
 
 
-async def get_or_set_plugin_data(key, value=None):
-    """获取或设置插件数据"""
-    from nonebot import require
-
-    require("nonebot_plugin_datastore")
-    from nonebot_plugin_datastore import get_plugin_data
-
-    if value is None:
-        # 读取配置
-        value = await get_plugin_data("sp3_xyy_bot").config.get(key)
-        return value
-    else:
-        # 存储配置
-        await get_plugin_data("sp3_xyy_bot").config.set(key, value)
-        return value
-
-
 async def get_qq_md(user_id: str, img_size: tuple[int, int], url: str) -> QQ_Msg:
     """日程md结构"""
     template_id = "102083290_1705920931"
@@ -346,10 +337,14 @@ async def get_qq_md(user_id: str, img_size: tuple[int, int], url: str) -> QQ_Msg
     image_width, image_height = img_size
 
     text_start = get_newest_event_or_coop() or "发送/帮助查看详细用法"
-    text_start = text_start.replace("\n", "\r")
+    text_start = md_text_replace(text_start)
 
     # text_end作为公告消息
-    text_end = await get_or_set_plugin_data("splatoon3_bot_notice")
+    text_notice = await get_or_set_plugin_data("splatoon3_bot_notice")
+    if text_notice:
+        text_end = "公告消息:" + md_text_replace(text_notice)
+    else:
+        text_end = ""
 
     params = []
     if user_id:
@@ -362,7 +357,7 @@ async def get_qq_md(user_id: str, img_size: tuple[int, int], url: str) -> QQ_Msg
         ]
     )
     if text_end:
-        text_end = "\r" + text_end.replace("\\n", "\r").replace("\\r", "\r")
+        text_end = "\r" + md_text_replace(text_end)
         params.append({"key": "text_end", "values": [f"{text_end}"]})
     md = QQ_MsgMarkdown.model_validate(
         {"custom_template_id": f"{template_id}", "params": params}
@@ -372,3 +367,7 @@ async def get_qq_md(user_id: str, img_size: tuple[int, int], url: str) -> QQ_Msg
 
     qq_msg = QQ_Msg([QQ_MsgSeg.markdown(md), QQ_MsgSeg.keyboard(keyboard)])
     return qq_msg
+
+
+def md_text_replace(text: str):
+    return text.replace("\\n", "\r").replace("\n", "\r").replace("\\r", "\r")

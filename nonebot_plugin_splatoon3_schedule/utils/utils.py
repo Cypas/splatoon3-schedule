@@ -39,6 +39,12 @@ dict_bg_rgb = {
 }
 
 
+def get_msg_id(platform, user_id):
+    """获取 msg_id 字符串，提供统一格式"""
+    msg_id = f"{platform}-{user_id}"
+    return msg_id
+
+
 def cf_http_get(url: str):
     """cf get"""
     # 实例化一个create_scraper对象
@@ -70,6 +76,11 @@ async def async_http_get(url: str) -> Response:
         response = await client.get(url, timeout=HTTP_TIME_OUT)
         return response
 
+async def async_http_post(url: str, data: dict, with_proxy: bool = True, timeout: float = HTTP_TIME_OUT) -> Response:
+    """async http_post"""
+    async with httpx.AsyncClient(proxy=proxies if with_proxy else None) as client:
+        response = await client.post(url, json=data, timeout=timeout)
+        return response
 
 def http_get(url: str) -> Response:
     """http_get"""

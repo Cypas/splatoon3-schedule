@@ -1,13 +1,13 @@
 import time
+import random
 
-from playwright.async_api import Browser, async_playwright
 from playwright.sync_api import FloatRect
 
 from .db_image import db_image
+from .playwright_handler import get_screenshot
 from ..utils import *
 
 schedule_res = None
-_browser = None
 festivals_res = None
 festivals_res_save_ymdt: str
 
@@ -77,8 +77,8 @@ def get_coop_info(_all=None):
         return [
             ImageInfo(
                 name=sch["setting"]["weapons"][_i]["name"]
-                     + "_"
-                     + sch["setting"]["weapons"][_i]["__splatoon3ink_id"],
+                + "_"
+                + sch["setting"]["weapons"][_i]["__splatoon3ink_id"],
                 url=sch["setting"]["weapons"][_i]["image"]["url"],
                 zh_name=get_trans_weapon(
                     sch["setting"]["weapons"][_i]["__splatoon3ink_id"]
@@ -290,7 +290,9 @@ def get_newest_event_or_coop():
         """
         # 1. 处理时区和日期截取（只保留年月日，忽略时分秒）
         # 获取当前 UTC+8 时间的日期部分
-        today = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=8)
+        today = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
+            hours=8
+        )
         today_date = today.date()
 
         # 提取目标日期的日期部分
@@ -322,17 +324,30 @@ def get_newest_event_or_coop():
 
     n_event_st, n_event_name = get_newest_event_data()
     n_coop_st, n_coop_name = get_newest_salmonrun_data()
+    n_coop_gold_st, n_coop_gold_name = get_newest_gold_random_data()
     msg = ""
     if n_event_st:
-        is_recent, date_relation, weekday_desc = check_date_relation(time_converter(n_event_st))
+        is_recent, date_relation, weekday_desc = check_date_relation(
+            time_converter(n_event_st)
+        )
         if is_recent:
             msg += f"{date_relation}{weekday_desc},{time_converter_h(n_event_st)}时开始会有活动:{n_event_name}"
     if n_coop_st:
-        is_recent, date_relation, weekday_desc = check_date_relation(time_converter(n_coop_st))
+        is_recent, date_relation, weekday_desc = check_date_relation(
+            time_converter(n_coop_st)
+        )
         if is_recent:
             if msg:
                 msg += "\n"
             msg += f"{date_relation}{weekday_desc},{time_converter_h(n_coop_st)}时开始会有 {n_coop_name}"
+    if n_coop_gold_st:
+        is_recent, date_relation, weekday_desc = check_date_relation(
+            time_converter(n_coop_gold_st)
+        )
+        if is_recent:
+            if msg:
+                msg += "\n"
+            msg += f"{date_relation}{weekday_desc},{time_converter_h(n_coop_gold_st)}时开始会有 {n_coop_gold_name}"
     return msg
 
 
@@ -365,6 +380,28 @@ def get_newest_event_data():
         return "", ""
 
 
+def get_newest_gold_random_data():
+    """
+    取最新金工 数据
+    返回  (时间(年月日T时分秒Z)，名称)
+    """
+    # 取日程
+    schedule = get_schedule_data()
+    # 一般打工数据
+    regular_schedules = schedule["coopGroupingSchedule"]["regularSchedules"]["nodes"]
+    # 遍历武器看是否存在金随机  金随机的名字为  Random_747937841598fff7  绿随机  Random_01b960996da8ed63
+    st = ""
+    coop_name = "随机金工"
+    for idx, sch in enumerate(regular_schedules):
+        weapon_name = f'{sch["setting"]["weapons"][0]["name"]}_{sch["setting"]["weapons"][0]["__splatoon3ink_id"]}'
+        if weapon_name == "Random_747937841598fff7":
+            # 取出这个打工周期的时间
+            st = sch["startTime"]
+            break
+
+    return st, coop_name
+
+
 def get_newest_salmonrun_data():
     """
     取最新big run或者团工 数据
@@ -392,68 +429,3 @@ def get_newest_salmonrun_data():
         # coop_stage_name = get_trans_stage(newest_coop["setting"]["coopStage"]["id"])
         st = newest_coop["startTime"]
     return st, coop_name
-
-
-async def init_browser() -> Browser:
-    """初始化 browser 并唤起"""
-    global _browser
-    p = await async_playwright().start()
-    browser_args = [
-        # 设置默认字体
-        '--default-font-family="Noto Sans CJK"',
-    ]
-    if proxy_address:
-        proxies = {"server": "http://{}".format(proxy_address)}
-        # 代理访问
-        _browser = await p.chromium.launch(proxy=proxies, args=browser_args)
-    else:
-        _browser = await p.chromium.launch(args=browser_args)
-    return _browser
-
-
-async def get_browser() -> Browser:
-    """获取目前唤起的 browser"""
-    global _browser
-    if _browser is None or not _browser.is_connected():
-        _browser = await init_browser()
-    return _browser
-
-
-async def get_screenshot(
-        shot_url,
-        mode="pc",
-        selector=None,
-        shot_path=None,
-) -> bytes:
-    """通过 browser 获取 shot_url 中的网页截图"""
-    # playwright 要求不能有多个 browser 被同时唤起
-    browser = await get_browser()
-    if mode == "pc":
-        context = await browser.new_context(
-            viewport={"width": 1920, "height": 1080}, locale="zh-CH"
-        )
-    elif mode == "mobile":
-        context = await browser.new_context(
-            viewport={"width": 500, "height": 2000}, locale="zh-CH"
-        )
-    page = await context.new_page()
-
-    try:
-        await page.goto(shot_url, wait_until="load", timeout=300000)
-        await page.wait_for_timeout(1500)
-        if selector:
-            # 元素选择器
-            await page.wait_for_selector(selector)
-            element = await page.query_selector(selector)
-            screenshot = await element.screenshot(path=shot_path)
-            img = screenshot
-        else:
-            img = await page.screenshot(path=shot_path)
-
-        return img
-    except Exception as e:
-        logger.error("Screenshot failed" + str(e))
-        # return await page.screenshot(full_page=True)
-        raise e
-    finally:
-        await context.close()
