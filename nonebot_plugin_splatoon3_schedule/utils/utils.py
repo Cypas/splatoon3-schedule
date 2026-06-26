@@ -76,11 +76,15 @@ async def async_http_get(url: str) -> Response:
         response = await client.get(url, timeout=HTTP_TIME_OUT)
         return response
 
-async def async_http_post(url: str, data: dict, with_proxy: bool = True, timeout: float = HTTP_TIME_OUT) -> Response:
+
+async def async_http_post(
+    url: str, data: dict, with_proxy: bool = True, timeout: float = HTTP_TIME_OUT
+) -> Response:
     """async http_post"""
     async with httpx.AsyncClient(proxy=proxies if with_proxy else None) as client:
         response = await client.post(url, json=data, timeout=timeout)
         return response
+
 
 def http_get(url: str) -> Response:
     """http_get"""
@@ -181,7 +185,7 @@ def trigger_with_probability():
     """
     该函数有1/100的概率返回True（触发）
     """
-    return random.random() < 0.01
+    return random.random() < 0.03
 
 
 def ttf_get_size(font: ImageFont.FreeTypeFont, text: str) -> tuple:
