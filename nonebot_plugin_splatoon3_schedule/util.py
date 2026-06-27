@@ -9,6 +9,7 @@ from .image.image import (
     get_events_image,
 )
 from .utils.cos_upload import cos_uploader, cos_upload_file
+from .utils.keyboard import qq_build_markdown, qq_build_keyboard
 from .utils.utils import get_time_now_china, trigger_with_probability, get_image_size
 from .data import db_control, db_image, get_newest_event_or_coop
 from .utils.bot import *
@@ -331,12 +332,9 @@ async def send_private_msg(bot: Bot, source_id, msg: str | bytes, event=None):
 
 async def get_qq_md(user_id: str, img_size: tuple[int, int], url: str) -> QQ_Msg:
     """日程md结构"""
-    template_id = "102083290_1705920931"
-    keyboard_template_id = "102083290_1767587639"
-
     image_width, image_height = img_size
 
-    text_start = get_newest_event_or_coop() or "发送/帮助查看详细用法"
+    text_start = get_newest_event_or_coop() or "发送/帮助 查看详细用法"
     text_start = md_text_replace(text_start)
 
     # text_end作为公告消息
@@ -346,28 +344,59 @@ async def get_qq_md(user_id: str, img_size: tuple[int, int], url: str) -> QQ_Msg
     else:
         text_end = ""
 
-    params = []
+    md_content = ""
     if user_id:
-        params.append({"key": "at_user_id", "values": [f"<@{user_id}>"]})
-    params.extend(
-        [
-            {"key": "text_start", "values": [f"{text_start}"]},
-            {"key": "img_size", "values": [f"img#{image_width}px #{image_height}px"]},
-            {"key": "img_url", "values": [f"{url}"]},
-        ]
-    )
+        md_content += "{at_user_id} "
+    md_content += """{text_start}
+![{img_size}]({img_url})
+> {text_end}
+"""
+    params = {
+        "text_start": f"{text_start}",
+        "img_size": f"img#{image_width}px #{image_height}px",
+        "img_url": f"{url}",
+    }
+    if user_id:
+        params["at_user_id"] = f"<@{user_id}>"
+
     if text_end:
-        text_end = "\r" + md_text_replace(text_end)
-        params.append({"key": "text_end", "values": [f"{text_end}"]})
-    md = QQ_MsgMarkdown.model_validate(
-        {"custom_template_id": f"{template_id}", "params": params}
-    )
+        params["text_end"] = md_text_replace(text_end)
 
-    keyboard = QQ_MsgKeyboard.model_validate({"id": f"{keyboard_template_id}"})
-
-    qq_msg = QQ_Msg([QQ_MsgSeg.markdown(md), QQ_MsgSeg.keyboard(keyboard)])
-    return qq_msg
+    buttons = [
+        [
+            {"text": "图图", "data": "/图图"},
+            {"text": "开放", "data": "/012开放", "style": 1},
+            {"text": "活动", "data": "/活动"},
+            {"text": "打工", "data": "/打工"},
+        ],
+        [
+            {"text": "配装推荐", "data": "/配装"},
+            {"text": "随机武器", "data": "/随机武器"},
+        ],
+        [
+            {"text": "ns好友状态", "data": "/nsfr"},
+            {"text": "查对战或打工战绩", "data": "/last"},
+            {"text": "日程查询详细用法", "data": "/帮助"},
+        ],
+    ]
+    return build_markdown(md_content, params, buttons)
 
 
 def md_text_replace(text: str):
     return text.replace("\\n", "\r").replace("\n", "\r").replace("\\r", "\r")
+
+
+def build_markdown(md_content, params, buttons=None) -> QQ_Msg:
+    """
+    自定义md构建器，返回适配器能直接使用的md消息结构体
+    :param md_content: 模板字符串
+    :param params: 字典，模板字符串中的占位符
+    :param buttons: 按钮列表，每个元素为按钮字典
+    """
+    md = qq_build_markdown(md_content, params)
+
+    msg = [QQ_MsgSeg.markdown(md)]
+    if buttons:
+        keyboard = qq_build_keyboard(buttons)
+        msg.append(QQ_MsgSeg.keyboard(keyboard))
+    return QQ_Msg(msg)
