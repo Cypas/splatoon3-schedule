@@ -367,7 +367,7 @@ async def get_qq_md(user_id: str, img_size: tuple[int, int], url: str) -> QQ_Msg
             {"text": "图图", "data": "/图图"},
             {"text": "开放", "data": "/012开放", "style": 1},
             {"text": "活动", "data": "/活动"},
-            {"text": "打工", "data": "/打工"},
+            {"text": "打工", "data": "/全部工"},
         ],
         [
             {"text": "配装推荐", "data": "/配装"},
