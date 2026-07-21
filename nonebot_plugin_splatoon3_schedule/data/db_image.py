@@ -347,5 +347,11 @@ class DBIMAGE:
 
         return res
 
+    def get_build_info_by_id(self, build_id: int) -> dict:
+        c = self.conn.cursor()
+        c.execute("SELECT * FROM BUILDS WHERE id=?", (build_id,))
+        row = c.fetchone()
+        return dict(zip([column[0] for column in c.description], row)) if row else None
+
 
 db_image = DBIMAGE()
