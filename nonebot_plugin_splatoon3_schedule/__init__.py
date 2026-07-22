@@ -221,13 +221,6 @@ async def _(bot: Bot, event: Event):
     await send_msg(bot, event, img, is_cache=is_cache)
 
 
-# 配装 触发器
-matcher_build = on_regex(
-    "^[\\/.,，。]{0,1}配装[\s　]{0,2}([\u4e00-\u9fa5a-zA-Z0-9·\-/\s　]{0,20})$",
-    priority=8,
-    block=True,
-)
-
 
 def _build_context_key(bot: Bot, event: Event) -> ContextKey:
     return (
@@ -240,11 +233,6 @@ def _build_context_key(bot: Bot, event: Event) -> ContextKey:
 
 def _has_build_context(bot: Bot, event: Event) -> bool:
     return build_context_store.has(_build_context_key(bot, event))
-
-
-matcher_build_reply = on_message(
-    rule=Rule(_has_build_context), priority=9, block=True
-)
 
 
 async def _send_build_by_id(
@@ -264,6 +252,9 @@ async def _send_build_by_id(
     )
     await send_msg(bot, event, img, is_cache=is_cache)
 
+matcher_build_reply = on_message(
+    rule=Rule(_has_build_context), priority=9, block=True
+)
 
 @matcher_build_reply.handle(parameterless=[Depends(_permission_check)])
 async def _(bot: Bot, event: Event):
@@ -296,9 +287,22 @@ async def _(bot: Bot, event: Event):
             "未查询到对应武器，请使用官方中文武器名称或其他常用名称后再试。",
         )
 
+# 配装 触发器
+matcher_build = on_regex(
+    "^[\\/.,，。]{0,1}配装[\s　]{0,2}([\u4e00-\u9fa5a-zA-Z0-9·\-/\s　]{0,20})$",
+    priority=8,
+    block=True,
+)
 
-# 配装 触发器处理
+matcher_build2 = on_regex(
+    "^[\\/.,，。]{0,1}[\s　]{0,2}([\u4e00-\u9fa5a-zA-Z0-9·\-/\s　]{0,20})配装$",
+    priority=8,
+    block=True,
+)
+
+# 配装 触发器处理  两种正则都可以匹配
 @matcher_build.handle(parameterless=[Depends(_permission_check)])
+@matcher_build2.handle(parameterless=[Depends(_permission_check)])
 async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
     context_key = _build_context_key(bot, event)
     build_context_store.clear(context_key)

@@ -82,10 +82,10 @@ async def get_build_image(*args):
         url += (
             '&f=[{"type":"mode","mode":"'
             + mode
-            + '"},{"type":"date","date":"2026-03-18"}]'
+            + '"},{"type":"date","date":"2026-06-10"}]'
         )
     else:
-        url += '&f=[{"type":"date","date":"2026-03-18"}]'
+        url += '&f=[{"type":"date","date":"2026-06-10"}]'
 
     logger.info(f"sendou.ink url: {url}")
     
