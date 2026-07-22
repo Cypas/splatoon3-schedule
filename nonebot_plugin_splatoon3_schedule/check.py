@@ -266,6 +266,8 @@ async def _permission_check(bot: Bot, event: Event, matcher: Matcher, state: T_S
         elif isinstance(event, QQ_C2CME):
             state["_msg_source_type_"] = "c2c"
             rule = plugin_config.splatoon3_permit_c2c
+        else:
+            rule = plugin_config.splatoon3_permit_unknown_src
         if rule:
             ok = check_msg_permission(
                 bot_adapter, bot_id, state["_msg_source_type_"], uid
@@ -281,14 +283,14 @@ async def _permission_check(bot: Bot, event: Event, matcher: Matcher, state: T_S
             )
             await matcher.finish()
     # 群聊
-    elif isinstance(event, (V11_GME, V12_GME, Tg_GME, QQ_GME)):
+    elif isinstance(event, (V11_GME, V12_GME, Tg_GME, QQ_GATME, QQ_GME)):
         state["_msg_source_type_"] = "group"
         if plugin_config.splatoon3_permit_group:
             if isinstance(event, Tg_GME):
                 gid = event.chat.id
             elif isinstance(event, (V11_GME, V12_GME)):
                 gid = event.group_id
-            elif isinstance(event, QQ_GME):
+            elif isinstance(event, (QQ_GATME, QQ_GME)):
                 gid = event.group_openid
             state["_gid_"] = gid
             ok = check_msg_permission(

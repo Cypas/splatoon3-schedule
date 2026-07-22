@@ -35,7 +35,7 @@ __plugin_meta__ = PluginMetadata(
 
 # 图 触发器  正则内需要涵盖所有的同义词
 matcher_stage_group = on_regex(
-    "^[\\/.,，。]?[0-9]*(全部)?下*图+[ ]?$", priority=8, block=True
+    "^[\\/.,，。]?[0-9]*(全部)?下*[图圖]+[ ]?$", priority=8, block=True
 )
 
 
@@ -97,8 +97,8 @@ matcher_stage = on_regex(
     "([0-9]*)"
     "(全部)?"
     "(下*)"
-    "(区域|区|推塔|抢塔|塔楼|塔|蛤蜊|蛤|抢鱼|鱼虎|鱼|涂地|涂涂|涂|挑战|真格|开放|组排|排排|排|pp|p|PP|P|X段|x段|X赛|x赛|X|x)"
-    "(区域|区|推塔|抢塔|塔楼|塔|蛤蜊|蛤|抢鱼|鱼虎|鱼|涂地|涂涂|涂|挑战|真格|开放|组排|排排|排|pp|p|PP|P|X段|x段|X赛|x赛|X|x)?[ ]?$",
+    "(区域|区|推塔|抢塔|塔楼|塔|蛤蜊|蛤|抢鱼|鱼虎|鱼|涂地|涂涂|涂|挑战|真格|开放|组排|排排|排|pp|p|PP|P|X段|x段|X赛|x赛|X|x|區域|區|搶塔|塔樓|搶魚|魚虎|魚|塗地|塗塗|塗|挑戰|開放|組排)"
+    "(区域|区|推塔|抢塔|塔楼|塔|蛤蜊|蛤|抢鱼|鱼虎|鱼|涂地|涂涂|涂|挑战|真格|开放|组排|排排|排|pp|p|PP|P|X段|x段|X赛|x赛|X|x|區域|區|搶塔|塔樓|搶魚|魚虎|魚|塗地|塗塗|塗|挑戰|開放|組排)?[ ]?$",
     priority=8,
     block=True,
 )
@@ -192,7 +192,7 @@ async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
 
 # 打工 触发器
 matcher_coop = on_regex(
-    "^[\\/.,，。]?(全部)?(工|打工|鲑鱼跑|bigrun|big run|团队打工)[ ]?$",
+    "^[\\/.,，。]?(全部)?(工|打工|鲑鱼跑|鮭魚跑|bigrun|big run|团队打工|團隊打工)[ ]?$",
     priority=8,
     block=True,
 )
@@ -289,13 +289,13 @@ async def _(bot: Bot, event: Event):
 
 # 配装 触发器
 matcher_build = on_regex(
-    "^[\\/.,，。]{0,1}配装[\s　]{0,2}([\u4e00-\u9fa5a-zA-Z0-9·\-/\s　]{0,20})$",
+    "^[\\/.,，。]{0,1}配[装裝][\s　]{0,2}([\u4e00-\u9fa5a-zA-Z0-9·\-/\s　]{0,20})$",
     priority=8,
     block=True,
 )
 
 matcher_build2 = on_regex(
-    "^[\\/.,，。]{0,1}[\s　]{0,2}([\u4e00-\u9fa5a-zA-Z0-9·\-/\s　]{0,20})配装$",
+    "^[\\/.,，。]{0,1}[\s　]{0,2}([\u4e00-\u9fa5a-zA-Z0-9·\-/\s　]{0,20})配[装裝]$",
     priority=8,
     block=True,
 )
@@ -314,19 +314,30 @@ async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
     mode_words = [
         "推塔",
         "抢塔",
+        "搶塔",
         "塔楼",
+        "塔樓",
         "蛤蜊",
         "抢鱼",
+        "搶魚",
         "鱼虎",
+        "魚虎",
         "涂地",
+        "塗地",
         "涂涂",
+        "塗塗",
         "区域",
+        "區域",
         "区",
+        "區",
         "塔",
         "蛤",
         "鱼",
+        "魚",
         "涂",
+        "塗",
     ]
+
     # 第二步场景词剥离正则（核心：匹配末尾的最长场景词）
     # 动态生成正则：(场景词1|场景词2|...) （长词在前）
     mode_pattern = rf"^(.*?)({'|'.join(mode_words)})$"
@@ -393,7 +404,7 @@ async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
 
 # 其他命令 触发器
 matcher_else = on_regex(
-    "^[\\/.,，。]?(帮助|help|nso帮助|(随机武器).*|装备|衣服|祭典|活动)[ ]?$",
+    "^[\\/.,，。]?(帮助|幫助|help|nso帮助|nso幫助|(随机武器|隨機武器).*|装备|裝備|衣服|祭典|活动|活動)[ ]?$",
     priority=8,
     block=True,
 )
@@ -471,7 +482,7 @@ async def _(bot: Bot, event: Event):
 
 # 管理命令 触发器
 matcher_manage = on_regex(
-    "^[\\/.,，。]?(开启|关闭)(查询|推送)[ ]?$", priority=8, block=True
+    "^[\\/.,，。]?(开启|開啟|关闭|關閉)(查询|查詢|推送)[ ]?$", priority=8, block=True
 )
 
 
