@@ -1,7 +1,7 @@
 /output/*
 /.idea
 /nonebot_plugin_splatoon3_schedule/resource/db/control.db
-/nonebot_plugin_splatoon3_schedule/__pycache__
+__pycache__/
 /__init__.py
 /nonebot_plugin_splatoon3_schedule/weapon_trans_dict.txt
 /test_json/
@@ -12,5 +12,5 @@
 MANIFEST.in
 /venv/
 /poetry.lock
-/tests/
 /nonebot_plugin_splatoon3_schedule/resource/ImageData/backups/
+/nonebot_plugin_splatoon3_schedule/resource/weapon_match/qdrant/.lock

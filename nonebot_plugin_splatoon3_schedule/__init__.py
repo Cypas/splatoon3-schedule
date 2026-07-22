@@ -1,6 +1,9 @@
 from pathlib import Path
 from typing import Union, Tuple
 
+from nonebot import on_message
+from nonebot.rule import Rule
+
 from .check import _permission_check, _guild_owner_check, ChannelInfo, init_blacklist
 from .data.db_control import db_control
 from .image.image import *
@@ -9,6 +12,12 @@ from .config import plugin_config, driver, global_config, Config
 from .utils import dict_keyword_replace, multiple_replace
 from .data import reload_weapon_info, db_image, get_screenshot
 from .util import get_weapon_info_test, cron_job, push_job, send_msg
+from .build_context import (
+    ContextKey,
+    build_context_store,
+    format_candidate_prompt,
+)
+from .weapon_matcher import match_weapon_async
 
 from .utils.bot import *
 
@@ -212,6 +221,72 @@ async def _(bot: Bot, event: Event):
     await send_msg(bot, event, img, is_cache=is_cache)
 
 
+
+def _build_context_key(bot: Bot, event: Event) -> ContextKey:
+    return (
+        str(bot.adapter.get_name()),
+        str(bot.self_id),
+        str(event.get_session_id()),
+        str(event.get_user_id()),
+    )
+
+
+def _has_build_context(bot: Bot, event: Event) -> bool:
+    return build_context_store.has(_build_context_key(bot, event))
+
+
+async def _send_build_by_id(
+    bot: Bot, event: Event, build_id: int, scene: str | None
+) -> None:
+    build_info = db_image.get_build_info_by_id(build_id)
+    zh_name = build_info.get("zh_name").replace(" ", "")
+    sendou_name = build_info.get("sendou_name")
+    mode_str = scene or "全部"
+    plain_text = f"配装 {zh_name}"
+    if scene:
+        plain_text += f" {scene}"
+    msg = f"正在获取武器 {zh_name} 在 {mode_str}模式下的配装推荐，请稍等..."
+    await send_msg(bot, event, msg)
+    is_cache, img = await get_save_temp_image(
+        plain_text, get_build_image, sendou_name, mode_str
+    )
+    await send_msg(bot, event, img, is_cache=is_cache)
+
+matcher_build_reply = on_message(
+    rule=Rule(_has_build_context), priority=9, block=True
+)
+
+@matcher_build_reply.handle(parameterless=[Depends(_permission_check)])
+async def _(bot: Bot, event: Event):
+    result = build_context_store.reply(
+        _build_context_key(bot, event),
+        event.get_message().extract_plain_text().strip(),
+    )
+    if result.status == "selected":
+        await _send_build_by_id(bot, event, result.build_id, result.mode)
+    elif result.status == "ambiguous":
+        await send_msg(
+            bot,
+            event,
+            format_candidate_prompt(result.candidates, "仍有多个候选："),
+        )
+    elif result.status == "invalid":
+        await send_msg(
+            bot,
+            event,
+            format_candidate_prompt(result.candidates, "未识别该回复，当前候选为："),
+        )
+    elif result.status == "exited":
+        await send_msg(bot, event, "已退出本次配装查询。")
+    elif result.status == "expired":
+        await send_msg(bot, event, "配装查询已超过 120 秒，请重新发送 /配装。")
+    elif result.status == "failed":
+        await send_msg(
+            bot,
+            event,
+            "未查询到对应武器，请使用官方中文武器名称或其他常用名称后再试。",
+        )
+
 # 配装 触发器
 matcher_build = on_regex(
     "^[\\/.,，。]{0,1}配装[\s　]{0,2}([\u4e00-\u9fa5a-zA-Z0-9·\-/\s　]{0,20})$",
@@ -219,10 +294,18 @@ matcher_build = on_regex(
     block=True,
 )
 
+matcher_build2 = on_regex(
+    "^[\\/.,，。]{0,1}[\s　]{0,2}([\u4e00-\u9fa5a-zA-Z0-9·\-/\s　]{0,20})配装$",
+    priority=8,
+    block=True,
+)
 
-# 配装 触发器处理
+# 配装 触发器处理  两种正则都可以匹配
 @matcher_build.handle(parameterless=[Depends(_permission_check)])
+@matcher_build2.handle(parameterless=[Depends(_permission_check)])
 async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
+    context_key = _build_context_key(bot, event)
+    build_context_store.clear(context_key)
     # 分两步处理，外层只过滤前缀，将关键词分离出来
     keywords = re_tuple[0]
     keywords = str(keywords).strip()
@@ -265,7 +348,6 @@ async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
     # 武器名过滤
     middle_text = middle_text.upper()
     middle_text = str_convert_to_simplified(middle_text)
-    middle_text = multiple_replace(middle_text, dict_builds_pre_replace)
     if scene:
         scene = dict_keyword_replace.get(scene, scene)
 
@@ -276,53 +358,37 @@ async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
         await send_msg(bot, event, msg)
         return
 
-    # 整理参数
-    is_deco = 0
-    weapon_name = middle_text
-    if "新贴牌" in weapon_name or "彩牌" in weapon_name:
-        is_deco = 2
-        weapon_name = weapon_name.replace("新贴牌", "").replace("彩牌", "")
-    elif "贴牌" in weapon_name:
-        is_deco = 1
-        weapon_name = weapon_name.replace("贴牌", "")
-
-    # 查询对应武器
-    build_info = db_image.get_build_info(weapon_name, is_deco)
-    if not build_info:
-        msg = f"该关键词 {middle_text} 未查询到对应武器，请试试使用官方中文武器名称或其他常用名称后再试，若为贴牌需要加上'贴牌'二字,新贴牌需要加上'新贴牌' 或 '彩牌'，如:\n/配装 小绿\n指定模式查询:\n/配装 贴牌碳刷 塔楼"
-        logger.warning(f"该关键词未匹配到武器 {middle_text}")
-        # 未匹配武器写到指定文件
-        file_path = Path(os.path.join(DIR_RESOURCE, "未匹配武器.txt"))
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        # 以追加模式打开文件，编码指定为utf-8（避免中文乱码）
-        with open(file_path, "a", encoding="utf-8") as f:
-            f.write(f"{middle_text}\n")  # 每行一个关键词
-
+    match_result = await match_weapon_async(middle_text)
+    if match_result.status != "matched":
+        if match_result.status == "ambiguous":
+            build_context_store.set(
+                context_key, match_result.candidates, scene
+            )
+            msg = format_candidate_prompt(
+                match_result.candidates,
+                f"无法确定关键词 {middle_text} 对应哪把武器，可能是：",
+                initial=True,
+            )
+        elif match_result.status == "conflict":
+            msg = f"关键词 {middle_text} 的贴牌描述或别名存在冲突，请改用更具体的名称"
+        else:
+            msg = f"该关键词 {middle_text} 未查询到对应武器，请试试官方中文名称或常用别名"
+        candidate_names = list(
+            dict.fromkeys(candidate.zh_name for candidate in match_result.candidates)
+        )
+        if match_result.status != "ambiguous" and candidate_names:
+            msg += "，可能是：\n" + "\n".join(
+                f"{index}. {name}" for index, name in enumerate(candidate_names[:3], 1)
+            )
+        if match_result.status == "not_found":
+            logger.warning(f"该关键词未匹配到武器 {middle_text}")
+            file_path = Path(os.path.join(DIR_RESOURCE, "未匹配武器.txt"))
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            with open(file_path, "a", encoding="utf-8") as f:
+                f.write(f"{middle_text}\n")
         await send_msg(bot, event, msg)
         return
-    zh_name: str = build_info.get("zh_name")
-    sendou_name: str = build_info.get("sendou_name")
-
-    plain_text = "配装"
-    zh_name = f'{zh_name.replace(" ", "")}'
-    plain_text += f" {zh_name}"
-    if scene:
-        plain_text += f" {scene}"
-
-    # mode
-    if scene:
-        mode_str = scene
-    else:
-        mode_str = "全部"
-    msg = f"正在获取武器 {zh_name} 在 {mode_str}模式下的配装推荐，请稍等..."
-    await send_msg(bot, event, msg)
-
-    # 传递函数指针
-    func = get_build_image
-    # 获取图片
-    is_cache, img = await get_save_temp_image(plain_text, func, sendou_name, mode_str)
-    # 发送图片
-    await send_msg(bot, event, img, is_cache=is_cache)
+    await _send_build_by_id(bot, event, match_result.matched.build_id, scene)
 
 
 # 其他命令 触发器
