@@ -375,23 +375,36 @@ async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
 
     match_result = await match_weapon_async(middle_text)
     if match_result.status != "matched":
+        entered_context = False
         if match_result.status == "ambiguous":
             build_context_store.set(
                 context_key, match_result.candidates, scene
             )
+            entered_context = True
             msg = format_candidate_prompt(
                 match_result.candidates,
                 f"无法确定关键词 {middle_text} 对应哪把武器，可能是：",
                 initial=True,
             )
         elif match_result.status == "conflict":
-            msg = f"关键词 {middle_text} 的贴牌描述或别名存在冲突，请改用更具体的名称"
+            if match_result.candidates:
+                build_context_store.set(
+                    context_key, match_result.candidates, scene
+                )
+                entered_context = True
+                msg = format_candidate_prompt(
+                    match_result.candidates,
+                    f"关键词 {middle_text} 的贴牌描述或别名存在冲突，请选择具体武器：",
+                    initial=True,
+                )
+            else:
+                msg = f"关键词 {middle_text} 的贴牌描述或别名存在冲突，请改用更具体的名称"
         else:
             msg = f"该关键词 {middle_text} 未查询到对应武器，请试试官方中文名称或常用别名"
         candidate_names = list(
             dict.fromkeys(candidate.zh_name for candidate in match_result.candidates)
         )
-        if match_result.status != "ambiguous" and candidate_names:
+        if not entered_context and candidate_names:
             msg += "，可能是：\n" + "\n".join(
                 f"{index}. {name}" for index, name in enumerate(candidate_names[:3], 1)
             )
