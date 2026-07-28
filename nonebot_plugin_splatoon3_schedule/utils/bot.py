@@ -54,3 +54,14 @@ from nonebot.adapters.qq.event import GroupMessageCreateEvent as QQ_GME  # 群�
 from nonebot.adapters.qq.event import C2CMessageCreateEvent as QQ_C2CME  # Q私聊信息
 from nonebot.adapters.qq.event import DirectMessageCreateEvent as QQ_PME  # 频道私聊信息
 from nonebot.adapters.qq.event import AtMessageCreateEvent as QQ_CME  # 频道艾特信息
+
+
+# bot
+All_BOT = (V11_Bot, V12_Bot, Kook_Bot, Tg_Bot, QQ_Bot)
+# 需要限制qq平台停用的功能也应该是在该功能前直接阻断，而不是后续再进行过滤，故弃用All_BOT_Without_QQ
+
+# 公开发言消息类型
+All_Group_Message = (Kook_CME, Tg_GME, Tg_CME, QQ_CME, QQ_GATME, QQ_GME, V11_GME, V12_GME, V12_CME)
+All_Group_Message_Without_QQ_G = (Kook_CME, Tg_GME, Tg_CME, QQ_CME, V11_GME, V12_GME, V12_CME)
+# 私聊消息
+All_Private_Message = (Kook_PME, Tg_PME, QQ_PME, QQ_C2CME, V11_PME, V12_PME)
