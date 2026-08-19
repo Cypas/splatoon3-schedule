@@ -54,3 +54,11 @@ from nonebot.adapters.qq.event import GroupMessageCreateEvent as QQ_GME  # 群�
 from nonebot.adapters.qq.event import C2CMessageCreateEvent as QQ_C2CME  # Q私聊信息
 from nonebot.adapters.qq.event import DirectMessageCreateEvent as QQ_PME  # 频道私聊信息
 from nonebot.adapters.qq.event import AtMessageCreateEvent as QQ_CME  # 频道艾特信息
+
+# discord协议
+from nonebot.adapters.discord import Bot as Dc_Bot
+from nonebot.adapters.discord import Message as Dc_Msg
+from nonebot.adapters.discord import MessageSegment as Dc_MsgSeg
+from nonebot.adapters.discord import MessageEvent as Dc_ME
+from nonebot.adapters.discord import DirectMessageCreateEvent as Dc_PME  # 私信
+from nonebot.adapters.discord import GuildMessageCreateEvent as Dc_GME  # 服务器频道消息

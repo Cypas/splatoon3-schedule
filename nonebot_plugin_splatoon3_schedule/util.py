@@ -151,6 +151,10 @@ async def send_msg(
                     pass
                 else:
                     logger.warning(f"QQ send msg error: {e}")
+        elif isinstance(bot, Dc_Bot):
+            await bot.send(
+                event, message=Dc_MsgSeg.text(msg), reply_message=reply_mode
+            )
 
     elif isinstance(msg, bytes):
         # 图片
@@ -210,6 +214,12 @@ async def send_msg(
                     await bot.send(event, message=QQ_MsgSeg.image(url))
                 else:
                     logger.warning(f"QQ send msg error: {e}")
+        elif isinstance(bot, Dc_Bot):
+            await bot.send(
+                event,
+                message=Dc_MsgSeg.attachment(file="temp.png", content=img),
+                reply_message=reply_mode,
+            )
 
     if not is_ad and trigger_with_probability():
         if isinstance(bot, QQ_Bot):
@@ -267,6 +277,8 @@ async def send_channel_msg(bot: Bot, source_id, msg: str | bytes):
                 logger.warning(f"主动消息发送失败，api操作结果为{e.__dict__}")
         elif isinstance(bot, Tg_Bot):
             await bot.send_message(chat_id=source_id, text=msg)
+        elif isinstance(bot, Dc_Bot):
+            await bot.send_to(channel_id=source_id, message=Dc_MsgSeg.text(msg))
     elif isinstance(msg, bytes):
         # 图片
         img = msg
@@ -286,6 +298,11 @@ async def send_channel_msg(bot: Bot, source_id, msg: str | bytes):
                 logger.warning(f"主动消息发送失败，api操作结果为{e.__dict__}")
         elif isinstance(bot, Tg_Bot):
             await bot.send_photo(source_id, img)
+        elif isinstance(bot, Dc_Bot):
+            await bot.send_to(
+                channel_id=source_id,
+                message=Dc_MsgSeg.attachment(file="temp.png", content=img),
+            )
 
 
 async def send_private_msg(bot: Bot, source_id, msg: str | bytes, event=None):
@@ -306,6 +323,9 @@ async def send_private_msg(bot: Bot, source_id, msg: str | bytes, event=None):
                 logger.warning(f"主动消息发送失败，api操作结果为{e.__dict__}")
         elif isinstance(bot, Tg_Bot):
             await bot.send_message(chat_id=source_id, text=msg)
+        elif isinstance(bot, Dc_Bot):
+            channel = await bot.create_DM(recipient_id=source_id)
+            await bot.send_to(channel_id=channel.id, message=Dc_MsgSeg.text(msg))
 
     elif isinstance(msg, bytes):
         # 图片
@@ -328,6 +348,12 @@ async def send_private_msg(bot: Bot, source_id, msg: str | bytes, event=None):
                 logger.warning(f"主动消息发送失败，api操作结果为{e.__dict__}")
         elif isinstance(bot, Tg_Bot):
             await bot.send_photo(source_id, img)
+        elif isinstance(bot, Dc_Bot):
+            channel = await bot.create_DM(recipient_id=source_id)
+            await bot.send_to(
+                channel_id=channel.id,
+                message=Dc_MsgSeg.attachment(file="temp.png", content=img),
+            )
 
 
 async def get_qq_md(user_id: str, img_size: tuple[int, int], url: str) -> QQ_Msg:
