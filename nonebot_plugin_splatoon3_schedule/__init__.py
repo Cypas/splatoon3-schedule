@@ -30,7 +30,7 @@ __plugin_meta__ = PluginMetadata(
     homepage="https://github.com/Cypas/splatoon3-schedule",
     # 发布必填。
     config=Config,
-    supported_adapters={"~onebot.v11", "~onebot.v12", "~telegram", "~kaiheila", "~qq"},
+    supported_adapters={"~onebot.v11", "~onebot.v12", "~telegram", "~kaiheila", "~qq", "~discord"},
 )
 
 # 图 触发器  正则内需要涵盖所有的同义词
