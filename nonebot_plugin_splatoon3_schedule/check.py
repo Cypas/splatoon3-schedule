@@ -257,9 +257,11 @@ async def _permission_check(bot: Bot, event: Event, matcher: Matcher, state: T_S
     uid = event.get_user_id()
     state["_uid_"] = uid or default_id
 
-    if isinstance(event, (V11_PME, V12_PME, Tg_PME, Kook_PME, QQ_PME, QQ_C2CME)):
+    if isinstance(
+        event, (V11_PME, V12_PME, Tg_PME, Kook_PME, QQ_PME, QQ_C2CME, Dc_PME)
+    ):
         # 频道私聊
-        if isinstance(event, (V11_PME, V12_PME, Tg_PME, Kook_PME, QQ_PME)):
+        if isinstance(event, (V11_PME, V12_PME, Tg_PME, Kook_PME, QQ_PME, Dc_PME)):
             state["_msg_source_type_"] = "private"
             rule = plugin_config.splatoon3_permit_private
         # qq c2c私聊
@@ -311,7 +313,7 @@ async def _permission_check(bot: Bot, event: Event, matcher: Matcher, state: T_S
             )
             await matcher.finish()
     # 服务器频道
-    elif isinstance(event, (V12_CME, Kook_CME, QQ_CME)):
+    elif isinstance(event, (V12_CME, Kook_CME, QQ_CME, Dc_GME)):
         state["_msg_source_type_"] = "channel"
         if plugin_config.splatoon3_permit_channel:
             if isinstance(event, V12_CME):
@@ -321,6 +323,9 @@ async def _permission_check(bot: Bot, event: Event, matcher: Matcher, state: T_S
                 guid = event.extra.guild_id
                 cid = event.group_id
             elif isinstance(event, QQ_CME):
+                guid = event.guild_id
+                cid = event.channel_id
+            elif isinstance(event, Dc_GME):
                 guid = event.guild_id
                 cid = event.channel_id
             state["_guid_"] = guid

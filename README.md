@@ -37,6 +37,9 @@ _✨ splatoon3游戏日程查询插件 ✨_
 <a href="https://github.com/nonebot/adapter-qq">
 <img src="https://img.shields.io/badge/QQ-Adapter-lightgrey?style=social" alt="QQ">
 </a>
+<a href="https://github.com/nonebot/adapter-discord">
+<img src="https://img.shields.io/badge/discord-Adapter-lightgrey?style=social&logo=discord" alt="discord">
+</a>
 </p>
 
 </div>
@@ -44,7 +47,7 @@ _✨ splatoon3游戏日程查询插件 ✨_
 
 ## 📖 介绍
 
-- 一个基于nonebot2框架的splatoon3游戏日程查询插件,支持onebot11,onebot12,[telegram](https://github.com/nonebot/adapter-telegram)协议,[kook](https://github.com/Tian-que/nonebot-adapter-kaiheila)协议,[QQ官方bot](https://github.com/nonebot/adapter-qq)协议
+- 一个基于nonebot2框架的splatoon3游戏日程查询插件,支持onebot11,onebot12,[telegram](https://github.com/nonebot/adapter-telegram)协议,[kook](https://github.com/Tian-que/nonebot-adapter-kaiheila)协议,[QQ官方bot](https://github.com/nonebot/adapter-qq)协议,[discord](https://github.com/nonebot/adapter-discord)协议
 - 全部查询图片,全部采用pillow精心绘制,图片效果可查看下面的[效果图](#效果图)
 - 建议配合我做的[nso查询插件](https://github.com/Cypas/splatoon3-nso)一起使用
 
