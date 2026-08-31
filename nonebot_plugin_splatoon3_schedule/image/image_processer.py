@@ -534,7 +534,7 @@ def get_coop_stages(stage, weapon, time, boss, mode) -> Image.Image:
             )
             weapon_bg_img = circle_corner(weapon_bg_img, radii=16)
             paste_with_a(weapon_bg_img, weapon_image, (0, 0))
-            paste_with_a(coop_stage_bg, weapon_bg_img, weapon_pos)
+            coop_stage_bg.paste(weapon_bg_img, (120 * pos_weapon + 20, 60 + 160 * pos))
     for pos, val in enumerate(boss):
         if val != "":
             # 绘制boss图标
