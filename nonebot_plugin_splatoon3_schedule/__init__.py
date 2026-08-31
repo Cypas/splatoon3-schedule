@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Union, Tuple
 
 from nonebot import on_message
-from nonebot.rule import Rule
+from nonebot.rule import Rule, is_type
 
 from .check import _permission_check, _guild_owner_check, ChannelInfo, init_blacklist
 from .data.db_control import db_control
@@ -298,10 +298,12 @@ matcher_build = on_regex(
     block=True,
 )
 
+# 仅私聊时允许配装触发词倒置
 matcher_build2 = on_regex(
     "^[\\/.,，。]{0,1}[\s　]{0,2}([\u4e00-\u9fa5a-zA-Z0-9·\-/\s　]{0,20})配[装裝]$",
     priority=8,
     block=True,
+    rule=is_type(All_Private_Message),
 )
 
 # 配装 触发器处理  两种正则都可以匹配

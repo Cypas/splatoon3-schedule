@@ -62,3 +62,14 @@ from nonebot.adapters.discord import MessageSegment as Dc_MsgSeg
 from nonebot.adapters.discord import MessageEvent as Dc_ME
 from nonebot.adapters.discord import DirectMessageCreateEvent as Dc_PME  # 私信
 from nonebot.adapters.discord import GuildMessageCreateEvent as Dc_GME  # 服务器频道消息
+
+
+# bot
+All_BOT = (V11_Bot, V12_Bot, Kook_Bot, Tg_Bot, QQ_Bot, Dc_Bot)
+# 需要限制qq平台停用的功能也应该是在该功能前直接阻断，而不是后续再进行过滤，故弃用All_BOT_Without_QQ
+
+# 公开发言消息类型
+All_Group_Message = (Kook_CME, Tg_GME, Tg_CME, QQ_CME, QQ_GATME, QQ_GME, V11_GME, V12_GME, V12_CME, Dc_GME)
+All_Group_Message_Without_QQ_G = (Kook_CME, Tg_GME, Tg_CME, QQ_CME, V11_GME, V12_GME, V12_CME, Dc_GME)
+# 私聊消息
+All_Private_Message = (Kook_PME, Tg_PME, QQ_PME, QQ_C2CME, V11_PME, V12_PME, Dc_PME)
