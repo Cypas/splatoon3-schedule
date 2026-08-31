@@ -4,7 +4,7 @@ import re
 import sys
 import textwrap
 from io import BytesIO
-from PIL import Image, ImageDraw, ImageFont, ImageOps
+from PIL import Image, ImageDraw, ImageFont, ImageOps, ImageFilter
 
 from ..data import db_image
 from ..utils import *
@@ -57,9 +57,9 @@ def get_save_file(img: ImageInfo) -> Image.Image:
             db_image.add_or_modify_IMAGE_DATA(
                 img.name, image_data, img.zh_name, img.source_type
             )
-        return Image.open(io.BytesIO(image_data))
+        return Image.open(io.BytesIO(image_data)).convert("RGBA")
     else:
-        return Image.open(io.BytesIO(res.get("image_data")))
+        return Image.open(io.BytesIO(res.get("image_data"))).convert("RGBA")
 
 
 def get_file_path(name, format_name="png") -> str:
@@ -989,8 +989,11 @@ def compress_image(image_bytes: bytes, kb=500, step=10, quality=50) -> bytes:
     while o_size > kb:
         buffered: io.BytesIO = BytesIO()
         im = Image.open(io.BytesIO(image_bytes))
-        rgb_im = im.convert("RGB")
-        rgb_im.save(buffered, quality=quality, format="JPEG")
+        rgba_im = im.convert("RGBA")
+        if rgba_im.getchannel("A").getextrema()[0] < 255:
+            rgba_im.save(buffered, format="PNG", optimize=True)
+        else:
+            rgba_im.convert("RGB").save(buffered, quality=quality, format="JPEG")
         if quality - step < 0:
             break
         quality -= step

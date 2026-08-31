@@ -516,14 +516,25 @@ def get_coop_stages(stage, weapon, time, boss, mode) -> Image.Image:
         paste_with_a(coop_stage_bg, stage_name_bg, stage_name_bg_pos)
 
         for pos_weapon, val_weapon in enumerate(weapon[pos]):
-            # 绘制武器底图
-            weapon_bg_img = Image.new("RGBA", weapon_size, (30, 30, 30))
-            # 绘制武器图片
+            weapon_pos = (120 * pos_weapon + 20, 60 + 160 * pos)
+            # 绘制磨砂玻璃风格的武器底图
+            glass_bg = image_background.crop(
+                (
+                    weapon_pos[0],
+                    weapon_pos[1] + top_size_pos[1],
+                    weapon_pos[0] + weapon_size[0],
+                    weapon_pos[1] + top_size_pos[1] + weapon_size[1],
+                )
+            ).filter(ImageFilter.GaussianBlur(radius=4))
+            white_overlay = Image.new("RGBA", weapon_size, (0, 0, 0, 210))
+            glass_bg = Image.alpha_composite(glass_bg.convert("RGBA"), white_overlay)
+            weapon_bg_img = circle_corner(glass_bg, radii=16)
             weapon_image = get_save_file(val_weapon).resize(
                 weapon_size, Image.Resampling.LANCZOS
             )
+            weapon_bg_img = circle_corner(weapon_bg_img, radii=16)
             paste_with_a(weapon_bg_img, weapon_image, (0, 0))
-            coop_stage_bg.paste(weapon_bg_img, (120 * pos_weapon + 20, 60 + 160 * pos))
+            paste_with_a(coop_stage_bg, weapon_bg_img, weapon_pos)
     for pos, val in enumerate(boss):
         if val != "":
             # 绘制boss图标
