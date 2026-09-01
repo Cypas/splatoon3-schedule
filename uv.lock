@@ -838,6 +838,18 @@ wheels = [
 ]
 
 [[package]]
+name = "nonebot-adapter-discord"
+version = "1.1.9"
+source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple/" }
+dependencies = [
+    { name = "nonebot2" },
+]
+sdist = { url = "https://pypi.tuna.tsinghua.edu.cn/packages/05/cd/25052d488689060470d9069d8354dcd9219eeb69418643d06929a6124bba/nonebot_adapter_discord-1.1.9.tar.gz", hash = "sha256:2c3975b5683a816e6d677a2341c0c32e48babd9c811d8dfc9702125e3188670a", size = 113756, upload-time = "2026-06-18T06:57:10.804Z" }
+wheels = [
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/cf/cc/5c87236d7a80589a1e3a6617d1ec23e439637cc387751941466f18ca6bf9/nonebot_adapter_discord-1.1.9-py3-none-any.whl", hash = "sha256:abca0842d448eb61b9fc8014a1654fd6ae8c1696b76846bf6a0b12eb925f38ae", size = 121281, upload-time = "2026-06-18T06:57:09.521Z" },
+]
+
+[[package]]
 name = "nonebot-adapter-kaiheila"
 version = "0.3.4"
 source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple/" }
@@ -941,13 +953,14 @@ wheels = [
 
 [[package]]
 name = "nonebot-plugin-splatoon3-schedule"
-version = "2.0.8"
+version = "2.2.1"
 source = { editable = "." }
 dependencies = [
     { name = "beautifulsoup4" },
     { name = "cloudscraper" },
     { name = "cos-python-sdk-v5" },
     { name = "httpx" },
+    { name = "nonebot-adapter-discord" },
     { name = "nonebot-adapter-kaiheila" },
     { name = "nonebot-adapter-onebot" },
     { name = "nonebot-adapter-qq" },
@@ -976,6 +989,7 @@ requires-dist = [
     { name = "cloudscraper", specifier = ">=1.2.71,<2" },
     { name = "cos-python-sdk-v5", specifier = ">=1.9.30,<2" },
     { name = "httpx", specifier = ">=0.28.1,<0.29" },
+    { name = "nonebot-adapter-discord", specifier = ">=1.1.9,<2" },
     { name = "nonebot-adapter-kaiheila", specifier = ">=0.3.4,<0.4" },
     { name = "nonebot-adapter-onebot", specifier = ">=2.4.6,<3" },
     { name = "nonebot-adapter-qq", specifier = ">=1.7.1,<2" },

@@ -62,6 +62,8 @@ test_d = {
 }
 
 # 不走缓存的函数调用
+# 生成图片后写入 images/preview_<name>.png，便于在 IDE 中直接预览
+# 调整 test2_d 中的配置即可重复生成测试图片
 test2_d = {
     # "help_image": {"func": get_help_image, "args": []},
     # "nso_help_image": {"func": get_nso_help_image, "args": []},
@@ -95,6 +97,7 @@ async def test_all():
         # url = cos_simple_upload_file(img)
         # print(url)
         image = Image.open(io.BytesIO(img))
+        image.save(f"images/preview_{k}.png")
         image.show()
 
     for k, v in test2_d.items():
@@ -106,6 +109,7 @@ async def test_all():
             image = Image.open(io.BytesIO(img))
         else:
             image = img
+        image.save(f"images/preview_{k}.png")
         image.show()
 
 
