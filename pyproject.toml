@@ -31,6 +31,8 @@ dependencies = [
     "zhconv>=1.4.3,<2",
     "qdrant-client[fastembed]>=1.12,<2",
     "rapidfuzz>=3.9,<4",
+    "mcp>=1.0,<2",
+    "fastapi>=0.115,<1",
 ]
 
 [dependency-groups]

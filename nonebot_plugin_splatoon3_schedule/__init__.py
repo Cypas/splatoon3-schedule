@@ -18,8 +18,16 @@ from .build_context import (
     format_candidate_prompt,
 )
 from .weapon_matcher import match_weapon_async
+from .application import RequestContext
+from .application.schedule_service import ScheduleApplicationService
+from .infrastructure.file_storage import CosFileStorage
+from .interfaces.nonebot.renderer import NoneBotRenderer
 
 from .utils.bot import *
+
+
+schedule_service = ScheduleApplicationService(file_storage=CosFileStorage())
+nonebot_renderer = NoneBotRenderer()
 
 __plugin_meta__ = PluginMetadata(
     name="splatoon3游戏日程查询",
@@ -81,14 +89,14 @@ async def _(bot: Bot, event: Event):
         flag_match = True
     # 如果有匹配
     if flag_match:
-        # 传递函数指针
-        func = get_stages_image
-        # 获取图片
-        is_cache, img = await get_save_temp_image(
-            plain_text, func, num_list, contest_match, rule_match
+        result = await schedule_service.get_stages(
+            context=RequestContext(provider=str(bot.adapter.get_name())),
+            num_list=num_list,
+            contest_match=contest_match,
+            rule_match=rule_match,
+            trigger_word=plain_text,
         )
-        # 发送图片
-        await send_msg(bot, event, img, is_cache=is_cache)
+        await nonebot_renderer.send(bot, event, result)
 
 
 # 对战 触发器
@@ -180,14 +188,14 @@ async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
 
     # 如果有匹配
     if flag_match:
-        # 传递函数指针
-        func = get_stages_image
-        # 获取图片
-        is_cache, img = await get_save_temp_image(
-            plain_text, func, num_list, contest_match, rule_match
+        result = await schedule_service.get_stages(
+            context=RequestContext(provider=str(bot.adapter.get_name())),
+            num_list=num_list,
+            contest_match=contest_match,
+            rule_match=rule_match,
+            trigger_word=plain_text,
         )
-        # 发送图片
-        await send_msg(bot, event, img, is_cache=is_cache)
+        await nonebot_renderer.send(bot, event, result)
 
 
 # 打工 触发器
