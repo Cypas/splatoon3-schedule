@@ -69,14 +69,15 @@ class ScheduleApplicationService:
         return ServiceResult(status="completed", data={"operation": operation, "cached": is_cache}, image_data=image_data, image_url=image_url)
 
     async def get_build(self, context: RequestContext, weapon_query: str, mode: str = "全部") -> ServiceResult:
-        from ..weapon_match import match_weapon_async
+        from ..weapon_matcher import match_weapon_async
         match = await match_weapon_async(weapon_query)
         if match.status != "matched":
             return ServiceResult(status="failed", message="未能唯一匹配武器", code="WEAPON_NOT_MATCHED",
                                   data={"match_status": match.status, "candidates": [c.zh_name for c in match.candidates]})
         build = match.matched
         if build is None:
-            return ServiceResult(status="failed", message="未能唯一匹配武器", code="WEAPON_NOT_MATCHED")
+            return ServiceResult(status="failed", message="未能唯一匹配武器", code="WEAPON_NOT_MATCHED",
+                                  data={"match_status": match.status, "candidates": [c.zh_name for c in match.candidates]})
         result = await self.get_rendered(context, "weapon_build", f"配装_{build.zh_name}_{mode}",
                                           __import__("nonebot_plugin_splatoon3_schedule.image.image", fromlist=["get_build_image"]).get_build_image,
                                           build.sendou_name, mode)
