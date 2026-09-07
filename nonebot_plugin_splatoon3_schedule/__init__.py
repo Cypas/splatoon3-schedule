@@ -18,7 +18,7 @@ from .build_context import (
     format_candidate_prompt,
 )
 from .weapon_matcher import match_weapon_async
-from .application import RequestContext
+from .application import RequestContext, normalize_schedule_query, build_schedule_cache_key
 from .application.schedule_service import ScheduleApplicationService
 from .infrastructure.file_storage import CosFileStorage
 from .interfaces.nonebot.renderer import NoneBotRenderer
@@ -89,12 +89,12 @@ async def _(bot: Bot, event: Event):
         flag_match = True
     # 如果有匹配
     if flag_match:
+        query = normalize_schedule_query(num_list, contest_match, rule_match)
         result = await schedule_service.get_stages(
             context=RequestContext(provider=str(bot.adapter.get_name())),
-            num_list=num_list,
-            contest_match=contest_match,
-            rule_match=rule_match,
+            query=query,
             trigger_word=plain_text,
+            cache_key=build_schedule_cache_key(str(bot.adapter.get_name()), query),
         )
         await nonebot_renderer.send(bot, event, result)
 
@@ -188,12 +188,12 @@ async def _(bot: Bot, event: Event, re_tuple: Tuple = RegexGroup()):
 
     # 如果有匹配
     if flag_match:
+        query = normalize_schedule_query(num_list, contest_match, rule_match)
         result = await schedule_service.get_stages(
             context=RequestContext(provider=str(bot.adapter.get_name())),
-            num_list=num_list,
-            contest_match=contest_match,
-            rule_match=rule_match,
+            query=query,
             trigger_word=plain_text,
+            cache_key=build_schedule_cache_key(str(bot.adapter.get_name()), query),
         )
         await nonebot_renderer.send(bot, event, result)
 
