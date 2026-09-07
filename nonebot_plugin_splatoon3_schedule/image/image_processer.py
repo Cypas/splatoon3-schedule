@@ -262,8 +262,11 @@ def get_stages(schedule, num_list, contest_match=None, rule_match=None) -> Image
 
     if cnt == 0 and not have_festival(festivals):
         # 没有搜索结果情况下，用全部list再次调用自身
-        num_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-        return get_stages(schedule, num_list, contest_match, rule_match)
+        all_numbers = list(range(12))
+        if list(num_list) != all_numbers:
+            return get_stages(schedule, all_numbers, contest_match, rule_match)
+        if contest_match is not None or rule_match is not None:
+            return get_stages(schedule, all_numbers, None, None)
 
     time_head_bg_size = (540, 60)
     # 一张对战卡片高度为340 时间卡片高度为time_head_bg_size[1] 加上间隔为10
