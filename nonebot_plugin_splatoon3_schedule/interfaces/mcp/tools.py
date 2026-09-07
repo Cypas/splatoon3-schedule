@@ -5,7 +5,7 @@ from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
 from pydantic import Field
 
-from ...application import RequestContext
+from ...application import RequestContext, normalize_schedule_query, build_schedule_cache_key
 from ...application.schedule_service import ScheduleApplicationService
 from ...infrastructure.file_storage import CosFileStorage
 
@@ -50,33 +50,17 @@ async def get_splatoon3_schedule(
     ] = None,
 ) -> dict:
     """Get the Splatoon 3 (喷三) battle schedule and its COS image URL. All parameters are optional; invalid input falls back to indexes 0 and 1."""
-    valid_numbers = (
-        numbers is None
-        or (len(numbers) > 0 and all(0 <= number <= 11 for number in numbers))
-    )
-    valid_contest = contest is None or contest in CONTEST_VALUES
-    valid_rule = rule is None or rule in RULE_VALUES
-    if not (valid_numbers and valid_contest and valid_rule):
-        numbers = [0, 1]
-        contest = None
-        rule = None
+    query = normalize_schedule_query(numbers, contest, rule,
+                                     contest_values=CONTEST_VALUES,
+                                     rule_values=RULE_VALUES)
     result = await schedule_service.get_stages(
         context=RequestContext(
             request_id=str(uuid.uuid4()),
             provider="mcp",
         ),
-        num_list=numbers or [0],
-        contest_match=contest,
-        rule_match=rule,
+        query=query,
         trigger_word="图",
-        cache_key="mcp_"
-        + ",".join(
-            [
-                *(map(str, numbers or [0])),
-                contest or "",
-                rule or "",
-            ]
-        ),
+        cache_key=build_schedule_cache_key("mcp", query),
     )
     return {
         "status": result.status,
