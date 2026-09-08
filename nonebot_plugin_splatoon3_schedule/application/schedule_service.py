@@ -69,7 +69,7 @@ class ScheduleApplicationService:
         return ServiceResult(status="completed", data={"operation": operation, "cached": is_cache}, image_data=image_data, image_url=image_url)
 
     async def get_build(self, context: RequestContext, weapon_query: str, mode: str = "全部") -> ServiceResult:
-        from ..weapon_matcher import match_weapon_async
+        from .weapon_match import match_weapon_async
         match = await match_weapon_async(weapon_query)
         if match.status != "matched":
             return ServiceResult(status="failed", message="未能唯一匹配武器", code="WEAPON_NOT_MATCHED",

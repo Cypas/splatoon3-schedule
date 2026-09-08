@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 if __package__:
-    from .weapon_matcher import (
+    from .matcher import (
         COLLECTION_NAME,
         DEFAULT_DB_PATH,
         DEFAULT_MODEL_DIR,
@@ -15,7 +15,7 @@ if __package__:
     )
 else:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
-    from weapon_matcher import (
+    from matcher import (
         COLLECTION_NAME,
         DEFAULT_DB_PATH,
         DEFAULT_MODEL_DIR,
@@ -92,6 +92,9 @@ def load_model(model_dir: Path, offline: bool):
 def build_vectors(db_path: Path, model_dir: Path, qdrant_dir: Path, offline: bool) -> None:
     from qdrant_client import QdrantClient, models
 
+    db_path = db_path.expanduser().resolve()
+    model_dir = model_dir.expanduser().resolve()
+    qdrant_dir = qdrant_dir.expanduser().resolve()
     rows, documents = load_documents(db_path)
     vectors = list(load_model(model_dir, offline).passage_embed(documents, batch_size=16))
     if len(vectors) != len(rows) or any(len(vector) != 512 for vector in vectors):
