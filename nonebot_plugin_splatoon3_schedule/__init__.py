@@ -12,12 +12,12 @@ from .config import plugin_config, driver, global_config, Config
 from .utils import dict_keyword_replace, multiple_replace
 from .data import reload_weapon_info, db_image, get_screenshot
 from .util import get_weapon_info_test, cron_job, push_job, send_msg
-from .build_context import (
+from .application.weapon_match.build_context import (
     ContextKey,
     build_context_store,
     format_candidate_prompt,
 )
-from .weapon_matcher import match_weapon_async
+from .application.weapon_match import match_weapon_async
 from .application import RequestContext, normalize_schedule_query, build_schedule_cache_key
 from .application.schedule_service import ScheduleApplicationService
 from .infrastructure.file_storage import CosFileStorage

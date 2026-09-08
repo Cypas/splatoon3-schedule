@@ -6,12 +6,12 @@ from pathlib import Path
 from typing import Literal
 
 try:
-    from .utils.translation import dict_weapon_special, dict_weapon_sub
-    from .weapon_matcher import WeaponCandidate, normalize_weapon_text
+    from ...utils.translation import dict_weapon_special, dict_weapon_sub
+    from .matcher import WeaponCandidate, normalize_weapon_text
 except ImportError:
     import ast
 
-    source = (Path(__file__).resolve().parent / "utils" / "translation.py").read_text("utf-8")
+    source = (Path(__file__).resolve().parent.parent.parent / "utils" / "translation.py").read_text("utf-8")
     dictionaries = {}
     for node in ast.parse(source).body:
         if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name):
@@ -20,7 +20,7 @@ except ImportError:
                 dictionaries[name] = ast.literal_eval(node.value)
     dict_weapon_special = dictionaries["dict_weapon_special"]
     dict_weapon_sub = dictionaries["dict_weapon_sub"]
-    from weapon_matcher import WeaponCandidate, normalize_weapon_text
+    from matcher import WeaponCandidate, normalize_weapon_text
 
 
 ContextKey = tuple[str, str, str, str]

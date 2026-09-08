@@ -13,11 +13,11 @@ from rapidfuzz.distance import Levenshtein
 from zhconv import convert
 
 try:
-    from ..utils.translation import dict_weapon_class, dict_weapon_special, dict_weapon_sub
+    from ...utils.translation import dict_weapon_class, dict_weapon_special, dict_weapon_sub
 except ImportError:
     import ast
 
-    source = (Path(__file__).resolve().parent.parent / "utils" / "translation.py").read_text("utf-8")
+    source = (Path(__file__).resolve().parent.parent.parent / "utils" / "translation.py").read_text("utf-8")
     dictionaries = {}
     for node in ast.parse(source).body:
         if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name):
@@ -37,7 +37,7 @@ except ImportError:
 
 
 MatchStatus = Literal["matched", "ambiguous", "conflict", "not_found"]
-RESOURCE_DIR = Path(__file__).resolve().parent.parent / "resource"
+RESOURCE_DIR = Path(__file__).resolve().parent.parent.parent / "resource"
 DEFAULT_DB_PATH = RESOURCE_DIR / "db" / "image.db"
 DEFAULT_MODEL_DIR = RESOURCE_DIR / "weapon_match" / "model"
 DEFAULT_QDRANT_DIR = RESOURCE_DIR / "weapon_match" / "qdrant"
@@ -117,9 +117,11 @@ class WeaponMatcher:
         model_dir: Path | str = DEFAULT_MODEL_DIR,
         qdrant_dir: Path | str = DEFAULT_QDRANT_DIR,
     ):
-        self.db_path = Path(db_path)
-        self.model_dir = Path(model_dir)
-        self.qdrant_dir = Path(qdrant_dir)
+        # Resolve once at construction time so model/Qdrant paths do not depend
+        # on a later working-directory change.
+        self.db_path = Path(db_path).expanduser().resolve()
+        self.model_dir = Path(model_dir).expanduser().resolve()
+        self.qdrant_dir = Path(qdrant_dir).expanduser().resolve()
         self._catalog_lock = threading.Lock()
         self._aliases = None
         self._alias_map = None
