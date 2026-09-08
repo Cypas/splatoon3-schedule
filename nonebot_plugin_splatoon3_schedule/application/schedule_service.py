@@ -70,6 +70,13 @@ class ScheduleApplicationService:
 
     async def get_build(self, context: RequestContext, weapon_query: str, mode: str = "全部") -> ServiceResult:
         from .weapon_match import match_weapon_async
+        public_mode = {
+            "TW": "涂地",
+            "SZ": "区域",
+            "TC": "塔楼",
+            "RM": "鱼虎",
+            "CB": "蛤蜊",
+        }.get(mode, mode)
         match = await match_weapon_async(weapon_query)
         if match.status != "matched":
             return ServiceResult(status="failed", message="未能唯一匹配武器", code="WEAPON_NOT_MATCHED",
@@ -81,5 +88,5 @@ class ScheduleApplicationService:
         result = await self.get_rendered(context, "weapon_build", f"配装_{build.zh_name}_{mode}",
                                           __import__("nonebot_plugin_splatoon3_schedule.image.image", fromlist=["get_build_image"]).get_build_image,
                                           build.sendou_name, mode)
-        result.data.update({"weapon": build.zh_name, "mode": mode})
+        result.data.update({"weapon": build.zh_name, "mode": public_mode})
         return result
