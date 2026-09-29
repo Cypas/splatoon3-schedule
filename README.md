@@ -89,6 +89,8 @@ _✨ splatoon3游戏日程查询插件 ✨_
 
 以下配置项均为可选值，根据自己需要将配置项添加至nonebot目录的`.env.prod`文件
 
+MCP 的 Host 校验由外部反向代理（如 Nginx）负责，插件仅按下方配置校验 Origin。
+
 |                   配置项                   | 必填 | 值类型  |  默认值  |                      说明                      |
 |:---------------------------------------:|:--:|:----:|:-----:|:--------------------------------------------:|
 |         splatoon3_proxy_address         | 否  | str  |  ""   |           代理地址，格式为 127.0.0.1:20171           |
@@ -102,6 +104,7 @@ _✨ splatoon3游戏日程查询插件 ✨_
 |    splatoon3_guild_owner_switch_push    | 否  | bool | False |   频道服务器拥有者是否允许开关主动推送功能(为False时仅允许管理员开启关闭)    |
 |        splatoon3_is_official_bot        | 否  | bool | False |          是否是官方小鱿鱿bot(会影响输出的帮助图片内容)           |
 | splatoon3_schedule_plugin_priority_mode | 否  | bool | False | 日程插件的帮助菜单优先模式(会影响帮助菜单由哪个插件提供，该配置项与nso查询插件公用) |
+|      splatoon3_mcp_allowed_origins     | 否  | list[str] | [] | MCP 允许访问的 Origin；客户端发送 Origin 时请填写完整来源 |
 
 <details>
 <summary>示例配置</summary>
@@ -119,9 +122,46 @@ splatoon3_sole_prefix = False # 限制消息触发前缀为/
 splatoon3_guild_owner_switch_push = False # 频道服务器拥有者是否允许开关主动推送功能(为False时仅允许管理员开启关闭)
 splatoon3_is_official_bot = False	# 是否是小鱿鱿bot(会影响输出的帮助图片内容)
 splatoon3_schedule_plugin_priority_mode = False #日程插件的帮助菜单优先模式(会影响帮助菜单由哪个插件提供，该配置项与nso查询插件公用)
+splatoon3_mcp_allowed_origins = ["https://mcp.example.com"]
 ```
 
 </details>
+
+### 注册 MCP 端点
+
+在宿主应用中挂载 MCP 服务：
+
+```python
+import nonebot
+
+nonebot.init()
+nonebot.load_from_toml("pyproject.toml", encoding="utf-8")
+nonebot.load_plugins("plugins")
+
+asgi = nonebot.get_asgi()
+from plugins.nonebot_plugin_splatoon3_schedule.interfaces.mcp import (
+    MCP_PATH,
+    install_mcp_lifespan,
+    mcp_http_app,
+)
+
+# 注册 MCP 会话管理器生命周期（必须在 nonebot.run() 之前调用）
+install_mcp_lifespan(asgi)
+
+# MCP_PATH 当前为 /schedule，直接挂载到宿主 ASGI 后，端点为 /api/schedule/mcp
+asgi.mount("/api" + MCP_PATH, mcp_http_app)
+
+if __name__ == "__main__":
+    nonebot.run()
+```
+
+注册完成后，MCP 客户端使用以下地址连接：
+
+```text
+https://你的域名/api/schedule/mcp
+```
+
+如果前面使用 Nginx 等反向代理，建议仅对外暴露代理地址，并由代理负责 Host 转发与 HTTPS；`splatoon3_mcp_allowed_origins` 用于限制客户端携带的 Origin。
 
 ## 🎉 使用
 ### 指令表

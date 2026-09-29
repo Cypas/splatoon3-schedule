@@ -31,6 +31,11 @@ def normalize_schedule_query(
 
 
 def build_schedule_cache_key(provider: str, query: ScheduleQuery) -> str:
-    parts = [str(n) for n in query.numbers]
-    parts.extend((query.contest or "", query.rule or ""))
-    return f"{provider}_" + ",".join(parts)
+    """Build a platform-neutral, human-readable image cache key.
+
+    MCP-generated images use an explicit prefix so cache entries can be traced
+    back to the tool interface while retaining their business meaning.
+    """
+    numbers = "".join(str(number) for number in query.numbers)
+    prefix = "mcp_" if provider == "mcp" else ""
+    return f"{prefix}{numbers}{query.contest or ''}{query.rule or ''}图"

@@ -50,6 +50,9 @@ class Config(BaseModel):
     # Flaresolverr 服务 URL（用于绕过 Cloudflare 保护）
     # 格式示例: http://localhost:8191/v1
     splatoon3_cf_flaresolverr_server_url: str = ""
+    # MCP 传输层允许的 Origin。Host 校验由外部反向代理（例如 Nginx）负责；
+    # MCP 客户端通常不发送 Origin，如客户端会发送，请填写完整来源。
+    splatoon3_mcp_allowed_origins: list[str] = Field(default_factory=list)
 
 
 # 本地测试时由于不启动 driver，需要将下面三行注释并取消再下面两行的注释

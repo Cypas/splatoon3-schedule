@@ -117,11 +117,13 @@ async def get_build_image(*args):
         img_width = cropped_img.width
         img_height = cropped_img.height
         # 写一行网址
-        time_head_text = f"配装数据来源: https://sendou.ink/builds"
+        time_head_text = "数据来源: https://sendou.ink/builds"
         w, h = ttf_get_size(ttf, time_head_text)
+        right_margin = 12
+        bottom_margin = 8
         time_head_text_pos = (
-            (img_width - w) / 2,
-            img_height - 25,
+            max(right_margin, img_width - w - right_margin),
+            max(bottom_margin, img_height - h - bottom_margin),
         )
         drawer = ImageDraw.Draw(cropped_img)
         drawer.text(time_head_text_pos, time_head_text, font=ttf, fill=(247, 62, 139))
